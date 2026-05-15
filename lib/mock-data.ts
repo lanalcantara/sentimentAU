@@ -1,0 +1,171 @@
+import type { DiaryEntry, WellbeingStats } from './types'
+
+// Sample diary entries for demonstration
+export const MOCK_ENTRIES: DiaryEntry[] = [
+  {
+    id: '1',
+    createdAt: new Date(Date.now() - 0 * 24 * 60 * 60 * 1000), // Today
+    updatedAt: new Date(Date.now() - 0 * 24 * 60 * 60 * 1000),
+    content: 'Hoje foi um dia bom. Consegui terminar o meu projeto no trabalho e os meus colegas elogiaram. O escritório estava silencioso, o que ajudou muito a concentrar-me.',
+    energyLevel: 4,
+    comfortLevel: 5,
+    sensoryTags: [],
+    analysis: {
+      sentiment: 'positive',
+      confidence: 0.92,
+      emotions: ['happy', 'calm', 'content'],
+      keywords: {
+        positive: ['bom', 'consegui', 'elogiaram', 'silencioso', 'ajudou'],
+        negative: [],
+      },
+      suggestedSensoryTags: [],
+      riskLevel: 'low',
+      riskIndicators: [],
+      suggestions: ['Continue a procurar ambientes silenciosos para trabalhar.'],
+    },
+  },
+  {
+    id: '2',
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // Yesterday
+    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+    content: 'Houve uma reunião surpresa hoje e mudaram o meu lugar no escritório. Fiquei muito incomodado com as luzes fluorescentes novas. Senti-me ansioso o dia todo.',
+    energyLevel: 2,
+    comfortLevel: 1,
+    sensoryTags: ['routine-change', 'bright-light', 'unexpected-event'],
+    analysis: {
+      sentiment: 'negative',
+      confidence: 0.88,
+      emotions: ['anxious', 'overwhelmed', 'frustrated'],
+      keywords: {
+        positive: [],
+        negative: ['surpresa', 'mudaram', 'incomodado', 'luzes', 'ansioso'],
+      },
+      suggestedSensoryTags: ['routine-change', 'bright-light', 'unexpected-event'],
+      riskLevel: 'high',
+      riskIndicators: ['Mudança de rotina não planeada', 'Sobrecarga sensorial visual', 'Ansiedade prolongada'],
+      suggestions: ['Considere usar óculos com filtro de luz azul.', 'Peça para ser avisado com antecedência sobre mudanças.'],
+    },
+  },
+  {
+    id: '3',
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    content: 'Dia normal. Trabalhei em casa hoje. Almoço foi tranquilo. Nada de especial para reportar.',
+    energyLevel: 3,
+    comfortLevel: 4,
+    sensoryTags: [],
+    analysis: {
+      sentiment: 'neutral',
+      confidence: 0.75,
+      emotions: ['calm', 'content'],
+      keywords: {
+        positive: ['tranquilo'],
+        negative: [],
+      },
+      suggestedSensoryTags: [],
+      riskLevel: 'low',
+      riskIndicators: [],
+      suggestions: ['Dias calmos são importantes para recuperação.'],
+    },
+  },
+  {
+    id: '4',
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+    updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+    content: 'Fui ao centro comercial com a família. Estava muito cheio e o barulho era insuportável. Tive de sair depois de 30 minutos. Sinto-me culpado por não conseguir ficar mais tempo.',
+    energyLevel: 1,
+    comfortLevel: 1,
+    sensoryTags: ['crowded-space', 'loud-noise', 'social-interaction'],
+    analysis: {
+      sentiment: 'negative',
+      confidence: 0.95,
+      emotions: ['overwhelmed', 'anxious', 'sad'],
+      keywords: {
+        positive: [],
+        negative: ['cheio', 'barulho', 'insuportável', 'sair', 'culpado'],
+      },
+      suggestedSensoryTags: ['crowded-space', 'loud-noise'],
+      riskLevel: 'high',
+      riskIndicators: ['Sobrecarga sensorial múltipla', 'Fuga do ambiente', 'Sentimento de culpa'],
+      suggestions: ['Considere usar auscultadores com cancelamento de ruído.', 'Planear visitas a horas menos movimentadas.', 'Lembre-se: sair é uma estratégia válida de autorregulação.'],
+    },
+  },
+  {
+    id: '5',
+    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+    updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+    content: 'Passei a tarde a ler o meu livro favorito. O gato dormiu ao meu lado. Foi muito reconfortante.',
+    energyLevel: 4,
+    comfortLevel: 5,
+    sensoryTags: [],
+    analysis: {
+      sentiment: 'positive',
+      confidence: 0.91,
+      emotions: ['calm', 'happy', 'content'],
+      keywords: {
+        positive: ['favorito', 'reconfortante', 'dormiu'],
+        negative: [],
+      },
+      suggestedSensoryTags: [],
+      riskLevel: 'low',
+      riskIndicators: [],
+      suggestions: ['Momentos de leitura calma são excelentes para recarga.'],
+    },
+  },
+  {
+    id: '6',
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+    updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+    content: 'A comida do restaurante tinha um cheiro muito forte que me incomodou. Não consegui comer. Voltei para casa irritado.',
+    energyLevel: 2,
+    comfortLevel: 2,
+    sensoryTags: ['smell-sensitivity'],
+    analysis: {
+      sentiment: 'negative',
+      confidence: 0.82,
+      emotions: ['frustrated', 'anxious'],
+      keywords: {
+        positive: [],
+        negative: ['forte', 'incomodou', 'não consegui', 'irritado'],
+      },
+      suggestedSensoryTags: ['smell-sensitivity'],
+      riskLevel: 'moderate',
+      riskIndicators: ['Sensibilidade olfativa', 'Interrupção de refeição'],
+      suggestions: ['Considere verificar menus online antes de ir a restaurantes.', 'Tenha sempre um snack de emergência consigo.'],
+    },
+  },
+  {
+    id: '7',
+    createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+    updatedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+    content: 'Consegui fazer exercício hoje de manhã. Depois tomei um banho quente. Sinto-me renovado e com energia.',
+    energyLevel: 5,
+    comfortLevel: 5,
+    sensoryTags: [],
+    analysis: {
+      sentiment: 'positive',
+      confidence: 0.94,
+      emotions: ['happy', 'excited', 'calm'],
+      keywords: {
+        positive: ['consegui', 'quente', 'renovado', 'energia'],
+        negative: [],
+      },
+      suggestedSensoryTags: [],
+      riskLevel: 'low',
+      riskIndicators: [],
+      suggestions: ['Exercício matinal parece funcionar bem para si.'],
+    },
+  },
+]
+
+export const MOCK_STATS: WellbeingStats = {
+  totalEntries: 7,
+  averageSentiment: 0.57, // Scale 0-1 where 1 is most positive
+  moodTrend: 'stable',
+  commonTriggers: ['loud-noise', 'crowded-space', 'routine-change', 'bright-light'],
+  weeklyMoodData: MOCK_ENTRIES.map(entry => ({
+    date: entry.createdAt.toISOString().split('T')[0],
+    sentiment: entry.analysis?.sentiment || 'neutral',
+    riskLevel: entry.analysis?.riskLevel || 'low',
+  })).reverse(),
+}
