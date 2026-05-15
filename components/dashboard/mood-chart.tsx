@@ -1,20 +1,18 @@
 'use client'
 
 import { 
-  AreaChart, 
-  Area, 
+  LineChart, 
+  Line, 
   XAxis, 
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell
+  ResponsiveContainer
 } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { DiaryEntry } from '@/lib/types'
+import type { DiaryEntry, RiskLevel } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { TrendingUp, AlertTriangle } from 'lucide-react'
 
 interface MoodChartProps {
   entries: DiaryEntry[]
@@ -22,118 +20,136 @@ interface MoodChartProps {
 }
 
 export function MoodChart({ entries, className }: MoodChartProps) {
-  // Process entries for area chart
-  const chartData = entries.slice().reverse().map(entry => ({
-    date: entry.createdAt.toLocaleDateString('pt-PT', { weekday: 'short' }),
-    sentiment: entry.analysis?.sentiment === 'positive' ? 100 
-      : entry.analysis?.sentiment === 'negative' ? 0 
-      : 50,
-    energy: entry.energyLevel * 20,
-    comfort: entry.comfortLevel * 20,
+  // Process entries for line chart (last 7)
+  const chartData = entries.slice(0, 7).reverse().map(entry => ({
+    date: entry.createdAt.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' }),
+    value: entry.analysis?.sentiment === 'positive' ? 1 
+      : entry.analysis?.sentiment === 'negative' ? -0.5 
+      : 0.5,
   }))
 
-  // Process entries for pie chart
-  const sentimentCounts = {
-    positive: entries.filter(e => e.analysis?.sentiment === 'positive').length,
-    neutral: entries.filter(e => e.analysis?.sentiment === 'neutral').length,
-    negative: entries.filter(e => e.analysis?.sentiment === 'negative').length,
+  // Determine risk level from recent entries
+  const recentHighRisk = entries.slice(0, 7).filter(e => e.analysis?.riskLevel === 'high').length
+  const riskLevel: RiskLevel = recentHighRisk >= 3 ? 'high' : recentHighRisk >= 1 ? 'medium' : 'low'
+
+  const riskColors = {
+    low: { bg: 'bg-green-50', text: 'text-green-600', bar: 'bg-green-500' },
+    medium: { bg: 'bg-yellow-50', text: 'text-yellow-600', bar: 'bg-yellow-500' },
+    high: { bg: 'bg-red-50', text: 'text-red-600', bar: 'bg-red-500' },
   }
 
-  const pieData = [
-    { name: 'Positivo', value: sentimentCounts.positive, color: 'var(--chart-1)' },
-    { name: 'Neutro', value: sentimentCounts.neutral, color: 'var(--chart-2)' },
-    { name: 'Difícil', value: sentimentCounts.negative, color: 'var(--chart-3)' },
-  ].filter(d => d.value > 0)
+  const riskLabels = {
+    low: 'Risco Baixo',
+    medium: 'Risco Médio',
+    high: 'Risco Alto',
+  }
+
+  const riskMessages = {
+    low: 'Estás a ter uma boa semana! Continua assim.',
+    medium: 'Alguns dias mais difíceis. Presta atenção aos teus gatilhos.',
+    high: 'Foram detetados vários sinais de dificuldade. Considera falar com o teu terapeuta.',
+  }
+
+  // Generate risk bars for last 7 days
+  const riskBars = entries.slice(0, 7).reverse().map(entry => entry.analysis?.riskLevel || 'low')
 
   return (
     <div className={cn('grid grid-cols-1 lg:grid-cols-2 gap-4', className)}>
-      <Card className="bg-card/50 border-0 shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-base">Evolução do Humor</CardTitle>
+      {/* Mood Evolution Chart */}
+      <Card className="bg-white border-0 shadow-sm rounded-2xl">
+        <CardHeader className="pb-2">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-[#6b8fd4]" />
+            <CardTitle className="text-base font-bold text-[#1e2a4a]">Evolução do Humor</CardTitle>
+          </div>
+          <p className="text-sm text-[#6a7a9a]">Últimos 7 registos</p>
         </CardHeader>
         <CardContent>
-          <div className="h-[200px]">
+          <div className="h-[180px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData}>
-                <defs>
-                  <linearGradient id="sentimentGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
                 <XAxis 
                   dataKey="date" 
-                  className="text-xs" 
-                  tick={{ fill: 'var(--muted-foreground)' }}
+                  tick={{ fill: '#6a7a9a', fontSize: 12 }}
+                  axisLine={{ stroke: '#e5e7eb' }}
+                  tickLine={false}
                 />
                 <YAxis 
-                  domain={[0, 100]} 
-                  className="text-xs"
-                  tick={{ fill: 'var(--muted-foreground)' }}
+                  domain={[-1, 1.5]} 
+                  ticks={[-0.5, 0, 0.5, 1]}
+                  tick={{ fill: '#6a7a9a', fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
                 />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: 'var(--card)', 
-                    border: '1px solid var(--border)',
-                    borderRadius: '8px'
+                    backgroundColor: 'white', 
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                   }}
+                  formatter={(value: number) => [
+                    value >= 0.7 ? 'Positivo' : value <= 0 ? 'Difícil' : 'Neutro',
+                    'Humor'
+                  ]}
                 />
-                <Area 
+                <Line 
                   type="monotone" 
-                  dataKey="sentiment" 
-                  stroke="var(--chart-1)" 
-                  fill="url(#sentimentGradient)"
-                  strokeWidth={2}
-                  name="Humor"
+                  dataKey="value" 
+                  stroke="#f5c842"
+                  strokeWidth={3}
+                  dot={{ fill: '#f5c842', strokeWidth: 0, r: 4 }}
+                  activeDot={{ fill: '#e5a832', strokeWidth: 0, r: 6 }}
                 />
-              </AreaChart>
+              </LineChart>
             </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-card/50 border-0 shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-base">Distribuição de Emoções</CardTitle>
+      {/* Risk Indicator */}
+      <Card className="bg-white border-0 shadow-sm rounded-2xl">
+        <CardHeader className="pb-2">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded-full bg-[#6b8fd4]" />
+            <CardTitle className="text-base font-bold text-[#1e2a4a]">Indicador de Risco</CardTitle>
+          </div>
+          <p className="text-sm text-[#6a7a9a]">Baseado nos últimos 7 registos</p>
         </CardHeader>
         <CardContent>
-          <div className="h-[200px] flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={40}
-                  outerRadius={70}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'var(--card)', 
-                    border: '1px solid var(--border)',
-                    borderRadius: '8px'
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+          {/* Risk Alert Box */}
+          <div className={cn(
+            'rounded-xl p-4 mb-4',
+            riskColors[riskLevel].bg
+          )}>
+            <div className="flex items-start gap-3">
+              <AlertTriangle className={cn('w-6 h-6 mt-0.5', riskColors[riskLevel].text)} />
+              <div>
+                <h4 className={cn('font-bold', riskColors[riskLevel].text)}>
+                  {riskLabels[riskLevel]}
+                </h4>
+                <p className="text-sm text-[#4a5a7a] mt-1">
+                  {riskMessages[riskLevel]}
+                </p>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center justify-center gap-4 mt-2 text-xs">
-            {pieData.map((item) => (
-              <span key={item.name} className="flex items-center gap-1">
-                <span 
-                  className="w-3 h-3 rounded-full" 
-                  style={{ backgroundColor: item.color }}
+
+          {/* Weekly Risk Bars */}
+          <div>
+            <p className="text-xs text-[#6a7a9a] mb-2 font-medium">ÚLTIMOS 7 DIAS</p>
+            <div className="flex gap-2">
+              {riskBars.map((risk, index) => (
+                <div 
+                  key={index}
+                  className={cn(
+                    'flex-1 h-3 rounded-full',
+                    risk === 'high' ? 'bg-red-500' : risk === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                  )}
                 />
-                {item.name} ({item.value})
-              </span>
-            ))}
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>

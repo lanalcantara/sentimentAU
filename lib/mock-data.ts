@@ -167,5 +167,6 @@ export const MOCK_STATS: WellbeingStats = {
     date: entry.createdAt.toISOString().split('T')[0],
     sentiment: entry.analysis?.sentiment || 'neutral',
     riskLevel: entry.analysis?.riskLevel || 'low',
+    energyLevel: entry.energyLevel,
   })).reverse(),
 }

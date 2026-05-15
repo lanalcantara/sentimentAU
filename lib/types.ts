@@ -66,6 +66,7 @@ export interface WellbeingStats {
     date: string
     sentiment: Sentiment
     riskLevel: RiskLevel
+    energyLevel?: number
   }[]
 }
 
