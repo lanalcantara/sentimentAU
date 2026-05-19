@@ -625,8 +625,16 @@ export default function DashboardPage() {
                       className="p-4 rounded-2xl bg-[#f8fafc] border border-[#eaeef5]/50 flex flex-col justify-between space-y-3 hover:shadow-md transition-all hover:bg-white duration-300"
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm ${member.avatarBg} shrink-0`}>
-                          {member.avatarEmoji}
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm ${member.avatarBg} shrink-0 overflow-hidden`}>
+                          {member.avatarUrl ? (
+                            <img 
+                              src={member.avatarUrl} 
+                              alt={`Avatar de ${member.name}`} 
+                              className="w-full h-full object-cover rounded-full"
+                            />
+                          ) : (
+                            member.avatarEmoji
+                          )}
                         </div>
                         <div className="space-y-1 min-w-0">
                           <div className="flex items-center gap-2">
