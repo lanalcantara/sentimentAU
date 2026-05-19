@@ -5,7 +5,7 @@
 
 > [!NOTE]
 > **Projeto Acadêmico de Conclusão - 5º Período de Análise e Desenvolvimento de Sistemas**  
-> **Instituição:** Centro Universitário SENAC  
+> **Instituição:** SENAC  
 > **Contexto:** Trabalho prático interdisciplinar focado no desenvolvimento de Web Apps acessíveis, robustos e com forte impacto de responsabilidade social.
 
 ---
