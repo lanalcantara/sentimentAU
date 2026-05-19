@@ -1,91 +1,45 @@
-import { generateText, Output } from 'ai'
-import { z } from 'zod'
-
-// Schema for sentiment analysis response
-const sentimentAnalysisSchema = z.object({
-  sentiment: z.enum(['positive', 'neutral', 'negative']).describe('Overall sentiment of the diary entry'),
-  confidence: z.number().min(0).max(1).describe('Confidence score of the sentiment classification'),
-  emotions: z.array(z.enum([
-    'happy', 'calm', 'excited', 'anxious', 'sad', 'frustrated', 'overwhelmed', 'tired', 'confused', 'content'
-  ])).min(1).max(5).describe('Detected emotions in the text (max 5)'),
-  keywords: z.object({
-    positive: z.array(z.string()).describe('Positive words and phrases detected'),
-    negative: z.array(z.string()).describe('Negative or concerning words and phrases detected'),
-  }),
-  suggestedSensoryTags: z.array(z.enum([
-    'loud-noise', 'bright-light', 'crowded-space', 'texture-discomfort', 
-    'temperature-change', 'routine-change', 'social-interaction', 
-    'unexpected-event', 'smell-sensitivity', 'taste-sensitivity', 
-    'physical-touch', 'visual-clutter'
-  ])).describe('Suggested sensory triggers based on the text content'),
-  riskLevel: z.enum(['low', 'moderate', 'high']).describe('Risk level for potential meltdown or crisis'),
-  riskIndicators: z.array(z.string()).describe('Specific indicators that contributed to the risk assessment'),
-  suggestions: z.array(z.string()).min(1).max(3).describe('Personalized suggestions for the user (1-3 suggestions)'),
-})
-
-export type SentimentAnalysisResponse = z.infer<typeof sentimentAnalysisSchema>
+import { NextResponse } from 'next/server'
+import { LocalAnalyzer } from '@/lib/services/local-analyzer'
 
 export async function POST(req: Request) {
   try {
+    // 1. Authenticate user from session cookie
+    const cookieHeader = req.headers.get('cookie') || ''
+    const userIdCookie = cookieHeader
+      .split(';')
+      .find((c) => c.trim().startsWith('session_user_id='))
+
+    if (!userIdCookie) {
+      return NextResponse.json(
+        { error: 'Sessão não autorizada. Por favor, faça login.' },
+        { status: 401 }
+      )
+    }
+
+    const userId = userIdCookie.split('=')[1].trim()
+
+    // 2. Parse request payload
     const { content, energyLevel, comfortLevel } = await req.json()
 
     if (!content || typeof content !== 'string') {
-      return Response.json(
-        { error: 'Content is required and must be a string' },
+      return NextResponse.json(
+        { error: 'O relato do diário é obrigatório e deve ser um texto.' },
         { status: 400 }
       )
     }
 
-    const systemPrompt = `Você é um especialista em análise de sentimentos para indivíduos no espectro autista. 
-Sua tarefa é analisar relatos de diário emocional, identificando:
-
-1. SENTIMENTO GERAL: Classifique como positivo, neutro ou negativo
-2. EMOÇÕES: Identifique as emoções presentes (máximo 5)
-3. PALAVRAS-CHAVE: Extraia palavras positivas e negativas importantes
-4. GATILHOS SENSORIAIS: Identifique menções a sobrecarga sensorial como:
-   - Ruídos altos, luzes fortes, espaços lotados
-   - Desconforto com texturas, mudanças de temperatura
-   - Mudanças de rotina, eventos inesperados
-   - Interações sociais difíceis
-   - Sensibilidades a cheiros, gostos ou toque físico
-5. RISCO DE CRISE (MELTDOWN): Avalie o risco baseado em:
-   - Sobrecarga sensorial múltipla = risco elevado
-   - Mudanças de rotina não planeadas = risco moderado a elevado
-   - Sentimentos persistentes de frustração ou ansiedade = risco moderado
-   - Dia calmo sem gatilhos = risco baixo
-6. SUGESTÕES: Forneça 1-3 sugestões personalizadas e práticas
-
-IMPORTANTE:
-- Use português de Portugal
-- Seja empático e não julgador
-- Considere a literalidade comum no autismo
-- Priorize a detecção de padrões que possam indicar crise iminente
-- As sugestões devem ser práticas e realizáveis`
-
-    const userPrompt = `Analise o seguinte relato de diário emocional:
-
-RELATO: "${content}"
-
-CONTEXTO ADICIONAL:
-- Nível de energia reportado: ${energyLevel}/5
-- Nível de conforto reportado: ${comfortLevel}/5
-
-Por favor, forneça uma análise completa de sentimento, emoções, gatilhos sensoriais, nível de risco e sugestões personalizadas.`
-
-    const { output } = await generateText({
-      model: 'anthropic/claude-sonnet-4.6',
-      output: Output.object({
-        schema: sentimentAnalysisSchema,
-      }),
-      system: systemPrompt,
-      prompt: userPrompt,
+    // 3. Perform high-performance local deterministic macro-analysis
+    const analysis = LocalAnalyzer.analyzeDiaryEntry({
+      content,
+      energyLevel: Number(energyLevel) || 3,
+      comfortLevel: Number(comfortLevel) || 3,
     })
 
-    return Response.json({ analysis: output })
-  } catch (error) {
-    console.error('[v0] Sentiment analysis error:', error)
-    return Response.json(
-      { error: 'Failed to analyze sentiment' },
+    return NextResponse.json({ analysis })
+  } catch (error: any) {
+    console.error('[API/Analyze] Macro analysis critical error:', error)
+    return NextResponse.json(
+      { error: error.message || 'Falha ao efetuar a análise emocional local.' },
       { status: 500 }
     )
   }

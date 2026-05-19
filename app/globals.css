@@ -45,9 +45,44 @@
   --sidebar-ring: #6b8fd4;
 }
 
+/* 🌿 MODO CALMO - Pastel Zen Palette & Reduced Sensory Load */
+.calm-mode {
+  --background: #fcfaf3; /* Off-white quente e acolhedor de baixíssimo contraste */
+  --foreground: #2d3748; /* Grafite suave (evita o preto puro) */
+  --card: #faf7ef;
+  --card-foreground: #2d3748;
+  --primary: #8bae97; /* Verde-pastel zen */
+  --primary-foreground: #ffffff;
+  --secondary: #b9cbe7; /* Lavanda-azul suave */
+  --secondary-foreground: #2d3748;
+  --muted: #f2efe5;
+  --muted-foreground: #718096;
+  --accent: #b9cbe7;
+  --accent-foreground: #2d3748;
+  --border: #e2e8f0;
+  --input: #f2efe5;
+  --ring: #8dae97;
+  
+  --chart-1: #a3c4bc;
+  --chart-2: #b9cbe7;
+  --chart-3: #e5b3b3;
+  --chart-4: #f0dca8;
+  --chart-5: #e5b3b3;
+}
+
+/* Desativação completa de animações e transições no Modo Calmo */
+.calm-mode, 
+.calm-mode * {
+  transition: none !important;
+  animation: none !important;
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+
 .dark {
   --background: #151b2d;
-  --foreground: #ffffff;
+  --foreground: #e2e8f0; /* Soft off-white to reduce sensory glare */
   --card: #1e2a4a;
   --card-foreground: #ffffff;
   --popover: #1e2a4a;
@@ -80,6 +115,25 @@
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #2a3a5a;
   --sidebar-ring: #6b8fd4;
+}
+
+/* 🌿 MODO CALMO ESCURO - Extremely soft low-contrast sensory dark mode */
+.dark.calm-mode {
+  --background: #101524;
+  --foreground: #94a3b8; /* Ultra-soft slate text for absolute glare prevention */
+  --card: #151c2f;
+  --card-foreground: #cbd5e1;
+  --popover: #151c2f;
+  --popover-foreground: #cbd5e1;
+  --primary: #8bae97; /* Calm pastel green */
+  --primary-foreground: #ffffff;
+  --secondary: #2a3a5a;
+  --secondary-foreground: #cbd5e1;
+  --muted: #1e2a4a;
+  --muted-foreground: #64748b;
+  --border: #1e2a4a;
+  --input: #1e2a4a;
+  --ring: #8dae97;
 }
 
 @theme inline {

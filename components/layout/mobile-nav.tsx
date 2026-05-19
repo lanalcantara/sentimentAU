@@ -10,15 +10,20 @@ import {
   Lightbulb,
   Menu,
   Heart,
-  LogOut
+  LogOut,
+  User,
+  Sun,
+  Moon
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { SensoryAudio } from '@/lib/services/sensory-audio'
+import { useTheme } from '@/lib/context/theme-context'
 
 const navItems = [
   { href: '/', label: 'Painel', icon: LayoutDashboard },
-  { href: '/novo-registo', label: 'Novo Registo', icon: PenLine },
+  { href: '/novo-registo', label: 'Novo Registro', icon: PenLine },
   { href: '/historico', label: 'Histórico', icon: History },
   { href: '/insights', label: 'Insights', icon: Lightbulb },
 ]
@@ -26,79 +31,168 @@ const navItems = [
 export function MobileNav() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [username, setUsername] = useState<string>('')
+
+  const loadProfile = async () => {
+    try {
+      const res = await fetch('/api/profile')
+      const data = await res.json()
+      if (res.ok && data.user) {
+        setAvatarUrl(data.user.avatar_url || null)
+        setUsername(data.user.username)
+      }
+    } catch (err) {
+      console.error('[MobileNav] Error loading profile:', err)
+    }
+  }
+
+  useEffect(() => {
+    loadProfile()
+    
+    const handleAvatarUpdate = () => {
+      loadProfile()
+    }
+    
+    window.addEventListener('avatar_updated', handleAvatarUpdate)
+    return () => {
+      window.removeEventListener('avatar_updated', handleAvatarUpdate)
+    }
+  }, [])
+
+  const handleLinkClick = () => {
+    SensoryAudio.play('bubble')
+  }
+
+  const { darkMode, toggleDarkMode } = useTheme()
 
   return (
     <header className="lg:hidden sticky top-0 z-50 bg-[#1e2a4a] text-white">
       <div className="flex items-center justify-between p-4">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" onClick={handleLinkClick} className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-[#e85a6b] flex items-center justify-center">
             <span className="text-lg">&#128522;</span>
           </div>
           <span className="font-bold">sentimentAU</span>
         </Link>
+ 
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              SensoryAudio.playClick()
+              toggleDarkMode()
+            }}
+            className="p-2 rounded-xl hover:bg-white/10 text-white/80 hover:text-white transition-colors cursor-pointer mr-1"
+            title={darkMode ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro'}
+          >
+            {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
 
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
-              <Menu className="w-5 h-5" />
-              <span className="sr-only">Abrir menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="bg-[#1e2a4a] text-white border-[#2a3a5a] w-72">
-            <div className="flex items-center gap-2 mb-8">
-              <div className="w-8 h-8 rounded-lg bg-[#e85a6b] flex items-center justify-center">
-                <span className="text-lg">&#128522;</span>
-              </div>
+          {/* Small Top Right Avatar preview on mobile header */}
+          {username && (
+            <div className="w-8 h-8 rounded-full bg-white/10 overflow-hidden flex items-center justify-center border border-white/20">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-3.5 h-3.5 text-white/60" />
+              )}
+            </div>
+          )}
+
+          <Sheet open={open} onOpenChange={(o) => {
+            handleLinkClick()
+            setOpen(o)
+          }}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+                <Menu className="w-5 h-5" />
+                <span className="sr-only">Abrir menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="bg-[#1e2a4a] text-white border-[#2a3a5a] w-72 flex flex-col justify-between">
               <div>
-                <span className="font-bold">sentimentAU</span>
-                <p className="text-xs text-white/60">Diário Emocional Inteligente</p>
-              </div>
-            </div>
-
-            <nav className="flex-1">
-              <ul className="space-y-1">
-                {navItems.map((item) => {
-                  const isActive = pathname === item.href
-                  return (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        onClick={() => setOpen(false)}
-                        className={cn(
-                          'flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200',
-                          'hover:bg-white/10',
-                          isActive && 'bg-[#f5c842] text-[#1e2a4a] font-semibold'
-                        )}
-                      >
-                        <item.icon className="w-5 h-5" />
-                        <span>{item.label}</span>
-                      </Link>
-                    </li>
-                  )
-                })}
-              </ul>
-            </nav>
-
-            {/* Reminder Card */}
-            <div className="mt-8">
-              <div className="bg-[#2a3a5a] rounded-xl p-4">
-                <div className="flex items-center gap-2 text-[#e85a6b] font-semibold mb-2">
-                  <Heart className="w-4 h-4 fill-[#e85a6b]" />
-                  <span>Lembrete</span>
+                <div className="flex items-center gap-2 mb-8">
+                  <div className="w-8 h-8 rounded-lg bg-[#e85a6b] flex items-center justify-center">
+                    <span className="text-lg">&#128522;</span>
+                  </div>
+                  <div>
+                    <span className="font-bold">sentimentAU</span>
+                    <p className="text-xs text-white/60">Diário Emocional Inteligente</p>
+                  </div>
                 </div>
-                <p className="text-sm text-white/70 leading-relaxed">
-                  Os teus sentimentos são válidos. Registar ajuda-te a conhecer-te melhor.
-                </p>
-              </div>
-            </div>
 
-            {/* Logout */}
-            <button className="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white transition-colors w-full mt-4">
-              <LogOut className="w-5 h-5" />
-              <span>Sair</span>
-            </button>
-          </SheetContent>
-        </Sheet>
+                <nav className="flex-1">
+                  <ul className="space-y-1">
+                    {navItems.map((item) => {
+                      const isActive = pathname === item.href
+                      return (
+                        <li key={item.href}>
+                          <Link
+                            href={item.href}
+                            onClick={() => {
+                              handleLinkClick()
+                              setOpen(false)
+                            }}
+                            className={cn(
+                              'flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200',
+                              'hover:bg-white/10',
+                              isActive && 'bg-[#f5c842] text-[#1e2a4a] font-semibold'
+                            )}
+                          >
+                            <item.icon className="w-5 h-5" />
+                            <span>{item.label}</span>
+                          </Link>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </nav>
+
+                {/* Reminder Card */}
+                <div className="mt-8">
+                  <div className="bg-[#2a3a5a] rounded-xl p-4">
+                    <div className="flex items-center gap-2 text-[#e85a6b] font-semibold mb-2">
+                      <Heart className="w-4 h-4 fill-[#e85a6b]" />
+                      <span>Lembrete</span>
+                    </div>
+                    <p className="text-xs text-white/70 leading-relaxed">
+                      Seus sentimentos são válidos. Registrar ajuda você a se conhecer melhor.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Profile & Logout at mobile sidebar bottom */}
+              <div className="border-t border-[#2a3a5a] pt-4 space-y-2">
+                {username && (
+                  <div className="flex items-center gap-3 px-4 py-2">
+                    <div className="w-9 h-9 rounded-full bg-white/10 overflow-hidden flex items-center justify-center border border-white/20">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-4 h-4 text-white/60" />
+                      )}
+                    </div>
+                    <span className="text-xs font-semibold text-white/90 capitalize truncate">{username}</span>
+                  </div>
+                )}
+
+                <button 
+                  onClick={async () => {
+                    handleLinkClick()
+                    setOpen(false)
+                    await fetch('/api/auth/logout', { method: 'POST' })
+                    window.location.href = '/'
+                  }}
+                  className="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white transition-colors w-full cursor-pointer rounded-xl hover:bg-white/5"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span className="text-sm">Sair</span>
+                </button>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
   )

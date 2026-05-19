@@ -16,14 +16,14 @@ export function StatsGrid({ stats, className }: StatsGridProps) {
 
   return (
     <div className={cn('grid grid-cols-2 lg:grid-cols-4 gap-4', className)}>
-      {/* Registos - Blue */}
+      {/* Registros - Blue */}
       <div className="bg-[#d4e8f9] rounded-2xl p-4 flex items-center gap-3">
         <div className="w-10 h-10 bg-[#6b8fd4] rounded-lg flex items-center justify-center">
           <Calendar className="w-5 h-5 text-white" />
         </div>
         <div>
           <p className="text-3xl font-bold text-[#1e2a4a]">{stats.totalEntries}</p>
-          <p className="text-sm text-[#4a5a7a]">Registos</p>
+          <p className="text-sm text-[#4a5a7a]">Registros</p>
         </div>
       </div>
 

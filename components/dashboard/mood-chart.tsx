@@ -22,7 +22,7 @@ interface MoodChartProps {
 export function MoodChart({ entries, className }: MoodChartProps) {
   // Process entries for line chart (last 7)
   const chartData = entries.slice(0, 7).reverse().map(entry => ({
-    date: entry.createdAt.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' }),
+    date: entry.createdAt ? new Date(entry.createdAt).toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' }) : '',
     value: entry.analysis?.sentiment === 'positive' ? 1 
       : entry.analysis?.sentiment === 'negative' ? -0.5 
       : 0.5,
@@ -45,9 +45,9 @@ export function MoodChart({ entries, className }: MoodChartProps) {
   }
 
   const riskMessages = {
-    low: 'Estás a ter uma boa semana! Continua assim.',
-    medium: 'Alguns dias mais difíceis. Presta atenção aos teus gatilhos.',
-    high: 'Foram detetados vários sinais de dificuldade. Considera falar com o teu terapeuta.',
+    low: 'Você está tendo uma ótima semana! Continue assim.',
+    medium: 'Alguns dias mais difíceis. Preste atenção aos seus gatilhos.',
+    high: 'Foram detectados vários sinais de dificuldade. Considere conversar com seu terapeuta.',
   }
 
   // Generate risk bars for last 7 days
@@ -62,7 +62,7 @@ export function MoodChart({ entries, className }: MoodChartProps) {
             <TrendingUp className="w-5 h-5 text-[#6b8fd4]" />
             <CardTitle className="text-base font-bold text-[#1e2a4a]">Evolução do Humor</CardTitle>
           </div>
-          <p className="text-sm text-[#6a7a9a]">Últimos 7 registos</p>
+          <p className="text-sm text-[#6a7a9a]">Últimos 7 registros</p>
         </CardHeader>
         <CardContent>
           <div className="h-[180px]">
@@ -115,7 +115,7 @@ export function MoodChart({ entries, className }: MoodChartProps) {
             <div className="w-5 h-5 rounded-full bg-[#6b8fd4]" />
             <CardTitle className="text-base font-bold text-[#1e2a4a]">Indicador de Risco</CardTitle>
           </div>
-          <p className="text-sm text-[#6a7a9a]">Baseado nos últimos 7 registos</p>
+          <p className="text-sm text-[#6a7a9a]">Baseado nos últimos 7 registros</p>
         </CardHeader>
         <CardContent>
           {/* Risk Alert Box */}

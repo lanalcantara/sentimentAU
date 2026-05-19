@@ -15,15 +15,19 @@ import {
   Accessibility,
   Volume2
 } from 'lucide-react'
+import { useTheme } from '@/lib/context/theme-context'
 
 export default function DefinicoesPage() {
+  const playClick = () => SensoryAudio.playClick()
+  const { darkMode, toggleDarkMode } = useTheme()
+
   return (
     <AppLayout>
       <div className="p-4 lg:p-8 max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Definições</h1>
-          <p className="text-muted-foreground">Personaliza a tua experiência</p>
+          <h1 className="text-2xl font-bold text-foreground">Configurações</h1>
+          <p className="text-muted-foreground">Personalize a sua experiência</p>
         </div>
 
         {/* Profile */}
@@ -38,9 +42,9 @@ export default function DefinicoesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Nome</p>
-                <p className="text-sm text-muted-foreground">Utilizador</p>
+                <p className="text-sm text-muted-foreground">Usuário</p>
               </div>
-              <Button variant="outline" size="sm" className="rounded-xl">
+              <Button onClick={playClick} variant="outline" size="sm" className="rounded-xl cursor-pointer">
                 Editar
               </Button>
             </div>
@@ -61,10 +65,17 @@ export default function DefinicoesPage() {
                 <Moon className="w-5 h-5 text-muted-foreground" />
                 <Label htmlFor="dark-mode" className="cursor-pointer">
                   <p className="font-medium">Modo Escuro</p>
-                  <p className="text-sm text-muted-foreground">Reduz a luminosidade do ecrã</p>
+                  <p className="text-sm text-muted-foreground">Reduz a luminosidade da tela</p>
                 </Label>
               </div>
-              <Switch id="dark-mode" />
+              <Switch 
+                id="dark-mode" 
+                checked={darkMode}
+                onCheckedChange={() => {
+                  playClick()
+                  toggleDarkMode()
+                }}
+              />
             </div>
 
             <div className="flex items-center justify-between">
@@ -75,7 +86,7 @@ export default function DefinicoesPage() {
                   <p className="text-sm text-muted-foreground">Feedback sonoro calmo</p>
                 </Label>
               </div>
-              <Switch id="sounds" />
+              <Switch id="sounds" onCheckedChange={playClick} />
             </div>
 
             <div className="flex items-center justify-between">
@@ -83,10 +94,10 @@ export default function DefinicoesPage() {
                 <span className="w-5 h-5 flex items-center justify-center text-muted-foreground font-bold">Aa</span>
                 <Label htmlFor="large-text" className="cursor-pointer">
                   <p className="font-medium">Texto Grande</p>
-                  <p className="text-sm text-muted-foreground">Aumenta o tamanho da letra</p>
+                  <p className="text-sm text-muted-foreground">Aumenta o tamanho da fonte</p>
                 </Label>
               </div>
-              <Switch id="large-text" />
+              <Switch id="large-text" onCheckedChange={playClick} />
             </div>
           </CardContent>
         </Card>
@@ -103,9 +114,9 @@ export default function DefinicoesPage() {
             <div className="flex items-center justify-between">
               <Label htmlFor="daily-reminder" className="cursor-pointer">
                 <p className="font-medium">Lembrete Diário</p>
-                <p className="text-sm text-muted-foreground">Recebe um lembrete para escrever</p>
+                <p className="text-sm text-muted-foreground">Receba um lembrete para escrever</p>
               </Label>
-              <Switch id="daily-reminder" defaultChecked />
+              <Switch id="daily-reminder" onCheckedChange={playClick} defaultChecked />
             </div>
 
             <div className="flex items-center justify-between">
@@ -113,7 +124,7 @@ export default function DefinicoesPage() {
                 <p className="font-medium">Alertas de Risco</p>
                 <p className="text-sm text-muted-foreground">Notifica sobre padrões preocupantes</p>
               </Label>
-              <Switch id="risk-alerts" defaultChecked />
+              <Switch id="risk-alerts" onCheckedChange={playClick} defaultChecked />
             </div>
           </CardContent>
         </Card>
@@ -127,13 +138,13 @@ export default function DefinicoesPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button variant="outline" className="w-full justify-start gap-2 rounded-xl">
+            <Button onClick={playClick} variant="outline" className="w-full justify-start gap-2 rounded-xl cursor-pointer">
               <Download className="w-4 h-4" />
-              Exportar os Meus Dados
+              Exportar Meus Dados
             </Button>
-            <Button variant="outline" className="w-full justify-start gap-2 rounded-xl text-destructive hover:text-destructive">
+            <Button onClick={() => SensoryAudio.play('chime')} variant="outline" className="w-full justify-start gap-2 rounded-xl text-destructive hover:text-destructive cursor-pointer">
               <Trash2 className="w-4 h-4" />
-              Apagar Todos os Registos
+              Apagar Todos os Registros
             </Button>
           </CardContent>
         </Card>

@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next'
 import { Nunito, Nunito_Sans } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { CalmModeProvider } from '@/lib/context/calm-mode-context'
+import { ThemeProvider } from '@/lib/context/theme-context'
 import './globals.css'
 
 const nunito = Nunito({ 
@@ -41,8 +43,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f5f3ef' },
-    { media: '(prefers-color-scheme: dark)', color: '#1a1f35' },
+    { media: '(prefers-color-scheme: light)', color: '#fcfaf3' },
+    { media: '(prefers-color-scheme: dark)', color: '#151b2d' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -54,9 +56,28 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt" className={`${nunito.variable} ${nunitoSans.variable} bg-background`}>
+    <html lang="pt" className={`${nunito.variable} ${nunitoSans.variable} bg-background`} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  document.documentElement.classList.add('dark')
+                } else {
+                  document.documentElement.classList.remove('dark')
+                }
+              } catch (_) {}
+            `
+          }}
+        />
+      </head>
       <body className="font-sans antialiased">
-        {children}
+        <ThemeProvider>
+          <CalmModeProvider>
+            {children}
+          </CalmModeProvider>
+        </ThemeProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

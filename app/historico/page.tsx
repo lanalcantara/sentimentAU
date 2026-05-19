@@ -1,29 +1,57 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AppLayout } from '@/components/layout/app-layout'
 import { EntryCard } from '@/components/diary/entry-card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MOCK_ENTRIES } from '@/lib/mock-data'
 import type { Sentiment } from '@/lib/types'
-import { Search, Filter, Sun, Cloud, CloudRain } from 'lucide-react'
+import { Search, Filter, Sun, Cloud, CloudRain, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { SensoryAudio } from '@/lib/services/sensory-audio'
 
 type SentimentFilter = Sentiment | 'all'
 
 export default function HistoricoPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [sentimentFilter, setSentimentFilter] = useState<SentimentFilter>('all')
+  const [entries, setEntries] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const filteredEntries = MOCK_ENTRIES.filter((entry) => {
+  useEffect(() => {
+    async function loadEntries() {
+      try {
+        const res = await fetch('/api/diary')
+        const data = await res.json()
+        if (res.ok && data.entries) {
+          setEntries(data.entries)
+        } else {
+          setEntries(MOCK_ENTRIES)
+        }
+      } catch (err) {
+        console.error('[Historico] Error loading entries:', err)
+        setEntries(MOCK_ENTRIES)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadEntries()
+  }, [])
+
+  const playClick = () => {
+    SensoryAudio.play('bubble')
+  }
+
+  const filteredEntries = entries.filter((entry) => {
     // Search filter
     if (searchQuery && !entry.content.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false
     }
     
     // Sentiment filter
-    if (sentimentFilter !== 'all' && entry.analysis?.sentiment !== sentimentFilter) {
+    const sentiment = entry.analysis?.sentiment || entry.sentiment
+    if (sentimentFilter !== 'all' && sentiment !== sentimentFilter) {
       return false
     }
     
@@ -36,7 +64,7 @@ export default function HistoricoPage() {
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold text-foreground">Histórico</h1>
-          <p className="text-muted-foreground">Todos os teus registos</p>
+          <p className="text-muted-foreground">Seus registros emocionais</p>
         </div>
 
         {/* Filters */}
@@ -46,7 +74,7 @@ export default function HistoricoPage() {
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Pesquisar registos..."
+              placeholder="Pesquisar registros..."
               className="pl-9 rounded-xl"
             />
           </div>
@@ -55,8 +83,11 @@ export default function HistoricoPage() {
             <Button
               variant={sentimentFilter === 'all' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setSentimentFilter('all')}
-              className="rounded-xl gap-1"
+              onClick={() => {
+                playClick()
+                setSentimentFilter('all')
+              }}
+              className="rounded-xl gap-1 cursor-pointer"
             >
               <Filter className="w-4 h-4" />
               Todos
@@ -64,9 +95,12 @@ export default function HistoricoPage() {
             <Button
               variant={sentimentFilter === 'positive' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setSentimentFilter('positive')}
+              onClick={() => {
+                playClick()
+                setSentimentFilter('positive')
+              }}
               className={cn(
-                'rounded-xl gap-1',
+                'rounded-xl gap-1 cursor-pointer',
                 sentimentFilter === 'positive' && 'bg-green-500 hover:bg-green-600'
               )}
             >
@@ -76,9 +110,12 @@ export default function HistoricoPage() {
             <Button
               variant={sentimentFilter === 'neutral' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setSentimentFilter('neutral')}
+              onClick={() => {
+                playClick()
+                setSentimentFilter('neutral')
+              }}
               className={cn(
-                'rounded-xl gap-1',
+                'rounded-xl gap-1 cursor-pointer',
                 sentimentFilter === 'neutral' && 'bg-blue-500 hover:bg-blue-600'
               )}
             >
@@ -88,9 +125,12 @@ export default function HistoricoPage() {
             <Button
               variant={sentimentFilter === 'negative' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setSentimentFilter('negative')}
+              onClick={() => {
+                playClick()
+                setSentimentFilter('negative')
+              }}
               className={cn(
-                'rounded-xl gap-1',
+                'rounded-xl gap-1 cursor-pointer',
                 sentimentFilter === 'negative' && 'bg-pink-500 hover:bg-pink-600'
               )}
             >
@@ -102,9 +142,14 @@ export default function HistoricoPage() {
 
         {/* Results */}
         <div className="space-y-3">
-          {filteredEntries.length === 0 ? (
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-12 space-y-2">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+              <p className="text-xs text-muted-foreground">Carregando histórico...</p>
+            </div>
+          ) : filteredEntries.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">Nenhum registo encontrado</p>
+              <p className="text-muted-foreground">Nenhum registro encontrado</p>
             </div>
           ) : (
             filteredEntries.map((entry) => (
@@ -114,9 +159,11 @@ export default function HistoricoPage() {
         </div>
 
         {/* Count */}
-        <p className="text-sm text-muted-foreground text-center">
-          {filteredEntries.length} registo{filteredEntries.length !== 1 && 's'} encontrado{filteredEntries.length !== 1 && 's'}
-        </p>
+        {!isLoading && (
+          <p className="text-sm text-muted-foreground text-center">
+            {filteredEntries.length} registro{filteredEntries.length !== 1 ? 's' : ''} encontrado{filteredEntries.length !== 1 ? 's' : ''}
+          </p>
+        )}
       </div>
     </AppLayout>
   )
