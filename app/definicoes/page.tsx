@@ -10,17 +10,15 @@ import {
   Bell, 
   Shield, 
   Download, 
-  Trash2, 
-  Moon,
+  Trash2,
   Accessibility,
   Volume2
 } from 'lucide-react'
-import { useTheme } from '@/lib/context/theme-context'
+
 import { SensoryAudio } from '@/lib/services/sensory-audio'
 
 export default function DefinicoesPage() {
   const playClick = () => SensoryAudio.playClick()
-  const { darkMode, toggleDarkMode } = useTheme()
 
   return (
     <AppLayout>
@@ -61,24 +59,6 @@ export default function DefinicoesPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Moon className="w-5 h-5 text-muted-foreground" />
-                <Label htmlFor="dark-mode" className="cursor-pointer">
-                  <p className="font-medium">Modo Escuro</p>
-                  <p className="text-sm text-muted-foreground">Reduz a luminosidade da tela</p>
-                </Label>
-              </div>
-              <Switch 
-                id="dark-mode" 
-                checked={darkMode}
-                onCheckedChange={() => {
-                  playClick()
-                  toggleDarkMode()
-                }}
-              />
-            </div>
-
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Volume2 className="w-5 h-5 text-muted-foreground" />

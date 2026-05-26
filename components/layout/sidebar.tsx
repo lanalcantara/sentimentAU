@@ -7,16 +7,14 @@ import { cn } from '@/lib/utils'
 import { 
   LayoutDashboard, 
   PenLine, 
-  History, 
+  History,
   Lightbulb,
   LogOut,
   Heart,
-  User,
-  Sun,
-  Moon
+  User
 } from 'lucide-react'
 import { SensoryAudio } from '@/lib/services/sensory-audio'
-import { useTheme } from '@/lib/context/theme-context'
+
 import { FLOWERS } from '@/lib/flowers'
 import { NotificationsPopover } from '@/components/profile/notifications-popover'
 
@@ -65,7 +63,6 @@ export function Sidebar() {
     SensoryAudio.play('bubble')
   }
 
-  const { darkMode, toggleDarkMode } = useTheme()
 
   return (
     <aside className="hidden lg:flex flex-col w-64 bg-stone-50 text-slate-800 min-h-screen border-r border-border shadow-sm">
@@ -82,16 +79,6 @@ export function Sidebar() {
         </Link>
         <div className="flex items-center gap-1">
           <NotificationsPopover />
-          <button
-            onClick={() => {
-              SensoryAudio.playClick()
-              toggleDarkMode()
-            }}
-            className="p-2 rounded-xl hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-colors cursor-pointer shrink-0"
-            title={darkMode ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro'}
-          >
-            {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </button>
         </div>
       </div>
 
