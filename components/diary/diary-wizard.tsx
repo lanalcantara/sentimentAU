@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -23,7 +23,9 @@ import {
   Loader2,
   AlertTriangle,
   Lightbulb,
-  XCircle
+  XCircle,
+  Mic,
+  MicOff
 } from 'lucide-react'
 
 interface DiaryWizardProps {
@@ -77,6 +79,49 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
   const [analysis, setAnalysis] = useState<SentimentAnalysis | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisError, setAnalysisError] = useState<string | null>(null)
+  
+  // Voice Accessibility
+  const [isRecording, setIsRecording] = useState(false)
+  const recognitionRef = useRef<any>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+      if (SpeechRecognition) {
+        const rec = new SpeechRecognition()
+        rec.continuous = true
+        rec.interimResults = false
+        rec.lang = 'pt-BR'
+
+        rec.onresult = (event: any) => {
+          let currentTranscript = ''
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            currentTranscript += event.results[i][0].transcript + ' '
+          }
+          setContent((prev) => prev ? prev + ' ' + currentTranscript.trim() : currentTranscript.trim())
+        }
+
+        rec.onend = () => {
+          setIsRecording(false)
+        }
+
+        recognitionRef.current = rec
+      }
+    }
+  }, [])
+
+  const toggleRecording = () => {
+    SensoryAudio.play('bubble')
+    if (isRecording) {
+      recognitionRef.current?.stop()
+      setIsRecording(false)
+    } else {
+      if (recognitionRef.current) {
+        recognitionRef.current.start()
+        setIsRecording(true)
+      }
+    }
+  }
 
   const currentConfig = stepConfig[step]
 
@@ -88,7 +133,7 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
     setStep(2)
     
     try {
-      const response = await fetch('/api/analyze', {
+      const response = await fetch('/api/analyze-sentiment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -141,12 +186,31 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
       />
       
       <div className="space-y-4">
-        <Textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Hoje aconteceu..."
-          className="min-h-[160px] text-lg bg-card/85 border-border/80 rounded-2xl resize-none focus:border-primary focus:ring-1 focus:ring-primary/40 leading-relaxed text-foreground"
-        />
+        <div className="relative">
+          <Textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Hoje aconteceu..."
+            className="min-h-[160px] text-lg bg-card/85 border-border/80 rounded-2xl resize-none focus:border-primary focus:ring-1 focus:ring-primary/40 leading-relaxed text-foreground pb-14"
+          />
+          {recognitionRef.current && (
+            <div className="absolute bottom-3 right-3">
+              <button
+                type="button"
+                onClick={toggleRecording}
+                className={cn(
+                  "p-2.5 rounded-full flex items-center justify-center transition-all duration-500 shadow-sm border",
+                  isRecording 
+                    ? "bg-stone-50 border-primary/30 text-primary animate-pulse shadow-[0_0_15px_rgba(var(--primary),0.15)]" 
+                    : "bg-card border-border/80 text-muted-foreground hover:bg-muted"
+                )}
+                title={isRecording ? "Parar gravação" : "Falar (Digitação por voz)"}
+              >
+                {isRecording ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5 opacity-70" />}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="space-y-6 bg-card/50 border border-border/20 rounded-2xl p-6">
