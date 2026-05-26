@@ -3,12 +3,11 @@
 import { motion } from 'framer-motion'
 import type { Sentiment, RiskLevel } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import { Flame } from 'lucide-react'
 
 interface FlowerData {
   date: string
   sentiment: Sentiment
-  riskLevel: RiskLevel
+  riskLevel?: RiskLevel
   energyLevel?: number
 }
 
@@ -26,25 +25,27 @@ function Flower({
   index 
 }: { 
   sentiment: Sentiment
-  riskLevel: RiskLevel
   dayName: string
   index: number 
 }) {
   const flowerColors = {
-    positive: '#f5c842',
-    neutral: '#7ec8e3',
-    negative: '#e85a6b',
+    positive: '#f5c842', // Bright sun yellow
+    neutral: '#7ec8e3',  // Calm blue
+    negative: '#9ca3af', // Muted gray/purple for sadness, needing care
   }
 
   const centerColors = {
     positive: '#e5a832',
     neutral: '#5eb8d3',
-    negative: '#d84a5b',
+    negative: '#6b7280',
   }
 
   const delay = index * 0.1
   const color = flowerColors[sentiment]
   const centerColor = centerColors[sentiment]
+  
+  const isSad = sentiment === 'negative'
+  const isHappy = sentiment === 'positive'
 
   return (
     <motion.div 
@@ -53,54 +54,74 @@ function Flower({
       animate={{ scale: 1, y: 0 }}
       transition={{ delay, duration: 0.5, type: 'spring' }}
     >
-      {/* Risk indicator (flame) */}
-      {riskLevel === 'high' && (
-        <motion.div
-          className="absolute -top-6 left-1/2 -translate-x-1/2"
-          animate={{ y: [-2, 2, -2] }}
-          transition={{ duration: 0.5, repeat: Infinity }}
-        >
-          <Flame className="w-4 h-4 text-orange-500 fill-orange-400" />
-        </motion.div>
-      )}
-      
-      {/* Flower head */}
-      <motion.svg 
-        width="36" 
-        height="36" 
-        viewBox="0 0 36 36"
-        animate={{ rotate: [-3, 3, -3] }}
-        transition={{ duration: 4, repeat: Infinity, delay }}
+      {/* Flower head container - animates droop if sad */}
+      <motion.div
+        animate={{ 
+          rotate: isSad ? [20, 25, 20] : [-3, 3, -3],
+          y: isSad ? [5, 7, 5] : 0
+        }}
+        transition={{ duration: isSad ? 6 : 4, repeat: Infinity, delay }}
+        style={{ transformOrigin: 'bottom center' }}
       >
-        {/* Petals - 6 rounded petals */}
-        {[0, 60, 120, 180, 240, 300].map((angle, i) => (
-          <ellipse
-            key={i}
-            cx="18"
-            cy="18"
-            rx="7"
-            ry="11"
-            fill={color}
-            transform={`rotate(${angle} 18 18) translate(0 -7)`}
-          />
-        ))}
-        {/* Center circle */}
-        <circle cx="18" cy="18" r="6" fill={centerColor} />
-        {/* Inner smile/face for positive */}
-        {sentiment === 'positive' && (
-          <>
-            <circle cx="15" cy="17" r="1" fill="#1e2a4a" />
-            <circle cx="21" cy="17" r="1" fill="#1e2a4a" />
-            <path d="M15 20 Q18 23 21 20" stroke="#1e2a4a" strokeWidth="1" fill="none" />
-          </>
-        )}
-      </motion.svg>
+        <svg 
+          width="36" 
+          height="36" 
+          viewBox="0 0 36 36"
+        >
+          {/* Petals - 6 rounded petals */}
+          {[0, 60, 120, 180, 240, 300].map((angle, i) => (
+            <ellipse
+              key={i}
+              cx="18"
+              cy="18"
+              rx="7"
+              ry="11"
+              fill={color}
+              transform={`rotate(${angle} 18 18) translate(0 -7)`}
+            />
+          ))}
+          {/* Center circle */}
+          <circle cx="18" cy="18" r="6" fill={centerColor} />
+          
+          {/* Inner face */}
+          {isHappy && (
+            <>
+              <circle cx="15" cy="17" r="1" fill="#1e2a4a" />
+              <circle cx="21" cy="17" r="1" fill="#1e2a4a" />
+              <path d="M15 20 Q18 23 21 20" stroke="#1e2a4a" strokeWidth="1" fill="none" />
+            </>
+          )}
+          {isSad && (
+            <>
+              <path d="M15 18 Q16 17 17 18" stroke="#1e2a4a" strokeWidth="1" fill="none" />
+              <path d="M19 18 Q20 17 21 18" stroke="#1e2a4a" strokeWidth="1" fill="none" />
+              <path d="M15 22 Q18 20 21 22" stroke="#1e2a4a" strokeWidth="1" fill="none" />
+              <circle cx="16" cy="21" r="1" fill="#60a5fa" /> {/* little tear */}
+            </>
+          )}
+          {!isHappy && !isSad && (
+            <>
+              <circle cx="15" cy="17" r="1" fill="#1e2a4a" />
+              <circle cx="21" cy="17" r="1" fill="#1e2a4a" />
+              <line x1="16" y1="21" x2="20" y2="21" stroke="#1e2a4a" strokeWidth="1" />
+            </>
+          )}
+        </svg>
+      </motion.div>
       
-      {/* Stem */}
-      <div className="w-1 h-8 bg-[#4ade80] rounded-full -mt-1" />
+      {/* Stem - droops if sad */}
+      <motion.div 
+        className={cn("w-1 h-8 rounded-full -mt-2 z-[-1]", isSad ? "bg-[#9ca3af]" : "bg-[#4ade80]")}
+        animate={{ 
+          rotate: isSad ? [10, 15, 10] : 0,
+          scaleY: isSad ? 0.8 : 1
+        }}
+        style={{ transformOrigin: 'bottom center' }}
+        transition={{ duration: 6, repeat: Infinity, delay }}
+      />
       
       {/* Day label */}
-      <span className="text-xs text-[#4a5a7a] mt-1">{dayName}</span>
+      <span className="text-xs font-bold text-[#2a4a4a] mt-1">{dayName}</span>
     </motion.div>
   )
 }
@@ -128,7 +149,6 @@ export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
           <Flower
             key={item.date}
             sentiment={item.sentiment}
-            riskLevel={item.riskLevel}
             dayName={dayNames[index % 7]}
             index={index}
           />
@@ -148,16 +168,13 @@ export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
       {/* Legend */}
       <div className="flex items-center justify-center gap-6 text-sm text-[#2a4a4a]">
         <span className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-[#f5c842]" /> Positivo
+          <span className="w-3 h-3 rounded-full bg-[#f5c842]" /> Florescendo
         </span>
         <span className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-[#7ec8e3]" /> Neutro
+          <span className="w-3 h-3 rounded-full bg-[#7ec8e3]" /> Estável
         </span>
         <span className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-[#e85a6b]" /> Difícil
-        </span>
-        <span className="flex items-center gap-2">
-          <Flame className="w-3 h-3 text-orange-500 fill-orange-400" /> Alerta
+          <span className="w-3 h-3 rounded-full bg-[#9ca3af]" /> Precisando de Carinho
         </span>
       </div>
     </div>

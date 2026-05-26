@@ -12,7 +12,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { DiaryEntry, RiskLevel } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import { TrendingUp, AlertTriangle } from 'lucide-react'
+import { TrendingUp, Sun, CloudRain, Cloud } from 'lucide-react'
 
 interface MoodChartProps {
   entries: DiaryEntry[]
@@ -28,30 +28,35 @@ export function MoodChart({ entries, className }: MoodChartProps) {
       : 0.5,
   }))
 
-  // Determine risk level from recent entries
+  // Determine garden energy from recent entries (replaces risk level logic)
   const recentHighRisk = entries.slice(0, 7).filter(e => e.analysis?.riskLevel === 'high').length
-  const riskLevel: RiskLevel = recentHighRisk >= 3 ? 'high' : recentHighRisk >= 1 ? 'medium' : 'low'
+  const recentMediumRisk = entries.slice(0, 7).filter(e => e.analysis?.riskLevel === 'moderate').length
+  
+  const gardenEnergy = recentHighRisk >= 3 ? 'stormy' : (recentHighRisk >= 1 || recentMediumRisk >= 3) ? 'cloudy' : 'sunny'
 
-  const riskColors = {
-    low: { bg: 'bg-green-50', text: 'text-green-600', bar: 'bg-green-500' },
-    medium: { bg: 'bg-yellow-50', text: 'text-yellow-600', bar: 'bg-yellow-500' },
-    high: { bg: 'bg-red-50', text: 'text-red-600', bar: 'bg-red-500' },
+  const energyColors = {
+    sunny: { bg: 'bg-[#fcecc4]', text: 'text-[#f5a623]', bar: 'bg-[#f5a623]', icon: Sun },
+    cloudy: { bg: 'bg-[#d4e8f9]', text: 'text-[#6b8fd4]', bar: 'bg-[#6b8fd4]', icon: Cloud },
+    stormy: { bg: 'bg-[#f1f5f9]', text: 'text-[#9ca3af]', bar: 'bg-[#9ca3af]', icon: CloudRain },
   }
 
-  const riskLabels = {
-    low: 'Risco Baixo',
-    medium: 'Risco Médio',
-    high: 'Risco Alto',
+  const energyLabels = {
+    sunny: 'Tempo Ensolarado',
+    cloudy: 'Tempo Nublado',
+    stormy: 'Precisando de Carinho',
   }
 
-  const riskMessages = {
-    low: 'Você está tendo uma ótima semana! Continue assim.',
-    medium: 'Alguns dias mais difíceis. Preste atenção aos seus gatilhos.',
-    high: 'Foram detectados vários sinais de dificuldade. Considere conversar com seu terapeuta.',
+  const energyMessages = {
+    sunny: 'O sol está brilhando! Seu jardim está florescendo lindamente.',
+    cloudy: 'O tempo está mudando. Lembre-se de regar seu jardim com cuidado.',
+    stormy: 'Dias de chuva também fazem as flores crescerem. Tenha paciência com você.',
   }
 
-  // Generate risk bars for last 7 days
-  const riskBars = entries.slice(0, 7).reverse().map(entry => entry.analysis?.riskLevel || 'low')
+  // Generate energy bars for last 7 days
+  const energyBars = entries.slice(0, 7).reverse().map(entry => {
+    const risk = entry.analysis?.riskLevel || 'low'
+    return risk === 'high' ? 'stormy' : risk === 'moderate' ? 'cloudy' : 'sunny'
+  })
 
   return (
     <div className={cn('grid grid-cols-1 lg:grid-cols-2 gap-4', className)}>
@@ -108,44 +113,47 @@ export function MoodChart({ entries, className }: MoodChartProps) {
         </CardContent>
       </Card>
 
-      {/* Risk Indicator */}
+      {/* Garden Energy Indicator */}
       <Card className="bg-white border-0 shadow-sm rounded-2xl">
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded-full bg-[#6b8fd4]" />
-            <CardTitle className="text-base font-bold text-[#1e2a4a]">Indicador de Risco</CardTitle>
+            <div className="w-8 h-8 rounded-full bg-[#fcecc4] flex items-center justify-center">
+              <Sun className="w-4 h-4 text-[#f5a623]" />
+            </div>
+            <CardTitle className="text-base font-bold text-[#1e2a4a]">Nível de Energia do Jardim</CardTitle>
           </div>
-          <p className="text-sm text-[#6a7a9a]">Baseado nos últimos 7 registros</p>
+          <p className="text-sm text-[#6a7a9a]">Clima emocional dos últimos 7 dias</p>
         </CardHeader>
         <CardContent>
-          {/* Risk Alert Box */}
+          {/* Energy Alert Box */}
           <div className={cn(
-            'rounded-xl p-4 mb-4',
-            riskColors[riskLevel].bg
+            'rounded-xl p-4 mb-4 flex items-start gap-3',
+            energyColors[gardenEnergy].bg
           )}>
-            <div className="flex items-start gap-3">
-              <AlertTriangle className={cn('w-6 h-6 mt-0.5', riskColors[riskLevel].text)} />
-              <div>
-                <h4 className={cn('font-bold', riskColors[riskLevel].text)}>
-                  {riskLabels[riskLevel]}
-                </h4>
-                <p className="text-sm text-[#4a5a7a] mt-1">
-                  {riskMessages[riskLevel]}
-                </p>
-              </div>
+            {(() => {
+              const Icon = energyColors[gardenEnergy].icon
+              return <Icon className={cn('w-6 h-6 mt-0.5 shrink-0', energyColors[gardenEnergy].text)} />
+            })()}
+            <div>
+              <h4 className={cn('font-bold', energyColors[gardenEnergy].text)}>
+                {energyLabels[gardenEnergy]}
+              </h4>
+              <p className="text-sm text-[#4a5a7a] mt-1 font-medium leading-relaxed">
+                {energyMessages[gardenEnergy]}
+              </p>
             </div>
           </div>
 
-          {/* Weekly Risk Bars */}
+          {/* Weekly Energy Bars */}
           <div>
-            <p className="text-xs text-[#6a7a9a] mb-2 font-medium">ÚLTIMOS 7 DIAS</p>
+            <p className="text-xs text-[#6a7a9a] mb-2 font-bold uppercase tracking-wider">Últimos 7 dias</p>
             <div className="flex gap-2">
-              {riskBars.map((risk, index) => (
+              {energyBars.map((energy, index) => (
                 <div 
                   key={index}
                   className={cn(
                     'flex-1 h-3 rounded-full',
-                    risk === 'high' ? 'bg-red-500' : risk === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                    energyColors[energy as 'sunny'|'cloudy'|'stormy'].bar
                   )}
                 />
               ))}

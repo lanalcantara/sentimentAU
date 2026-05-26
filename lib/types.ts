@@ -55,6 +55,31 @@ export interface DiaryEntry {
   analysis: SentimentAnalysis | null
   voiceRecording?: string
   useSymbols?: boolean
+  isPublic?: boolean
+}
+
+export interface UserProfile {
+  id: string
+  username: string
+  flor_avatar_atual: string
+  flores_desbloqueadas: string[]
+  createdAt: Date
+}
+
+export interface Notification {
+  id: string
+  senderId: string
+  receiverId: string
+  type: string
+  isRead: boolean
+  createdAt: Date
+}
+
+export interface Follow {
+  id: string
+  followerId: string
+  followingId: string
+  createdAt: Date
 }
 
 export interface WellbeingStats {

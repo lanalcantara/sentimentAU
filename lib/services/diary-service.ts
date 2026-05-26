@@ -65,6 +65,7 @@ export const DiaryService = {
         risk_level: entry.analysis.riskLevel,
         risk_indicators: entry.analysis.riskIndicators,
         suggestions: entry.analysis.suggestions,
+        is_public: entry.isPublic || false,
       })
       .select()
       .single()
@@ -72,6 +73,50 @@ export const DiaryService = {
     if (error) {
       console.error('[DiaryService] Failed to save entry:', error)
       throw new Error('Erro ao salvar o registro no diário.')
+    }
+
+    // --- GAMIFICATION: Flower Unlocking Logic ---
+    try {
+      // Get current user stats
+      const { data: userProps } = await supabaseAdmin
+        .from('sentiment_users')
+        .select('flores_desbloqueadas')
+        .eq('id', userId)
+        .single()
+
+      const { count: totalEntries } = await supabaseAdmin
+        .from('sentiment_entries')
+        .select('id', { count: 'exact' })
+        .eq('user_id', userId)
+
+      const currentFlowers = userProps?.flores_desbloqueadas || ['semente']
+      let unlockedNew = false
+      const newCount = totalEntries || 1
+
+      if (newCount >= 1 && !currentFlowers.includes('broto')) { currentFlowers.push('broto'); unlockedNew = true; }
+      if (newCount >= 3 && !currentFlowers.includes('margarida')) { currentFlowers.push('margarida'); unlockedNew = true; }
+      if (newCount >= 7 && !currentFlowers.includes('girassol')) { currentFlowers.push('girassol'); unlockedNew = true; }
+      if (newCount >= 14 && !currentFlowers.includes('tulipa')) { currentFlowers.push('tulipa'); unlockedNew = true; }
+      if (newCount >= 30 && !currentFlowers.includes('cerejeira')) { currentFlowers.push('cerejeira'); unlockedNew = true; }
+      
+      if (entry.analysis.sentiment === 'negative' && !currentFlowers.includes('lotus')) {
+        currentFlowers.push('lotus')
+        unlockedNew = true
+      }
+      if (entry.analysis.sentiment === 'positive' && !currentFlowers.includes('rosa')) {
+        currentFlowers.push('rosa')
+        unlockedNew = true
+      }
+
+      if (unlockedNew) {
+        await supabaseAdmin
+          .from('sentiment_users')
+          .update({ flores_desbloqueadas: currentFlowers })
+          .eq('id', userId)
+      }
+    } catch (err) {
+      console.error('[DiaryService] Failed to update gamification stats:', err)
+      // We don't throw here to not break the entry creation if gamification fails
     }
 
     return data

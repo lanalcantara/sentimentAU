@@ -33,6 +33,7 @@ interface DiaryWizardProps {
     comfortLevel: number
     sensoryTags: SensoryTag[]
     analysis: SentimentAnalysis
+    isPublic: boolean
   }) => void
 }
 
@@ -72,6 +73,7 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
   const [energyLevel, setEnergyLevel] = useState(3)
   const [comfortLevel, setComfortLevel] = useState(3)
   const [sensoryTags, setSensoryTags] = useState<SensoryTag[]>([])
+  const [isPublic, setIsPublic] = useState(false)
   const [analysis, setAnalysis] = useState<SentimentAnalysis | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisError, setAnalysisError] = useState<string | null>(null)
@@ -127,6 +129,7 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
       comfortLevel,
       sensoryTags,
       analysis,
+      isPublic,
     })
   }
 
@@ -438,7 +441,31 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
             </div>
           )}
 
-          <div className="flex gap-3 pt-2">
+          <div className="bg-card border border-border/20 rounded-2xl p-4.5 space-y-3 shadow-sm mt-4">
+            <p className="font-bold text-sm text-foreground">Apoio Comunitário</p>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              Você gostaria de plantar este registro no jardim da comunidade? Outras pessoas poderão ver apenas sua flor e se inspirar (sem seu nome).
+            </p>
+            <div className="flex items-center gap-3 pt-2">
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer" 
+                  checked={isPublic}
+                  onChange={(e) => {
+                    SensoryAudio.play('bubble')
+                    setIsPublic(e.target.checked)
+                  }}
+                />
+                <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+              </label>
+              <span className="text-sm font-semibold text-foreground">
+                {isPublic ? 'Plantar no Jardim da Comunidade 🌱' : 'Guardar apenas no meu diário 🔒'}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-6">
             <Button 
               variant="outline" 
               onClick={() => {

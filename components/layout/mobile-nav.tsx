@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { SensoryAudio } from '@/lib/services/sensory-audio'
 import { useTheme } from '@/lib/context/theme-context'
+import { FLOWERS } from '@/lib/flowers'
 
 const navItems = [
   { href: '/', label: 'Painel', icon: LayoutDashboard },
@@ -32,6 +33,7 @@ export function MobileNav() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [florAvatar, setFlorAvatar] = useState<string>('semente')
   const [username, setUsername] = useState<string>('')
 
   const loadProfile = async () => {
@@ -40,6 +42,7 @@ export function MobileNav() {
       const data = await res.json()
       if (res.ok && data.user) {
         setAvatarUrl(data.user.avatar_url || null)
+        setFlorAvatar(data.user.flor_avatar_atual || 'semente')
         setUsername(data.user.username)
       }
     } catch (err) {
@@ -90,11 +93,11 @@ export function MobileNav() {
 
           {/* Small Top Right Avatar preview on mobile header */}
           {username && (
-            <div className="w-8 h-8 rounded-full bg-white/10 overflow-hidden flex items-center justify-center border border-white/20">
+            <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center border border-white/20 text-lg shadow-inner shrink-0">
               {avatarUrl ? (
-                <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
+                <img src={avatarUrl} alt={username} className="w-full h-full object-cover rounded-full" />
               ) : (
-                <User className="w-3.5 h-3.5 text-white/60" />
+                <span>{FLOWERS[florAvatar]?.emoji || '🌱'}</span>
               )}
             </div>
           )}
@@ -166,14 +169,14 @@ export function MobileNav() {
               <div className="border-t border-[#2a3a5a] pt-4 space-y-2">
                 {username && (
                   <div className="flex items-center gap-3 px-4 py-2">
-                    <div className="w-9 h-9 rounded-full bg-white/10 overflow-hidden flex items-center justify-center border border-white/20">
+                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/20 text-xl shadow-inner shrink-0">
                       {avatarUrl ? (
-                        <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
+                        <img src={avatarUrl} alt={username} className="w-full h-full object-cover rounded-full" />
                       ) : (
-                        <User className="w-4 h-4 text-white/60" />
+                        <span>{FLOWERS[florAvatar]?.emoji || '🌱'}</span>
                       )}
                     </div>
-                    <span className="text-xs font-semibold text-white/90 capitalize truncate">{username}</span>
+                    <span className="text-sm font-semibold text-white/90 capitalize truncate">{username}</span>
                   </div>
                 )}
 

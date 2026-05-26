@@ -17,6 +17,7 @@ export default function NovoRegistoPage() {
     comfortLevel: number
     sensoryTags: SensoryTag[]
     analysis: SentimentAnalysis
+    isPublic: boolean
   }) => {
     setIsSaving(true)
     setSaveError('')
