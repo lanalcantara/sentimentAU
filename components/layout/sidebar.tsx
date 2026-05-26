@@ -68,16 +68,16 @@ export function Sidebar() {
   const { darkMode, toggleDarkMode } = useTheme()
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 bg-foreground text-white min-h-screen border-r border-[#2a3a5a]">
+    <aside className="hidden lg:flex flex-col w-64 bg-stone-50 text-slate-800 min-h-screen border-r border-border shadow-sm">
       {/* Logo */}
       <div className="p-6 flex items-center justify-between">
         <Link href="/" onClick={handleLinkClick} className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#e85a6b] flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[#e85a6b] flex items-center justify-center shrink-0 shadow-sm">
             <span className="text-xl">&#128522;</span>
           </div>
           <div className="truncate">
-            <h1 className="font-bold text-lg tracking-tight text-white">sentimentAU</h1>
-            <p className="text-xs text-white/60">Diário Emocional</p>
+            <h1 className="font-bold text-lg tracking-tight text-slate-800">sentimentAU</h1>
+            <p className="text-xs text-slate-500">Diário Emocional</p>
           </div>
         </Link>
         <div className="flex items-center gap-1">
@@ -87,7 +87,7 @@ export function Sidebar() {
               SensoryAudio.playClick()
               toggleDarkMode()
             }}
-            className="p-2 rounded-xl hover:bg-card/10 text-white/80 hover:text-white transition-colors cursor-pointer shrink-0"
+            className="p-2 rounded-xl hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-colors cursor-pointer shrink-0"
             title={darkMode ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro'}
           >
             {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -106,9 +106,9 @@ export function Sidebar() {
                   href={item.href}
                   onClick={handleLinkClick}
                   className={cn(
-                    'flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200',
-                    'hover:bg-card/10',
-                    isActive && 'bg-[#f5c842] text-foreground font-semibold'
+                    'flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-slate-600',
+                    'hover:bg-slate-200 hover:text-slate-800',
+                    isActive && 'bg-[#f5c842] text-slate-900 font-semibold shadow-sm'
                   )}
                 >
                   <item.icon className="w-5 h-5" />
@@ -122,29 +122,29 @@ export function Sidebar() {
 
       {/* Reminder Card */}
       <div className="px-3 pb-4">
-        <div className="bg-[#2a3a5a] rounded-xl p-4">
+        <div className="bg-white border border-border shadow-sm rounded-xl p-4">
           <div className="flex items-center gap-2 text-[#e85a6b] font-semibold mb-2">
             <Heart className="w-4 h-4 fill-[#e85a6b]" />
             <span>Lembrete</span>
           </div>
-          <p className="text-xs text-white/70 leading-relaxed">
+          <p className="text-xs text-slate-500 leading-relaxed">
             Seus sentimentos são válidos. Registrar ajuda você a se conhecer melhor.
           </p>
         </div>
       </div>
 
       {/* Profile & Logout Section */}
-      <div className="px-3 pb-6 border-t border-[#2a3a5a] pt-4 space-y-2">
+      <div className="px-3 pb-6 border-t border-border pt-4 space-y-2">
         {username && (
           <div className="flex items-center gap-3 px-4 py-2">
-            <div className="w-10 h-10 rounded-full bg-card/10 flex items-center justify-center border border-white/20 text-xl shadow-inner shrink-0">
+            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-border text-xl shadow-sm shrink-0">
               {avatarUrl ? (
                 <img src={avatarUrl} alt={username} className="w-full h-full object-cover rounded-full" />
               ) : (
                 <span>{FLOWERS[florAvatar]?.emoji || '🌱'}</span>
               )}
             </div>
-            <span className="text-sm font-semibold text-white/90 capitalize truncate">{username}</span>
+            <span className="text-sm font-semibold text-slate-700 capitalize truncate">{username}</span>
           </div>
         )}
 
@@ -154,7 +154,7 @@ export function Sidebar() {
             await fetch('/api/auth/logout', { method: 'POST' })
             window.location.href = '/'
           }}
-          className="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white transition-colors w-full cursor-pointer rounded-xl hover:bg-card/5"
+          className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-800 transition-colors w-full cursor-pointer rounded-xl hover:bg-slate-200"
         >
           <LogOut className="w-5 h-5" />
           <span className="text-sm">Sair</span>

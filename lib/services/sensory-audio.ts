@@ -152,21 +152,10 @@ export const SensoryAudio = {
       }
 
       else if (type === 'mc-click') {
-        // Classic Minecraft UI wood click
-        const osc = ctx.createOscillator()
-        const gain = ctx.createGain()
-        osc.connect(gain)
-        gain.connect(ctx.destination)
-        
-        osc.type = 'triangle'
-        osc.frequency.setValueAtTime(120, now)
-        osc.frequency.exponentialRampToValueAtTime(30, now + 0.04)
-        
-        gain.gain.setValueAtTime(0.12 * volume, now)
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04)
-        
-        osc.start(now)
-        osc.stop(now + 0.05)
+        // Classic Minecraft UI wood click - requested via file path
+        const audio = new Audio('/sounds/mc-click.mp3')
+        audio.volume = volume
+        audio.play().catch(e => console.warn('Audio play failed:', e))
       }
 
       else if (type === 'mc-xp') {
@@ -233,32 +222,10 @@ export const SensoryAudio = {
       }
 
       else if (type === 'mc-grass') {
-        // Synthesize a soft crunchy grass step using a noise buffer
-        const bufferSize = ctx.sampleRate * 0.12 // 120ms
-        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
-        const data = buffer.getChannelData(0)
-        for (let i = 0; i < bufferSize; i++) {
-          data[i] = Math.random() * 2 - 1
-        }
-        const noise = ctx.createBufferSource()
-        noise.buffer = buffer
-
-        const filter = ctx.createBiquadFilter()
-        filter.type = 'bandpass'
-        filter.frequency.setValueAtTime(350, now)
-        filter.frequency.exponentialRampToValueAtTime(80, now + 0.1)
-        filter.Q.value = 3.0
-
-        const gain = ctx.createGain()
-        gain.gain.setValueAtTime(0.08 * volume, now)
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1)
-
-        noise.connect(filter)
-        filter.connect(gain)
-        gain.connect(ctx.destination)
-
-        noise.start(now)
-        noise.stop(now + 0.12)
+        // Soft crunchy grass step - requested via file path
+        const audio = new Audio('/sounds/mc-grass.mp3')
+        audio.volume = volume
+        audio.play().catch(e => console.warn('Audio play failed:', e))
       }
 
       else if (type === 'mc-bow') {

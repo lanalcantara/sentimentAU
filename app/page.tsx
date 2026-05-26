@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { AppLayout } from '@/components/layout/app-layout'
+import { cn } from '@/lib/utils'
 import { WellbeingGarden } from '@/components/dashboard/wellbeing-garden'
 import { StatsGrid } from '@/components/dashboard/stats-grid'
 import { MoodChart } from '@/components/dashboard/mood-chart'
@@ -525,7 +526,10 @@ export default function DashboardPage() {
   // 3. Dashboard page with real dynamic records
   return (
     <AppLayout>
-      <div className="p-4 lg:p-8 space-y-6 bg-background min-h-screen">
+      <div className={cn(
+        "p-4 lg:p-8 space-y-6 min-h-screen transition-colors duration-500",
+        calmMode ? "bg-stone-50/95 [&_.bg-card]:opacity-95 [&_.bg-card]:border-stone-200" : "bg-background"
+      )}>
         {/* Dashboard Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
