@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Nunito, Nunito_Sans } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { CalmModeProvider } from '@/lib/context/calm-mode-context'
-import { ThemeProvider } from '@/lib/context/theme-context'
+
 import './globals.css'
 
 const nunito = Nunito({ 
@@ -19,7 +19,7 @@ const nunitoSans = Nunito_Sans({
 
 export const metadata: Metadata = {
   title: 'sentimentAU - Diário Emocional Inteligente',
-  description: 'Diário emocional inteligente com análise de sentimentos por IA para indivíduos autistas. Monitorize padrões de humor, identifique gatilhos sensoriais e previna crises.',
+  description: 'Diário emocional inteligente com análise de sentimentos por IA para indivíduos autistas.',
   keywords: ['autismo', 'diário emocional', 'análise de sentimentos', 'NLP', 'bem-estar', 'saúde mental'],
   authors: [{ name: 'sentimentAU' }],
   icons: {
@@ -27,10 +27,6 @@ export const metadata: Metadata = {
       {
         url: '/icon-light-32x32.png',
         media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
       },
       {
         url: '/icon.svg',
@@ -44,7 +40,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#fcfaf3' },
-    { media: '(prefers-color-scheme: dark)', color: '#151b2d' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -57,27 +52,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt" className={`${nunito.variable} ${nunitoSans.variable} bg-background`} suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                  document.documentElement.classList.add('dark')
-                } else {
-                  document.documentElement.classList.remove('dark')
-                }
-              } catch (_) {}
-            `
-          }}
-        />
-      </head>
-      <body className="font-sans antialiased">
-        <ThemeProvider>
-          <CalmModeProvider>
-            {children}
-          </CalmModeProvider>
-        </ThemeProvider>
+      <body className="font-sans antialiased bg-background text-foreground">
+        <CalmModeProvider>
+          {children}
+        </CalmModeProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

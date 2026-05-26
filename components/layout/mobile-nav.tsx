@@ -12,14 +12,12 @@ import {
   Heart,
   LogOut,
   User,
-  Sun,
-  Moon
+  User
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { SensoryAudio } from '@/lib/services/sensory-audio'
-import { useTheme } from '@/lib/context/theme-context'
 import { FLOWERS } from '@/lib/flowers'
 import { NotificationsPopover } from '@/components/profile/notifications-popover'
 
@@ -68,10 +66,8 @@ export function MobileNav() {
     SensoryAudio.play('bubble')
   }
 
-  const { darkMode, toggleDarkMode } = useTheme()
-
   return (
-    <header className="lg:hidden sticky top-0 z-50 bg-foreground text-white">
+    <header className="lg:hidden sticky top-0 z-50 bg-[#14532d] text-white">
       <div className="flex items-center justify-between p-4">
         <Link href="/" onClick={handleLinkClick} className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-[#e85a6b] flex items-center justify-center">
@@ -82,17 +78,6 @@ export function MobileNav() {
  
         <div className="flex items-center gap-1">
           <NotificationsPopover />
-          <button
-            onClick={() => {
-              SensoryAudio.playClick()
-              toggleDarkMode()
-            }}
-            className="p-2 rounded-xl hover:bg-card/10 text-white/80 hover:text-white transition-colors cursor-pointer mr-1"
-            title={darkMode ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro'}
-          >
-            {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </button>
-
           {/* Small Top Right Avatar preview on mobile header */}
           {username && (
             <div className="w-9 h-9 rounded-full bg-card/10 flex items-center justify-center border border-white/20 text-lg shadow-inner shrink-0">
@@ -114,7 +99,7 @@ export function MobileNav() {
                 <span className="sr-only">Abrir menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="bg-foreground text-white border-[#2a3a5a] w-72 flex flex-col justify-between">
+            <SheetContent side="right" className="bg-[#14532d] text-white border-[#14532d] w-72 flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-8">
                   <div className="w-8 h-8 rounded-lg bg-[#e85a6b] flex items-center justify-center">

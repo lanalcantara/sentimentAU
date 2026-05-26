@@ -126,79 +126,81 @@ export const DiaryService = {
    * Retrieves the latest public entry for other users to build a live community emotion mural.
    */
   async getCommunityFeed(currentUserId: string): Promise<any[]> {
-    // 1. Fetch other users
-    const { data: users, error: usersError } = await supabaseAdmin
-      .from('sentiment_users')
-      .select('id, username, flor_avatar_atual')
-      .neq('id', currentUserId)
-      .limit(15)
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
-    if (usersError || !users || users.length === 0) {
+    const { data: latestEntries, error } = await supabaseAdmin
+      .from('mood_logs')
+      .select(`
+        *,
+        profiles!inner(
+          username,
+          avatar_url
+        )
+      `)
+      .eq('is_public', true)
+      .gte('created_at', sevenDaysAgo)
+      .neq('user_id', currentUserId)
+      .order('created_at', { ascending: false })
+      .limit(20)
+
+    if (error || !latestEntries) {
+      console.error('[DiaryService] Failed to fetch community feed from mood_logs:', error)
       return []
     }
 
     const feed: any[] = []
 
-    // 2. Fetch the latest public entry for each other user
-    for (const u of users) {
-      const { data: latestEntry, error: entryError } = await supabaseAdmin
-        .from('sentiment_entries')
-        .select('*')
-        .eq('user_id', u.id)
-        .eq('is_public', true)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-
-      if (!entryError && latestEntry) {
-        // Map sentiment to beautiful localized emotion descriptions
-        let emotionLabel = 'Neutro'
-        if (latestEntry.sentiment === 'positive') emotionLabel = 'Feliz'
-        else if (latestEntry.sentiment === 'negative') emotionLabel = 'Frustrado'
-        
-        if (latestEntry.emotions && latestEntry.emotions.length > 0) {
-          const map: Record<string, string> = {
-            happy: 'Feliz',
-            calm: 'Calmo',
-            excited: 'Animado',
-            content: 'Satisfeito',
-            sad: 'Triste',
-            anxious: 'Preocupado',
-            frustrated: 'Irritado',
-            overwhelmed: 'Sobrecarregado',
-            tired: 'Cansado',
-            confused: 'Confuso'
-          }
-          emotionLabel = map[latestEntry.emotions[0]] || emotionLabel
+    for (const entry of latestEntries) {
+      const profile = Array.isArray(entry.profiles) ? entry.profiles[0] : entry.profiles
+      
+      let emotionLabel = 'Neutro'
+      if (entry.sentiment === 'positive') emotionLabel = 'Feliz'
+      else if (entry.sentiment === 'negative') emotionLabel = 'Frustrado'
+      
+      if (entry.emotions && entry.emotions.length > 0) {
+        const map: Record<string, string> = {
+          happy: 'Feliz',
+          calm: 'Calmo',
+          excited: 'Animado',
+          content: 'Satisfeito',
+          sad: 'Triste',
+          anxious: 'Preocupado',
+          frustrated: 'Irritado',
+          overwhelmed: 'Sobrecarregado',
+          tired: 'Cansado',
+          confused: 'Confuso'
         }
-
-        let avatarBg = 'bg-[#f1f5f9] text-[#64748b]'
-        if (latestEntry.sentiment === 'positive') {
-          avatarBg = 'bg-[#f0fdf4] text-[#16a34a]'
-        } else if (latestEntry.sentiment === 'negative') {
-          avatarBg = 'bg-[#fef2f2] text-[#dc2626]'
-        } else {
-          avatarBg = 'bg-[#f0f9ff] text-[#0284c7]'
-        }
-
-        // Cut down the text to a comfortable snippet length
-        const displaySnippet = latestEntry.content.length > 80
-          ? latestEntry.content.slice(0, 77) + '...'
-          : latestEntry.content
-
-        feed.push({
-          id: u.id,
-          username: u.username,
-          florAvatarId: u.flor_avatar_atual || 'semente',
-          avatarBg,
-          emotion: emotionLabel,
-          sentiment: latestEntry.sentiment,
-          statusText: displaySnippet,
-          supportCount: Math.floor(Math.random() * 5) + 1 // Add a small starting warm support value
-        })
+        emotionLabel = map[entry.emotions[0]] || emotionLabel
       }
+
+      let avatarBg = 'bg-[#f1f5f9] text-[#64748b]'
+      if (entry.sentiment === 'positive') {
+        avatarBg = 'bg-[#f0fdf4] text-[#16a34a]'
+      } else if (entry.sentiment === 'negative') {
+        avatarBg = 'bg-[#fef2f2] text-[#dc2626]'
+      } else {
+        avatarBg = 'bg-[#f0f9ff] text-[#0284c7]'
+      }
+
+      const displaySnippet = entry.content && entry.content.length > 80
+        ? entry.content.slice(0, 77) + '...'
+        : entry.content
+
+      feed.push({
+        id: entry.user_id,
+        username: profile?.username || 'Usuário Anônimo',
+        florAvatarId: profile?.avatar_url || 'semente',
+        avatarBg,
+        emotion: emotionLabel,
+        sentiment: entry.sentiment,
+        statusText: displaySnippet || 'Sentimento compartilhado',
+        supportCount: Math.floor(Math.random() * 5) + 1
+      })
     }
 
-    return feed
+    // Filter to ensure distinct users in the feed (only showing their latest within the 20 limits)
+    const uniqueFeed = feed.filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i)
+
+    return uniqueFeed
   }
 }

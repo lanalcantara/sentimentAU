@@ -73,13 +73,9 @@ function Flower({
           height="36" 
           viewBox="0 0 36 36"
         >
-          {/* Empty Grass state */}
-          {sentiment === 'empty' && (
-            <>
-              <path d="M12 32 Q15 25 18 32" stroke="#4ade80" strokeWidth="2" fill="none" opacity="0.6"/>
-              <path d="M18 32 Q21 27 24 32" stroke="#4ade80" strokeWidth="2" fill="none" opacity="0.6"/>
-            </>
-          )}
+          {/* Base Grass - always visible */}
+          <path d="M12 32 Q15 25 18 32" stroke="#4ade80" strokeWidth="2" fill="none" opacity="0.6"/>
+          <path d="M18 32 Q21 27 24 32" stroke="#4ade80" strokeWidth="2" fill="none" opacity="0.6"/>
 
           {/* STEM INSIDE SVG */}
           {sentiment !== 'empty' && (
@@ -149,18 +145,22 @@ export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
   // Pre-process data: Group by day and find the average/predominant sentiment
   const processedData: Record<string, FlowerData[]> = {}
   data.forEach(item => {
-    // If we have multiple for the same day string (e.g. "Ter"), we collect them
-    if (!processedData[item.date]) {
-      processedData[item.date] = []
+    // Normalize string to match "Dom" or "dom."
+    let dateKey = item.date.replace('.', '').trim().toLowerCase()
+    // Capitalize first letter to match dayNames "Dom"
+    dateKey = dateKey.charAt(0).toUpperCase() + dateKey.slice(1)
+    
+    if (!processedData[dateKey]) {
+      processedData[dateKey] = []
     }
-    processedData[item.date].push(item)
+    processedData[dateKey].push(item)
   })
 
   // We will iterate through 0 (Sunday) to 6 (Saturday)
   const todayIndex = new Date().getDay()
   const weekData = dayNames.map((dayName, idx) => {
     // Try to find if we have processed data for this day
-    const entries = processedData[dayName] || processedData[dayName + '.']
+    const entries = processedData[dayName]
     
     if (!entries || entries.length === 0) {
       return {
