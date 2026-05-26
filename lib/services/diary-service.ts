@@ -139,7 +139,7 @@ export const DiaryService = {
       `)
       .eq('is_public', true)
       .gte('created_at', sevenDaysAgo)
-      .neq('user_id', currentUserId)
+      // .neq('user_id', currentUserId) // Comentado temporariamente para testes locais permitirem ver os próprios posts
       .order('created_at', { ascending: false })
       .limit(20)
 

@@ -19,6 +19,17 @@ interface MoodChartProps {
   className?: string
 }
 
+const CustomDot = (props: any) => {
+  const { cx, cy, value } = props;
+  if (value >= 0.7) {
+    return <text x={cx} y={cy} dy={6} dx={-8} fontSize={16}>☀️</text>;
+  }
+  if (value <= 0) {
+    return <text x={cx} y={cy} dy={6} dx={-8} fontSize={16}>☁️</text>;
+  }
+  return <circle cx={cx} cy={cy} r={4} fill="#f5c842" />;
+};
+
 export function MoodChart({ entries, className }: MoodChartProps) {
   // Process entries for line chart (last 7)
   const chartData = entries.slice(0, 7).reverse().map(entry => ({
@@ -61,7 +72,7 @@ export function MoodChart({ entries, className }: MoodChartProps) {
   return (
     <div className={cn('grid grid-cols-1 lg:grid-cols-2 gap-4', className)}>
       {/* Mood Evolution Chart */}
-      <Card className="bg-white border-0 shadow-sm rounded-2xl">
+      <Card className="bg-card border-0 shadow-sm rounded-2xl">
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-[#6b8fd4]" />
@@ -104,7 +115,7 @@ export function MoodChart({ entries, className }: MoodChartProps) {
                   dataKey="value" 
                   stroke="#f5c842"
                   strokeWidth={3}
-                  dot={{ fill: '#f5c842', strokeWidth: 0, r: 4 }}
+                  dot={<CustomDot />}
                   activeDot={{ fill: '#e5a832', strokeWidth: 0, r: 6 }}
                 />
               </LineChart>
@@ -114,7 +125,7 @@ export function MoodChart({ entries, className }: MoodChartProps) {
       </Card>
 
       {/* Garden Energy Indicator */}
-      <Card className="bg-white border-0 shadow-sm rounded-2xl">
+      <Card className="bg-card border-0 shadow-sm rounded-2xl">
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-[#fcecc4] flex items-center justify-center">

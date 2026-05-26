@@ -8,6 +8,7 @@ import { WellbeingGarden } from '@/components/dashboard/wellbeing-garden'
 import { StatsGrid } from '@/components/dashboard/stats-grid'
 import { MoodChart } from '@/components/dashboard/mood-chart'
 import { AvatarUpload } from '@/components/profile/avatar-upload'
+import { NotificationsPopover } from '@/components/profile/notifications-popover'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -69,7 +70,7 @@ const calculateDynamicStats = (entries: DiaryEntry[]): WellbeingStats => {
     .slice(0, 7)
     .reverse()
     .map((e) => ({
-      date: new Date(e.createdAt).toLocaleDateString('pt-PT', { weekday: 'short' }),
+      date: e.createdAt,
       sentiment: e.analysis?.sentiment || 'neutral',
       riskLevel: e.analysis?.riskLevel || 'low',
       energyLevel: e.energyLevel,
@@ -460,15 +461,9 @@ export default function DashboardPage() {
               {calmMode ? '🌿 Modo Calmo: ATIVADO' : '✨ Modo Calmo: DESATIVADO'}
             </button>
             
-            <Link href="/novo-registo">
-              <Button 
-                onClick={() => SensoryAudio.play('bubble')}
-                className="gap-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-sm cursor-pointer"
-              >
-                <PenLine className="w-4 h-4 shrink-0" />
-                Novo Registro
-              </Button>
-            </Link>
+            <div className="flex items-center">
+              <NotificationsPopover />
+            </div>
           </div>
         </div>
 
@@ -670,12 +665,9 @@ export default function DashboardPage() {
                       <option value="chime">🔔 Sino de Cristal</option>
                     </optgroup>
                     <optgroup label="Sons do Minecraft">
-                      <option value="mc-click">🪵 Clique de Madeira</option>
                       <option value="mc-xp">🟢 Esfera de XP</option>
                       <option value="mc-levelup">👑 Melodia de Nível</option>
                       <option value="mc-anvil">⚙️ Ressonância de Bigorna</option>
-                      <option value="mc-grass">🌾 Grama (Soft Crunch)</option>
-                      <option value="mc-bow">🏹 Disparo de Arco</option>
                     </optgroup>
                   </select>
                 </div>
@@ -743,20 +735,6 @@ export default function DashboardPage() {
                       </div>
                     </button>
 
-                    <button
-                      onClick={() => {
-                        SensoryAudio.play('mc-click')
-                      }}
-                      className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-[#efebe9] hover:bg-[#d7ccc8] border border-[#bcaaa4]/20 transition-all cursor-pointer group text-left"
-                    >
-                      <div className="w-7 h-7 rounded-xl bg-[#4e342e]/10 flex items-center justify-center text-sm group-hover:scale-105 transition-transform">
-                        🪵
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-[#4e342e]">Clique UI</span>
-                        <span className="text-[8px] text-[#795548]">Madeira</span>
-                      </div>
-                    </button>
 
                     <button
                       onClick={() => {
@@ -788,35 +766,7 @@ export default function DashboardPage() {
                       </div>
                     </button>
 
-                    <button
-                      onClick={() => {
-                        SensoryAudio.play('mc-grass')
-                      }}
-                      className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-[#f1f8e9] hover:bg-[#dcedc8] border border-[#dcedc8]/20 transition-all cursor-pointer group text-left"
-                    >
-                      <div className="w-7 h-7 rounded-xl bg-[#33691e]/10 flex items-center justify-center text-sm group-hover:scale-105 transition-transform">
-                        🌾
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-[#33691e]">Grama</span>
-                        <span className="text-[8px] text-[#558b2f]">Soft Crunch</span>
-                      </div>
-                    </button>
 
-                    <button
-                      onClick={() => {
-                        SensoryAudio.play('mc-bow')
-                      }}
-                      className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-[#fff3e0] hover:bg-[#ffe0b2] border border-[#ffe0b2]/20 transition-all cursor-pointer group text-left"
-                    >
-                      <div className="w-7 h-7 rounded-xl bg-[#e65100]/10 flex items-center justify-center text-sm group-hover:scale-105 transition-transform">
-                        🏹
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-[#e65100]">Arco</span>
-                        <span className="text-[8px] text-[#f57c00]">Disparo</span>
-                      </div>
-                    </button>
                   </div>
                 </div>
 

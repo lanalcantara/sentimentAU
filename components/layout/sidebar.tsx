@@ -65,7 +65,7 @@ export function Sidebar() {
 
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 bg-stone-50 text-slate-800 min-h-screen border-r border-border shadow-sm">
+    <aside className="hidden lg:flex flex-col w-64 bg-[#7ee8d0] text-slate-800 min-h-screen border-r border-border shadow-sm">
       {/* Logo */}
       <div className="p-6 flex items-center justify-between">
         <Link href="/" onClick={handleLinkClick} className="flex items-center gap-3">
@@ -77,9 +77,6 @@ export function Sidebar() {
             <p className="text-xs text-slate-500">Diário Emocional</p>
           </div>
         </Link>
-        <div className="flex items-center gap-1">
-          <NotificationsPopover />
-        </div>
       </div>
 
       {/* Navigation */}

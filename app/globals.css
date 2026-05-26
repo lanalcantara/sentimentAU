@@ -47,27 +47,27 @@
 
 /* 🌿 MODO CALMO - Pastel Zen Palette & Reduced Sensory Load */
 .calm-mode {
-  --background: #fcfaf3; /* Off-white quente e acolhedor de baixíssimo contraste */
-  --foreground: #2d3748; /* Grafite suave (evita o preto puro) */
-  --card: #faf7ef;
+  --background: #dce4dd; /* Cinza-esverdeado de baixíssimo contraste */
+  --foreground: #2d3748; /* Grafite suave */
+  --card: #d4dcd5; /* Um pouco mais escuro que o background para destacar suavemente */
   --card-foreground: #2d3748;
   --primary: #8bae97; /* Verde-pastel zen */
   --primary-foreground: #ffffff;
   --secondary: #b9cbe7; /* Lavanda-azul suave */
   --secondary-foreground: #2d3748;
-  --muted: #f2efe5;
-  --muted-foreground: #718096;
+  --muted: #cdd6ce;
+  --muted-foreground: #5a6b5e;
   --accent: #b9cbe7;
   --accent-foreground: #2d3748;
-  --border: #e2e8f0;
-  --input: #f2efe5;
+  --border: #c3cfc5;
+  --input: #d4dcd5;
   --ring: #8dae97;
   
-  --chart-1: #a3c4bc;
-  --chart-2: #b9cbe7;
-  --chart-3: #e5b3b3;
-  --chart-4: #f0dca8;
-  --chart-5: #e5b3b3;
+  --chart-1: #8ba699;
+  --chart-2: #a2b4cc;
+  --chart-3: #cca3a3;
+  --chart-4: #d6c69c;
+  --chart-5: #cca3a3;
 }
 
 /* Desativação completa de animações e transições no Modo Calmo */

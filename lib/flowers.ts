@@ -7,4 +7,12 @@ export const FLOWERS: Record<string, { label: string; emoji: string; description
   'tulipa': { label: 'Tulipa da Esperança', emoji: '🌷', description: 'Desabrocha após o inverno difícil.' },
   'lotus': { label: 'Flor de Lótus', emoji: '🪷', description: 'Pura e resistente, cresce na adversidade.' },
   'cerejeira': { label: 'Flor de Cerejeira', emoji: '🌸', description: 'Beleza delicada e recomeços.' },
+  'orquidea': { label: 'Orquídea da Paciência', emoji: '🏵️', description: 'Floresce em seu próprio tempo.' },
+  'lirio': { label: 'Lírio da Calma', emoji: '⚜️', description: 'Elegante, respira fundo e relaxa.' },
+  'violeta': { label: 'Violeta do Acolhimento', emoji: '🪻', description: 'Pequena, tímida, mas cheia de amor.' },
+  'hibisco': { label: 'Hibisco da Energia', emoji: '🌺', description: 'Traz um calor tropical para o dia.' },
+  'trevo': { label: 'Trevo da Sorte', emoji: '🍀', description: 'Uma pitada de sorte e coisas boas vindo.' },
+  'cacto': { label: 'Cacto da Resiliência', emoji: '🌵', description: 'Forte, independente e cheio de água!' },
+  'cogumelo': { label: 'Cogumelo Mágico', emoji: '🍄', description: 'Traz criatividade e ideias geniais.' },
+  'arvore': { label: 'Árvore da Sabedoria', emoji: '🌳', description: 'Raízes firmes e mente tranquila.' },
 }

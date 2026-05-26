@@ -193,7 +193,7 @@ export function AvatarUpload() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 bg-white border border-border/40 p-6 rounded-3xl shadow-sm max-w-sm w-full mx-auto">
+    <div className="flex flex-col items-center gap-4 bg-card border border-border/40 p-6 rounded-3xl shadow-sm max-w-sm w-full mx-auto">
       {/* Avatar Display Frame */}
       <div 
         onClick={() => {

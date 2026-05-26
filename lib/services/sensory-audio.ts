@@ -14,12 +14,9 @@ export type ASMRSoundType =
   | 'water-drop' 
   | 'bubble' 
   | 'chime' 
-  | 'mc-click' 
   | 'mc-xp' 
   | 'mc-levelup' 
   | 'mc-anvil'
-  | 'mc-grass'
-  | 'mc-bow'
 
 export const SensoryAudio = {
   // Must be called on user interaction (e.g. click anywhere on document) to unlock audio context
@@ -151,12 +148,6 @@ export const SensoryAudio = {
         })
       }
 
-      else if (type === 'mc-click') {
-        // Classic Minecraft UI wood click - requested via file path
-        const audio = new Audio('/sounds/mc-click.mp3')
-        audio.volume = volume
-        audio.play().catch(e => console.warn('Audio play failed:', e))
-      }
 
       else if (type === 'mc-xp') {
         // Satisfying high-pitched upward XP orb arpeggio
@@ -221,31 +212,7 @@ export const SensoryAudio = {
         })
       }
 
-      else if (type === 'mc-grass') {
-        // Soft crunchy grass step - requested via file path
-        const audio = new Audio('/sounds/mc-grass.mp3')
-        audio.volume = volume
-        audio.play().catch(e => console.warn('Audio play failed:', e))
-      }
 
-      else if (type === 'mc-bow') {
-        const osc = ctx.createOscillator()
-        const gain = ctx.createGain()
-        osc.connect(gain)
-        gain.connect(ctx.destination)
-
-        osc.type = 'triangle'
-        osc.frequency.setValueAtTime(140, now)
-        osc.frequency.linearRampToValueAtTime(60, now + 0.08)
-        osc.frequency.exponentialRampToValueAtTime(320, now + 0.15)
-
-        gain.gain.setValueAtTime(0.001, now)
-        gain.gain.linearRampToValueAtTime(0.08 * volume, now + 0.02)
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15)
-
-        osc.start(now)
-        osc.stop(now + 0.16)
-      }
     } catch (err) {
       console.warn('[SensoryAudio] Play failed (User interaction required):', err)
     }

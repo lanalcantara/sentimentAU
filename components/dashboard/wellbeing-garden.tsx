@@ -143,24 +143,22 @@ function Flower({
 
 export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
   // Pre-process data: Group by day and find the average/predominant sentiment
-  const processedData: Record<string, FlowerData[]> = {}
+  const processedData: Record<number, FlowerData[]> = {}
   data.forEach(item => {
-    // Normalize string to match "Dom" or "dom."
-    let dateKey = item.date.replace('.', '').trim().toLowerCase()
-    // Capitalize first letter to match dayNames "Dom"
-    dateKey = dateKey.charAt(0).toUpperCase() + dateKey.slice(1)
+    const dateObj = new Date(item.date)
+    const dayIndex = dateObj.getDay()
     
-    if (!processedData[dateKey]) {
-      processedData[dateKey] = []
+    if (!processedData[dayIndex]) {
+      processedData[dayIndex] = []
     }
-    processedData[dateKey].push(item)
+    processedData[dayIndex].push(item)
   })
 
   // We will iterate through 0 (Sunday) to 6 (Saturday)
   const todayIndex = new Date().getDay()
   const weekData = dayNames.map((dayName, idx) => {
     // Try to find if we have processed data for this day
-    const entries = processedData[dayName]
+    const entries = processedData[idx]
     
     if (!entries || entries.length === 0) {
       return {
