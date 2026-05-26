@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const userIdCookie = cookieStore.get('sentiment_user_id')?.value
     if (!userIdCookie) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 

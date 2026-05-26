@@ -32,7 +32,7 @@ export default async function ProfilePage({ params }: { params: { id: string } }
     .eq('is_public', true)
     .order('created_at', { ascending: false })
 
-  const publicEntries = (entries || []).map(row => ({
+  const publicEntries = (entries || []).map((row: any) => ({
     id: row.id,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.created_at),
@@ -56,7 +56,7 @@ export default async function ProfilePage({ params }: { params: { id: string } }
   const unlockedFlowers = profile.flores_desbloqueadas || ['semente']
 
   // Pre-calculate data for garden
-  const weeklyMoodData = publicEntries.slice(0, 7).reverse().map((e) => ({
+  const weeklyMoodData = publicEntries.slice(0, 7).reverse().map((e: any) => ({
     date: e.createdAt.toLocaleDateString('pt-PT', { weekday: 'short' }),
     sentiment: e.analysis?.sentiment || 'neutral',
     riskLevel: e.analysis?.riskLevel || 'low',
@@ -111,7 +111,7 @@ export default async function ProfilePage({ params }: { params: { id: string } }
             {publicEntries.length === 0 ? (
               <p className="text-muted-foreground text-sm italic">Este jardim está silencioso...</p>
             ) : (
-              publicEntries.map(entry => (
+              publicEntries.map((entry: any) => (
                 <Card key={entry.id} className="bg-card border-0 shadow-sm rounded-2xl">
                   <CardContent className="p-5 space-y-3">
                     <div className="flex items-center justify-between border-b border-slate-50 pb-3">

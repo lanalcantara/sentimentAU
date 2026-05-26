@@ -17,7 +17,7 @@ export const DiaryService = {
       throw new Error('Não foi possível carregar os registros do diário.')
     }
 
-    return (data || []).map((row) => ({
+    return (data || []).map((row: any) => ({
       id: row.id,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.created_at),

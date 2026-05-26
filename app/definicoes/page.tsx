@@ -16,6 +16,7 @@ import {
   Volume2
 } from 'lucide-react'
 import { useTheme } from '@/lib/context/theme-context'
+import { SensoryAudio } from '@/lib/services/sensory-audio'
 
 export default function DefinicoesPage() {
   const playClick = () => SensoryAudio.playClick()

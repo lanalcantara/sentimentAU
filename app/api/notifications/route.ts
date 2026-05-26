@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 
 export async function GET(req: Request) {
   try {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const userIdCookie = cookieStore.get('sentiment_user_id')?.value
     if (!userIdCookie) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
@@ -27,7 +27,7 @@ export async function GET(req: Request) {
 
 export async function PUT(req: Request) {
   try {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const userIdCookie = cookieStore.get('sentiment_user_id')?.value
     if (!userIdCookie) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 

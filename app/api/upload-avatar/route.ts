@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     // It might be 'session_user_id' or 'sentiment_user_id', let's check both just in case
     const userIdCookie = cookieStore.get('sentiment_user_id')?.value || cookieStore.get('session_user_id')?.value
     if (!userIdCookie) {

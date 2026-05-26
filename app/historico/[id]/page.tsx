@@ -9,7 +9,7 @@ import { WeatherMood } from '@/components/characters/weather-mood'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { MOCK_ENTRIES } from '@/lib/mock-data'
-import { SENSORY_TAGS, EMOTIONS } from '@/lib/types'
+import { SENSORY_TAGS, EMOTIONS, type Emotion, type SensoryTag } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { ArrowLeft, AlertTriangle, Lightbulb, Calendar, Battery, Heart, Loader2 } from 'lucide-react'
 import { SensoryAudio } from '@/lib/services/sensory-audio'
@@ -154,10 +154,10 @@ export default function EntryDetailPage({ params }: EntryDetailPageProps) {
                       key={emotion}
                       className={cn(
                         'px-3 py-1.5 rounded-full text-sm font-medium',
-                        EMOTIONS[emotion]?.color || 'bg-muted text-muted-foreground'
+                        EMOTIONS[emotion as Emotion]?.color || 'bg-muted text-muted-foreground'
                       )}
                     >
-                      {EMOTIONS[emotion]?.emoji} {EMOTIONS[emotion]?.label || emotion}
+                      {EMOTIONS[emotion as Emotion]?.emoji} {EMOTIONS[emotion as Emotion]?.label || emotion}
                     </span>
                   ))}
                 </div>
@@ -177,8 +177,8 @@ export default function EntryDetailPage({ params }: EntryDetailPageProps) {
                         key={tag}
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-muted rounded-xl text-sm"
                       >
-                        <span>{SENSORY_TAGS[tag]?.emoji}</span>
-                        <span>{SENSORY_TAGS[tag]?.label || tag}</span>
+                        <span>{SENSORY_TAGS[tag as SensoryTag]?.emoji}</span>
+                        <span>{SENSORY_TAGS[tag as SensoryTag]?.label || tag}</span>
                       </span>
                     ))}
                   </div>

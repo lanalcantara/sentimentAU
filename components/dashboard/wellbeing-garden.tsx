@@ -26,6 +26,7 @@ function Flower({
   isToday
 }: { 
   sentiment: Sentiment, 
+  riskLevel?: string,
   dayName: string
   index: number
   isToday: boolean
