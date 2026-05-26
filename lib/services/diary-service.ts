@@ -129,7 +129,7 @@ export const DiaryService = {
     // 1. Fetch other users
     const { data: users, error: usersError } = await supabaseAdmin
       .from('sentiment_users')
-      .select('id, flor_avatar_atual')
+      .select('id, username, flor_avatar_atual')
       .neq('id', currentUserId)
       .limit(15)
 
@@ -188,6 +188,7 @@ export const DiaryService = {
 
         feed.push({
           id: u.id,
+          username: u.username,
           florAvatarId: u.flor_avatar_atual || 'semente',
           avatarBg,
           emotion: emotionLabel,

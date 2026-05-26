@@ -16,7 +16,7 @@ interface WellbeingGardenProps {
   className?: string
 }
 
-const dayNames = ['Sáb', 'Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex']
+const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
 function Flower({ 
   sentiment, 
@@ -31,16 +31,18 @@ function Flower({
   index: number
   isToday: boolean
 }) {
-  const flowerColors = {
+  const flowerColors: Record<string, string> = {
     positive: '#f5c842', // Bright sun yellow
     neutral: '#7ec8e3',  // Calm blue
     negative: '#9ca3af', // Muted gray/purple for sadness, needing care
+    empty: 'transparent',
   }
 
-  const centerColors = {
+  const centerColors: Record<string, string> = {
     positive: '#e5a832',
     neutral: '#5eb8d3',
     negative: '#6b7280',
+    empty: 'transparent',
   }
 
   const delay = index * 0.1
@@ -71,18 +73,28 @@ function Flower({
           height="36" 
           viewBox="0 0 36 36"
         >
+          {/* Empty Grass state */}
+          {sentiment === 'empty' && (
+            <>
+              <path d="M12 32 Q15 25 18 32" stroke="#4ade80" strokeWidth="2" fill="none" opacity="0.6"/>
+              <path d="M18 32 Q21 27 24 32" stroke="#4ade80" strokeWidth="2" fill="none" opacity="0.6"/>
+            </>
+          )}
+
           {/* STEM INSIDE SVG */}
-          <rect 
-            x="16.5" 
-            y="28" 
-            width="3" 
-            height="14" 
-            fill={isSad ? "#9ca3af" : "#4ade80"} 
-            rx="1.5"
-          />
+          {sentiment !== 'empty' && (
+            <rect 
+              x="16.5" 
+              y="28" 
+              width="3" 
+              height="14" 
+              fill={isSad ? "#9ca3af" : "#4ade80"} 
+              rx="1.5"
+            />
+          )}
           
           {/* Petals - 6 rounded petals */}
-          {[0, 60, 120, 180, 240, 300].map((angle, i) => (
+          {sentiment !== 'empty' && [0, 60, 120, 180, 240, 300].map((angle, i) => (
             <ellipse
               key={i}
               cx="18"
@@ -94,7 +106,7 @@ function Flower({
             />
           ))}
           {/* Center circle */}
-          <circle cx="18" cy="18" r="6" fill={centerColor} />
+          {sentiment !== 'empty' && <circle cx="18" cy="18" r="6" fill={centerColor} />}
           
           {/* Inner face */}
           {isHappy && (
@@ -112,7 +124,7 @@ function Flower({
               <circle cx="16" cy="21" r="1" fill="#60a5fa" /> {/* little tear */}
             </>
           )}
-          {!isHappy && !isSad && (
+          {sentiment === 'neutral' && (
             <>
               <circle cx="15" cy="17" r="1" fill="#1e2a4a" />
               <circle cx="21" cy="17" r="1" fill="#1e2a4a" />
@@ -125,9 +137,9 @@ function Flower({
       {/* Day label */}
       <span className={cn(
         "text-xs font-bold px-2 py-0.5 rounded-full mt-1 transition-colors",
-        isToday ? "bg-white text-[#1e2a4a] shadow-sm border border-[#1e2a4a]/10" : "text-[#2a4a4a]"
+        isToday ? "bg-white text-[#1e2a4a] shadow-md ring-2 ring-white/50" : "text-[#2a4a4a]"
       )}>
-        {dayName}
+        {isToday ? <strong>(Hoje)</strong> : dayName}
       </span>
     </motion.div>
   )
@@ -144,10 +156,19 @@ export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
     processedData[item.date].push(item)
   })
 
-  // Reduce to max 7 days, averaging sentiment
-  const recentDays = Object.keys(processedData).slice(-7)
-  const recentData = recentDays.map(date => {
-    const entries = processedData[date]
+  // We will iterate through 0 (Sunday) to 6 (Saturday)
+  const todayIndex = new Date().getDay()
+  const weekData = dayNames.map((dayName, idx) => {
+    // Try to find if we have processed data for this day
+    const entries = processedData[dayName] || processedData[dayName + '.']
+    
+    if (!entries || entries.length === 0) {
+      return {
+        date: dayName,
+        sentiment: 'empty' as any,
+      }
+    }
+    
     if (entries.length === 1) return entries[0]
     
     // Calculate average sentiment for the day
@@ -164,16 +185,17 @@ export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
     else if (avg <= 2) predominantSentiment = 'negative'
     
     return {
-      date,
+      date: dayName,
       sentiment: predominantSentiment,
       riskLevel: entries[entries.length - 1].riskLevel, // use latest
       energyLevel: entries[entries.length - 1].energyLevel
     }
   })
   
-  // Calculate progress bar (percentage of positive/neutral days)
-  const positiveNeutralCount = recentData.filter(d => d.sentiment !== 'negative').length
-  const progressPercentage = (positiveNeutralCount / recentData.length) * 100
+  // Calculate progress bar (percentage of positive/neutral days out of days that HAVE entries)
+  const validDays = weekData.filter(d => d.sentiment !== 'empty')
+  const positiveNeutralCount = validDays.filter(d => d.sentiment !== 'negative').length
+  const progressPercentage = validDays.length > 0 ? (positiveNeutralCount / validDays.length) * 100 : 0
 
   return (
     <div className={cn('bg-[#7ee8d0] rounded-2xl p-6 overflow-hidden', className)}>
@@ -182,16 +204,13 @@ export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
         <h3 className="text-lg font-bold text-[#1e2a4a]">Jardim do Bem-Estar</h3>
       </div>
       <p className="text-sm text-[#2a4a4a] mb-6">
-        Histórico semanal - cada flor é um dia
+        Seu jardim reflete as emoções registradas ao longo da semana.
       </p>
       
       {/* Flowers */}
       <div className="flex items-end justify-around pb-4 min-h-[140px]">
-        {recentData.map((item, index) => {
-          // Check if this item represents today based on string mapping
-          const todayIndex = new Date().getDay() // 0 = Dom, 6 = Sáb
-          const expectedDayName = dayNames[todayIndex]
-          const isToday = item.date === expectedDayName || item.date === expectedDayName + '.' || (index === recentData.length - 1 && recentData.length > 0)
+        {weekData.map((item, index) => {
+          const isToday = index === todayIndex
           
           return (
             <Flower

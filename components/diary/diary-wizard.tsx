@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { RobotBuddy } from '@/components/characters/robot-buddy'
+import { CloudBuddy } from '@/components/characters/cloud-buddy'
 import { WeatherMood } from '@/components/characters/weather-mood'
 import { SensoryTagSelector } from './sensory-tag-selector'
 import { EnergySlider } from './energy-slider'
@@ -180,7 +180,7 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
 
   const renderStep1 = () => (
     <div className="space-y-6">
-      <RobotBuddy 
+      <CloudBuddy 
         mood="encouraging" 
         message="Olá! Como você está se sentindo hoje? Escreva livremente o que quiser, estou aqui para ler com carinho."
       />

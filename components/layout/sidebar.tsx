@@ -72,8 +72,8 @@ export function Sidebar() {
       {/* Logo */}
       <div className="p-6 flex items-center justify-between">
         <Link href="/" onClick={handleLinkClick} className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#e85a6b] flex items-center justify-center shrink-0 shadow-sm">
-            <span className="text-xl">&#128522;</span>
+          <div className="w-10 h-10 rounded-xl bg-green-50 border border-green-100 flex items-center justify-center shrink-0 shadow-sm">
+            <span className="text-xl">{FLOWERS[florAvatar]?.emoji || '🌱'}</span>
           </div>
           <div className="truncate">
             <h1 className="font-bold text-lg tracking-tight text-slate-800">sentimentAU</h1>

@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { PenLine, Loader2, Sparkles, Shield, User, Lock, Heart, CheckCircle2, Volume2, VolumeX } from 'lucide-react'
+import { PenLine, Loader2, Sparkles, Shield, Leaf, Lock, Heart, CheckCircle2, Volume2, VolumeX } from 'lucide-react'
 import { useCalmMode } from '@/lib/context/calm-mode-context'
 import type { DiaryEntry, WellbeingStats } from '@/lib/types'
 import { SensoryAudio, type ASMRSoundType } from '@/lib/services/sensory-audio'
@@ -104,48 +104,7 @@ export default function DashboardPage() {
   const [volume, setVolume] = useState(0.5)
   const [clickSound, setClickSoundState] = useState<ASMRSoundType>('bubble')
 
-  const [communityMembers, setCommunityMembers] = useState<any[]>([
-    {
-      id: '1',
-      name: 'Ana Silva',
-      avatarBg: 'bg-[#ffeedb] text-[#ff9800]',
-      avatarEmoji: '🦊',
-      emotion: 'Feliz',
-      sentiment: 'positive',
-      statusText: 'Hoje terminei meu desenho favorito sem pressa! 🎨✨',
-      supportCount: 14
-    },
-    {
-      id: '2',
-      name: 'Lucas Souza',
-      avatarBg: 'bg-[#dcfce7] text-[#22c55e]',
-      avatarEmoji: '🐼',
-      emotion: 'Calmo',
-      sentiment: 'neutral',
-      statusText: 'Usei fones de ouvido com isolamento acústico e relaxei muito hoje. 🎧🌿',
-      supportCount: 8
-    },
-    {
-      id: '3',
-      name: 'Beatriz Costa',
-      avatarBg: 'bg-[#e0f2fe] text-[#0284c7]',
-      avatarEmoji: '🐬',
-      emotion: 'Focada',
-      sentiment: 'positive',
-      statusText: 'Consegui organizar meus livros por cores e foi terapêutico. 📚💎',
-      supportCount: 19
-    },
-    {
-      id: '4',
-      name: 'Gabriel Melo',
-      avatarBg: 'bg-[#f3e8ff] text-[#a855f7]',
-      avatarEmoji: '🦄',
-      emotion: 'Calmo',
-      sentiment: 'neutral',
-      statusText: 'Tomei um chá quentinho olhando a chuva pela janela. ☕🌧️',
-      supportCount: 11
-    }
-  ])
+  const [communityMembers, setCommunityMembers] = useState<any[]>([])
 
   const handleSendSupport = (id: string) => {
     SensoryAudio.playClick()
@@ -216,63 +175,7 @@ export default function DashboardPage() {
             const data = await res.json()
             const realMembers = data.feed || []
             
-            // Cozy supportive mocks as fallback
-            const mocks = [
-              {
-                id: 'mock-1',
-                name: 'Ana Silva',
-                avatarBg: 'bg-[#ffeedb] text-[#ff9800]',
-                avatarEmoji: '🦊',
-                emotion: 'Feliz',
-                sentiment: 'positive',
-                statusText: 'Hoje terminei meu desenho favorito sem pressa! 🎨✨',
-                supportCount: 14
-              },
-              {
-                id: 'mock-2',
-                name: 'Lucas Souza',
-                avatarBg: 'bg-[#dcfce7] text-[#22c55e]',
-                avatarEmoji: '🐼',
-                emotion: 'Calmo',
-                sentiment: 'neutral',
-                statusText: 'Usei fones de ouvido com isolamento acústico e relaxei muito hoje. 🎧🌿',
-                supportCount: 8
-              },
-              {
-                id: 'mock-3',
-                name: 'Beatriz Costa',
-                avatarBg: 'bg-[#e0f2fe] text-[#0284c7]',
-                avatarEmoji: '🐬',
-                emotion: 'Focada',
-                sentiment: 'positive',
-                statusText: 'Consegui organizar meus livros por cores e foi terapêutico. 📚💎',
-                supportCount: 19
-              },
-              {
-                id: 'mock-4',
-                name: 'Gabriel Melo',
-                avatarBg: 'bg-[#f3e8ff] text-[#a855f7]',
-                avatarEmoji: '🦄',
-                emotion: 'Calmo',
-                sentiment: 'neutral',
-                statusText: 'Tomei um chá quentinho olhando a chuva pela janela. ☕🌧️',
-                supportCount: 11
-              }
-            ]
-
-            // Pad with mocks to always keep 4 cards in the board
-            const finalFeed = [...realMembers]
-            let mockIndex = 0
-            while (finalFeed.length < 4 && mockIndex < mocks.length) {
-              const mock = mocks[mockIndex]
-              // Prevent displaying redundant mocks if username is somehow same
-              if (!finalFeed.some(f => f.name === mock.name)) {
-                finalFeed.push(mock)
-              }
-              mockIndex++
-            }
-
-            setCommunityMembers(finalFeed)
+            setCommunityMembers(realMembers)
           }
         } catch (err) {
           console.error('[Dashboard] Community fetch error:', err)
@@ -408,7 +311,7 @@ export default function DashboardPage() {
                   <TabsContent value="login" className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="login-username" className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-                        <User className="w-3.5 h-3.5" /> Nome de Usuário
+                        <Leaf className="w-3.5 h-3.5" /> Nome de Usuário
                       </Label>
                       <Input
                         id="login-username"
@@ -459,7 +362,7 @@ export default function DashboardPage() {
                   <TabsContent value="signup" className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="signup-username" className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-                        <User className="w-3.5 h-3.5" /> Nome de Usuário
+                        <Leaf className="w-3.5 h-3.5" /> Nome de Usuário
                       </Label>
                       <Input
                         id="signup-username"
@@ -636,7 +539,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="space-y-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="font-bold text-foreground text-sm truncate">{FLOWERS[member.florAvatarId]?.label || 'Jardim Anônimo'}</span>
+                            <span className="font-bold text-foreground text-sm truncate">{member.username || 'Usuário Anônimo'}</span>
                             <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
                               member.sentiment === 'positive' 
                                 ? 'bg-green-100 text-green-700'
@@ -658,7 +561,10 @@ export default function DashboardPage() {
                           🟢 Online hoje
                         </span>
                         <button
-                          onClick={() => handleSendSupport(member.id)}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            handleSendSupport(member.id)
+                          }}
                           className="flex items-center gap-1.5 py-1 px-3 rounded-xl bg-[#eef2f6] hover:bg-primary/10 hover:text-primary transition-all text-xs font-bold text-[#5c6e8c] cursor-pointer"
                         >
                           <span>🫂 Enviar Abraço</span>

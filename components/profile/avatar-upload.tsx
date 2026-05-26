@@ -6,7 +6,7 @@ import 'react-image-crop/dist/ReactCrop.css'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
-import { Camera, Loader2, Upload, User, CheckCircle2 } from 'lucide-react'
+import { Camera, Upload, Leaf, Loader2, X, Check, CheckCircle2, RefreshCcw } from 'lucide-react'
 import { toast } from 'sonner'
 import { SensoryAudio } from '@/lib/services/sensory-audio'
 
@@ -211,7 +211,7 @@ export function AvatarUpload() {
             className="w-full h-full object-cover object-center"
           />
         ) : (
-          <User className="w-12 h-12 text-muted-foreground" />
+          <Leaf className="w-12 h-12 text-muted-foreground opacity-50" />
         )}
         
         {/* Hover Camera Overlay */}

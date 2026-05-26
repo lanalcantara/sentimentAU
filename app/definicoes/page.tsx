@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { 
-  User, 
+  Leaf, 
   Bell, 
   Shield, 
   Download, 
@@ -35,7 +35,7 @@ export default function DefinicoesPage() {
         <Card className="bg-card/50 border-0 shadow-sm">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <User className="w-4 h-4" />
+              <Leaf className="w-4 h-4" />
               Perfil
             </CardTitle>
           </CardHeader>

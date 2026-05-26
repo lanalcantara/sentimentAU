@@ -75,7 +75,7 @@ export function MobileNav() {
       <div className="flex items-center justify-between p-4">
         <Link href="/" onClick={handleLinkClick} className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-[#e85a6b] flex items-center justify-center">
-            <span className="text-lg">&#128522;</span>
+            <span className="text-lg">{FLOWERS[florAvatar]?.emoji || '🌱'}</span>
           </div>
           <span className="font-bold">sentimentAU</span>
         </Link>
@@ -118,7 +118,7 @@ export function MobileNav() {
               <div>
                 <div className="flex items-center gap-2 mb-8">
                   <div className="w-8 h-8 rounded-lg bg-[#e85a6b] flex items-center justify-center">
-                    <span className="text-lg">&#128522;</span>
+                    <span className="text-lg">{FLOWERS[florAvatar]?.emoji || '🌱'}</span>
                   </div>
                   <div>
                     <span className="font-bold">sentimentAU</span>
