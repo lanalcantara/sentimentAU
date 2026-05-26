@@ -21,11 +21,11 @@ const dayNames = ['Sáb', 'Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex']
 function Flower({ 
   sentiment, 
   riskLevel, 
-  dayName: string
-  index: number 
-  isToday: boolean
+  dayName,
+  index,
+  isToday
 }: { 
-  sentiment: Sentiment
+  sentiment: Sentiment, 
   dayName: string
   index: number
   isToday: boolean
