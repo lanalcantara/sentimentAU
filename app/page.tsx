@@ -14,8 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PenLine, Loader2, Sparkles, Shield, User, Lock, Heart, CheckCircle2, Volume2, VolumeX } from 'lucide-react'
 import { useCalmMode } from '@/lib/context/calm-mode-context'
 import type { DiaryEntry, WellbeingStats } from '@/lib/types'
-import { AvatarUpload } from '@/components/profile/avatar-upload'
 import { SensoryAudio, type ASMRSoundType } from '@/lib/services/sensory-audio'
+import { FLOWERS } from '@/lib/flowers'
 
 // Dynamic Stats Calculator based on real Postgres entries
 const calculateDynamicStats = (entries: DiaryEntry[]): WellbeingStats => {
@@ -603,15 +603,15 @@ export default function DashboardPage() {
             )}
 
             {/* Painel de Apoio da Comunidade */}
-            <Card className="bg-white border-0 shadow-sm rounded-3xl p-6 space-y-4">
+            <Card className="bg-card border-0 shadow-sm rounded-3xl p-6 space-y-4">
               <CardHeader className="p-0 pb-1">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-base font-bold text-[#1e2a4a] flex items-center gap-2">
+                    <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                       <span className="text-lg">🌈</span> Painel de Apoio da Comunidade
                     </CardTitle>
-                    <CardDescription className="text-xs text-[#6a7a9a] mt-1 leading-relaxed">
-                      Membros da comunidade sentimentAU compartilhando sentimentos de forma anônima e acolhedora. Envie um abraço tátil!
+                    <CardDescription className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                      Membros da comunidade sentimentAU compartilhando sentimentos de forma acolhedora. Envie um abraço tátil!
                     </CardDescription>
                   </div>
                 </div>
@@ -620,25 +620,18 @@ export default function DashboardPage() {
               <CardContent className="p-0">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {communityMembers.map((member) => (
-                    <div 
+                    <Link 
+                      href={`/perfil/${member.id}`}
                       key={member.id}
-                      className="p-4 rounded-2xl bg-[#f8fafc] border border-[#eaeef5]/50 flex flex-col justify-between space-y-3 hover:shadow-md transition-all hover:bg-white duration-300"
+                      className="p-4 rounded-2xl bg-muted border border-border flex flex-col justify-between space-y-3 hover:shadow-md transition-all hover:bg-card duration-300"
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm ${member.avatarBg} shrink-0 overflow-hidden`}>
-                          {member.avatarUrl ? (
-                            <img 
-                              src={member.avatarUrl} 
-                              alt={`Avatar de ${member.name}`} 
-                              className="w-full h-full object-cover rounded-full"
-                            />
-                          ) : (
-                            member.avatarEmoji
-                          )}
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-sm ${member.avatarBg} shrink-0 overflow-hidden`}>
+                          {FLOWERS[member.florAvatarId]?.emoji || '🌱'}
                         </div>
                         <div className="space-y-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="font-bold text-[#1e2a4a] text-sm truncate">{member.name}</span>
+                            <span className="font-bold text-foreground text-sm truncate">{FLOWERS[member.florAvatarId]?.label || 'Jardim Anônimo'}</span>
                             <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
                               member.sentiment === 'positive' 
                                 ? 'bg-green-100 text-green-700'
@@ -649,13 +642,13 @@ export default function DashboardPage() {
                               {member.emotion}
                             </span>
                           </div>
-                          <p className="text-xs text-[#4a5568] leading-relaxed italic pr-2">
+                          <p className="text-xs text-muted-foreground leading-relaxed italic pr-2">
                             "{member.statusText}"
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between pt-1 border-t border-dashed border-[#eaeef5]">
+                      <div className="flex items-center justify-between pt-1 border-t border-dashed border-border">
                         <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                           🟢 Online hoje
                         </span>
@@ -664,12 +657,12 @@ export default function DashboardPage() {
                           className="flex items-center gap-1.5 py-1 px-3 rounded-xl bg-[#eef2f6] hover:bg-primary/10 hover:text-primary transition-all text-xs font-bold text-[#5c6e8c] cursor-pointer"
                         >
                           <span>🫂 Enviar Abraço</span>
-                          <span className="bg-white/90 text-primary font-extrabold px-1.5 py-0.5 rounded-md text-[9px] shadow-sm">
+                          <span className="bg-card/90 text-primary font-extrabold px-1.5 py-0.5 rounded-md text-[9px] shadow-sm">
                             {member.supportCount}
                           </span>
                         </button>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </CardContent>
@@ -681,10 +674,10 @@ export default function DashboardPage() {
             <AvatarUpload />
 
             {/* ASMR Sound Panel Card */}
-            <Card className="bg-white border-0 shadow-sm rounded-3xl p-6 space-y-4">
+            <Card className="bg-card border-0 shadow-sm rounded-3xl p-6 space-y-4">
               <CardHeader className="p-0 pb-1">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base font-bold text-[#1e2a4a] flex items-center gap-2">
+                  <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-primary animate-pulse" />
                     Central de Sons ASMR
                   </CardTitle>
@@ -712,15 +705,15 @@ export default function DashboardPage() {
                     )}
                   </button>
                 </div>
-                <CardDescription className="text-xs text-[#6a7a9a] mt-1 leading-relaxed">
+                <CardDescription className="text-xs text-muted-foreground mt-1 leading-relaxed">
                   Controle a intensidade e personalize os sons táteis projetados para autorregulação e conforto.
                 </CardDescription>
               </CardHeader>
               
               <CardContent className="p-0 space-y-4">
                 {/* Volume Slider Control */}
-                <div className="bg-[#f8fafc] p-3.5 rounded-2xl border border-[#eaeef5]/50 space-y-2">
-                  <div className="flex justify-between items-center text-xs font-bold text-[#1e2a4a]">
+                <div className="bg-muted p-3.5 rounded-2xl border border-border space-y-2">
+                  <div className="flex justify-between items-center text-xs font-bold text-foreground">
                     <span className="flex items-center gap-1">🔊 Volume Geral</span>
                     <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-[10px]">
                       {Math.round(volume * 100)}%
@@ -746,8 +739,8 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Click Sound Selector */}
-                <div className="bg-[#f8fafc] p-3.5 rounded-2xl border border-[#eaeef5]/50 space-y-2">
-                  <div className="flex justify-between items-center text-xs font-bold text-[#1e2a4a]">
+                <div className="bg-muted p-3.5 rounded-2xl border border-border space-y-2">
+                  <div className="flex justify-between items-center text-xs font-bold text-foreground">
                     <span className="flex items-center gap-1">🖱️ Som do Clique Padrão</span>
                   </div>
                   <select
@@ -758,7 +751,7 @@ export default function DashboardPage() {
                       SensoryAudio.setClickSound(sound)
                       SensoryAudio.play(sound)
                     }}
-                    className="w-full text-xs bg-white border border-[#eaeef5] rounded-xl p-2 text-[#1e2a4a] outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer font-medium"
+                    className="w-full text-xs bg-card border border-border rounded-xl p-2 text-foreground outline-none focus:ring-1 focus:ring-primary/40 cursor-pointer font-medium"
                   >
                     <optgroup label="Sons da Natureza">
                       <option value="water-drop">💧 Gota d'Água</option>
@@ -778,7 +771,7 @@ export default function DashboardPage() {
 
                 {/* Natural ASMR Synth Section */}
                 <div className="space-y-2">
-                  <span className="text-xs font-bold text-[#6a7a9a] block">Sons da Natureza</span>
+                  <span className="text-xs font-bold text-muted-foreground block">Sons da Natureza</span>
                   <div className="grid grid-cols-3 gap-2">
                     <button
                       onClick={() => {
@@ -789,7 +782,7 @@ export default function DashboardPage() {
                       <div className="w-8 h-8 rounded-full bg-[#6b8fd4]/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
                         💧
                       </div>
-                      <span className="text-[10px] font-bold text-[#1e2a4a] mt-1.5">Gota</span>
+                      <span className="text-[10px] font-bold text-foreground mt-1.5">Gota</span>
                     </button>
 
                     <button
@@ -801,7 +794,7 @@ export default function DashboardPage() {
                       <div className="w-8 h-8 rounded-full bg-[#4ecdc4]/20 flex items-center justify-center text-[#4ecdc4] group-hover:scale-110 transition-transform">
                         🫧
                       </div>
-                      <span className="text-[10px] font-bold text-[#1e2a4a] mt-1.5">Bolha</span>
+                      <span className="text-[10px] font-bold text-foreground mt-1.5">Bolha</span>
                     </button>
 
                     <button
@@ -813,14 +806,14 @@ export default function DashboardPage() {
                       <div className="w-8 h-8 rounded-full bg-[#f5a623]/20 flex items-center justify-center text-[#f5a623] group-hover:scale-110 transition-transform">
                         🔔
                       </div>
-                      <span className="text-[10px] font-bold text-[#1e2a4a] mt-1.5">Sino</span>
+                      <span className="text-[10px] font-bold text-foreground mt-1.5">Sino</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Minecraft Retro ASMR Section */}
-                <div className="space-y-2 pt-1 border-t border-[#eaeef5]/50">
-                  <span className="text-xs font-bold text-[#6a7a9a] flex items-center gap-1">
+                <div className="space-y-2 pt-1 border-t border-border">
+                  <span className="text-xs font-bold text-muted-foreground flex items-center gap-1">
                     🕹️ Sons do Minecraft (ASMR Retro)
                   </span>
                   <div className="grid grid-cols-2 gap-2">

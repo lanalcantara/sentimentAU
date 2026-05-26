@@ -21,12 +21,14 @@ const dayNames = ['Sáb', 'Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex']
 function Flower({ 
   sentiment, 
   riskLevel, 
-  dayName,
-  index 
+  dayName: string
+  index: number 
+  isToday: boolean
 }: { 
   sentiment: Sentiment
   dayName: string
-  index: number 
+  index: number
+  isToday: boolean
 }) {
   const flowerColors = {
     positive: '#f5c842', // Bright sun yellow
@@ -68,6 +70,16 @@ function Flower({
           height="36" 
           viewBox="0 0 36 36"
         >
+          {/* STEM INSIDE SVG */}
+          <rect 
+            x="16.5" 
+            y="28" 
+            width="3" 
+            height="14" 
+            fill={isSad ? "#9ca3af" : "#4ade80"} 
+            rx="1.5"
+          />
+          
           {/* Petals - 6 rounded petals */}
           {[0, 60, 120, 180, 240, 300].map((angle, i) => (
             <ellipse
@@ -109,25 +121,54 @@ function Flower({
         </svg>
       </motion.div>
       
-      {/* Stem - droops if sad */}
-      <motion.div 
-        className={cn("w-1 h-8 rounded-full -mt-2 z-[-1]", isSad ? "bg-[#9ca3af]" : "bg-[#4ade80]")}
-        animate={{ 
-          rotate: isSad ? [10, 15, 10] : 0,
-          scaleY: isSad ? 0.8 : 1
-        }}
-        style={{ transformOrigin: 'bottom center' }}
-        transition={{ duration: 6, repeat: Infinity, delay }}
-      />
-      
       {/* Day label */}
-      <span className="text-xs font-bold text-[#2a4a4a] mt-1">{dayName}</span>
+      <span className={cn(
+        "text-xs font-bold px-2 py-0.5 rounded-full mt-1 transition-colors",
+        isToday ? "bg-white text-[#1e2a4a] shadow-sm border border-[#1e2a4a]/10" : "text-[#2a4a4a]"
+      )}>
+        {dayName}
+      </span>
     </motion.div>
   )
 }
 
 export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
-  const recentData = data.slice(-7)
+  // Pre-process data: Group by day and find the average/predominant sentiment
+  const processedData: Record<string, FlowerData[]> = {}
+  data.forEach(item => {
+    // If we have multiple for the same day string (e.g. "Ter"), we collect them
+    if (!processedData[item.date]) {
+      processedData[item.date] = []
+    }
+    processedData[item.date].push(item)
+  })
+
+  // Reduce to max 7 days, averaging sentiment
+  const recentDays = Object.keys(processedData).slice(-7)
+  const recentData = recentDays.map(date => {
+    const entries = processedData[date]
+    if (entries.length === 1) return entries[0]
+    
+    // Calculate average sentiment for the day
+    let score = 0
+    entries.forEach(e => {
+      if (e.sentiment === 'positive') score += 5
+      else if (e.sentiment === 'neutral') score += 3
+      else score += 1
+    })
+    const avg = score / entries.length
+    
+    let predominantSentiment: Sentiment = 'neutral'
+    if (avg >= 4) predominantSentiment = 'positive'
+    else if (avg <= 2) predominantSentiment = 'negative'
+    
+    return {
+      date,
+      sentiment: predominantSentiment,
+      riskLevel: entries[entries.length - 1].riskLevel, // use latest
+      energyLevel: entries[entries.length - 1].energyLevel
+    }
+  })
   
   // Calculate progress bar (percentage of positive/neutral days)
   const positiveNeutralCount = recentData.filter(d => d.sentiment !== 'negative').length
@@ -145,14 +186,22 @@ export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
       
       {/* Flowers */}
       <div className="flex items-end justify-around pb-4 min-h-[140px]">
-        {recentData.map((item, index) => (
-          <Flower
-            key={item.date}
-            sentiment={item.sentiment}
-            dayName={dayNames[index % 7]}
-            index={index}
-          />
-        ))}
+        {recentData.map((item, index) => {
+          // Check if this item represents today based on string mapping
+          const todayIndex = new Date().getDay() // 0 = Dom, 6 = Sáb
+          const expectedDayName = dayNames[todayIndex]
+          const isToday = item.date === expectedDayName || item.date === expectedDayName + '.' || (index === recentData.length - 1 && recentData.length > 0)
+          
+          return (
+            <Flower
+              key={item.date}
+              sentiment={item.sentiment}
+              dayName={item.date}
+              index={index}
+              isToday={isToday}
+            />
+          )
+        })}
       </div>
 
       {/* Progress bar */}
@@ -174,7 +223,7 @@ export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
           <span className="w-3 h-3 rounded-full bg-[#7ec8e3]" /> Estável
         </span>
         <span className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-[#9ca3af]" /> Precisando de Carinho
+          <span className="w-3 h-3 rounded-full bg-[#9ca3af]" /> Precisando ser regada
         </span>
       </div>
     </div>

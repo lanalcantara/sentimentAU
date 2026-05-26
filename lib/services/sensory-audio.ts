@@ -22,6 +22,22 @@ export type ASMRSoundType =
   | 'mc-bow'
 
 export const SensoryAudio = {
+  // Must be called on user interaction (e.g. click anywhere on document) to unlock audio context
+  init() {
+    if (typeof window !== 'undefined') {
+      try {
+        const ctx = getAudioContext()
+        // Play an empty buffer to truly unlock mobile browsers
+        const buffer = ctx.createBuffer(1, 1, 22050)
+        const source = ctx.createBufferSource()
+        source.buffer = buffer
+        source.connect(ctx.destination)
+        source.start(0)
+      } catch (err) {
+        console.warn('Failed to initialize audio context:', err)
+      }
+    }
+  },
   isMuted(): boolean {
     if (typeof window === 'undefined') return true
     return localStorage.getItem('sensory_sound_muted') === 'true'
@@ -33,9 +49,9 @@ export const SensoryAudio = {
   },
 
   getVolume(): number {
-    if (typeof window === 'undefined') return 0.5
+    if (typeof window === 'undefined') return 0.2 // Reduced base volume for calm mode
     const vol = localStorage.getItem('sensory_sound_volume')
-    return vol !== null ? Number(vol) : 0.5
+    return vol !== null ? Number(vol) : 0.2
   },
 
   setVolume(volume: number) {
@@ -56,6 +72,7 @@ export const SensoryAudio = {
   },
 
   playClick() {
+    this.init() // Ensure initialized
     this.play(this.getClickSound())
   },
 
@@ -65,7 +82,7 @@ export const SensoryAudio = {
     try {
       const ctx = getAudioContext()
       const now = ctx.currentTime
-      const volume = this.getVolume()
+      const volume = this.getVolume() * 0.5 // Reduce all sounds by 50% for extra calm padding
 
       if (type === 'water-drop') {
         // Organic water drop "plop" sweep

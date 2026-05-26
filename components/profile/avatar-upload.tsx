@@ -155,37 +155,22 @@ export function AvatarUpload() {
         throw new Error('Falha ao processar imagem cortada')
       }
 
-      // Generate unique name for the file
-      const fileName = `${username}_avatar_${Date.now()}.jpg`
-      const filePath = `avatars/${fileName}`
+      // Upload using the new API route to bypass RLS securely
+      const formData = new FormData()
+      formData.append('file', blob)
+      formData.append('username', username)
 
-      // Upload file directly to Supabase Public avatars bucket
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, blob, {
-          contentType: 'image/jpeg',
-          upsert: true,
-        })
-
-      if (uploadError) {
-        throw uploadError
-      }
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath)
-
-      // Save public URL to user's profile table
-      const res = await fetch('/api/profile', {
+      const res = await fetch('/api/upload-avatar', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ avatarUrl: publicUrl }),
+        body: formData,
       })
 
       if (!res.ok) {
-        throw new Error('Não foi possível atualizar o URL da imagem no perfil.')
+        const errData = await res.json()
+        throw new Error(errData.error || 'Não foi possível atualizar o URL da imagem no perfil.')
       }
+
+      const { publicUrl } = await res.json()
 
       setAvatarUrl(publicUrl)
       setIsModalOpen(false)

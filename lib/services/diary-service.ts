@@ -123,15 +123,15 @@ export const DiaryService = {
   },
 
   /**
-   * Retrieves the latest entry for other users to build a live community emotion mural.
+   * Retrieves the latest public entry for other users to build a live community emotion mural.
    */
   async getCommunityFeed(currentUserId: string): Promise<any[]> {
     // 1. Fetch other users
     const { data: users, error: usersError } = await supabaseAdmin
       .from('sentiment_users')
-      .select('id, username, avatar_url')
+      .select('id, flor_avatar_atual')
       .neq('id', currentUserId)
-      .limit(10)
+      .limit(15)
 
     if (usersError || !users || users.length === 0) {
       return []
@@ -139,12 +139,13 @@ export const DiaryService = {
 
     const feed: any[] = []
 
-    // 2. Fetch the latest entry for each other user
+    // 2. Fetch the latest public entry for each other user
     for (const u of users) {
       const { data: latestEntry, error: entryError } = await supabaseAdmin
         .from('sentiment_entries')
         .select('*')
         .eq('user_id', u.id)
+        .eq('is_public', true)
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle()
@@ -171,22 +172,13 @@ export const DiaryService = {
           emotionLabel = map[latestEntry.emotions[0]] || emotionLabel
         }
 
-        // Clean user's username for displaying
-        const displayName = u.username.charAt(0).toUpperCase() + u.username.slice(1)
-
-        // Select an emoji and background based on sentiment deterministically
-        let avatarEmoji = '🦊'
-        let avatarBg = 'bg-[#ffeedb] text-[#ff9800]'
-        
+        let avatarBg = 'bg-[#f1f5f9] text-[#64748b]'
         if (latestEntry.sentiment === 'positive') {
-          avatarEmoji = '🦄'
-          avatarBg = 'bg-[#f3e8ff] text-[#a855f7]'
+          avatarBg = 'bg-[#f0fdf4] text-[#16a34a]'
         } else if (latestEntry.sentiment === 'negative') {
-          avatarEmoji = '🐼'
-          avatarBg = 'bg-[#efebe9] text-[#795548]'
+          avatarBg = 'bg-[#fef2f2] text-[#dc2626]'
         } else {
-          avatarEmoji = '🐬'
-          avatarBg = 'bg-[#e0f2fe] text-[#0284c7]'
+          avatarBg = 'bg-[#f0f9ff] text-[#0284c7]'
         }
 
         // Cut down the text to a comfortable snippet length
@@ -196,10 +188,8 @@ export const DiaryService = {
 
         feed.push({
           id: u.id,
-          name: displayName,
+          florAvatarId: u.flor_avatar_atual || 'semente',
           avatarBg,
-          avatarEmoji,
-          avatarUrl: u.avatar_url,
           emotion: emotionLabel,
           sentiment: latestEntry.sentiment,
           statusText: displaySnippet,

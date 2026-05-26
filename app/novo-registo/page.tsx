@@ -44,8 +44,8 @@ export default function NovoRegistoPage() {
   if (isSaving) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4 text-center">
-        <Loader2 className="w-8 h-8 text-primary animate-spin mb-4" />
-        <p className="text-muted-foreground font-medium">Salvando seu registro emocional...</p>
+        <div className="text-5xl animate-bounce mb-6">&#128167; &#127803;</div>
+        <p className="text-muted-foreground font-medium text-lg">Regando a sua nova sementinha no jardim...</p>
       </div>
     )
   }

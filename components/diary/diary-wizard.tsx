@@ -394,34 +394,6 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
             )}
           </div>
 
-          {/* Risk Meltdown warnings in Portuguese */}
-          {analysis.riskLevel !== 'low' && (
-            <div className={cn(
-              'rounded-2xl p-4.5 flex items-start gap-3 border shadow-sm',
-              analysis.riskLevel === 'high' 
-                ? 'bg-red-50 border-red-200/50 text-red-950' 
-                : 'bg-amber-50 border-amber-200/50 text-amber-950'
-            )}>
-              <AlertTriangle className={cn(
-                'w-5 h-5 mt-0.5 shrink-0',
-                analysis.riskLevel === 'high' ? 'text-red-600' : 'text-amber-600'
-              )} />
-              <div>
-                <p className="font-bold text-sm">
-                  {analysis.riskLevel === 'high' ? '⚠️ Alerta: Risco de Crise Elevado' : '⚠️ Atenção: Risco de Crise Moderado'}
-                </p>
-                <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
-                  Identificamos fatores que podem indicar sobrecarga. Veja os indicadores:
-                </p>
-                <ul className="text-xs text-foreground/80 mt-1.5 space-y-1 font-medium list-disc list-inside">
-                  {analysis.riskIndicators.map((indicator, i) => (
-                    <li key={i}>{indicator}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          )}
-
           {/* AI suggestions/tips */}
           {analysis.suggestions.length > 0 && (
             <div className="bg-card border border-border/20 rounded-2xl p-4.5 flex items-start gap-3 shadow-sm">

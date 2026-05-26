@@ -62,11 +62,19 @@ export const LocalAnalyzer = {
     }
     let totalMatches = 0
     
+    // Ignore common greetings so they don't skew the sentiment (e.g. "Bom dia" -> "Bom" -> Happy)
+    const strippedContent = content
+      .replace(/\bbom dia\b/gi, '')
+      .replace(/\bboa tarde\b/gi, '')
+      .replace(/\bboa noite\b/gi, '')
+      .replace(/\bolá\b/gi, '')
+      .replace(/\boi\b/gi, '')
+
     for (const [emotion, keywords] of Object.entries(emotionKeywords) as [Emotion, string[]][]) {
       for (const keyword of keywords) {
         // Match base form or derivative
         const regex = new RegExp(`\\b${keyword}\\w*\\b`, 'gi')
-        const matches = content.match(regex)
+        const matches = strippedContent.match(regex)
         if (matches) {
           // Weighted scoring: critical emotions receive higher priority weights
           let weight = 1

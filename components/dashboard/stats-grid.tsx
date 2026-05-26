@@ -22,7 +22,7 @@ export function StatsGrid({ stats, className }: StatsGridProps) {
           <Calendar className="w-5 h-5 text-white" />
         </div>
         <div>
-          <p className="text-3xl font-bold text-[#1e2a4a]">{stats.totalEntries}</p>
+          <p className="text-3xl font-bold text-foreground">{stats.totalEntries}</p>
           <p className="text-sm text-[#4a5a7a]">Registros</p>
         </div>
       </div>
@@ -33,7 +33,7 @@ export function StatsGrid({ stats, className }: StatsGridProps) {
           <Sun className="w-5 h-5 text-white" />
         </div>
         <div>
-          <p className="text-3xl font-bold text-[#1e2a4a]">{positiveCount}</p>
+          <p className="text-3xl font-bold text-foreground">{positiveCount}</p>
           <p className="text-sm text-[#7a6a4a]">Positivos</p>
         </div>
       </div>
@@ -44,7 +44,7 @@ export function StatsGrid({ stats, className }: StatsGridProps) {
           <Cloud className="w-5 h-5 text-white" />
         </div>
         <div>
-          <p className="text-3xl font-bold text-[#1e2a4a]">{difficultCount}</p>
+          <p className="text-3xl font-bold text-foreground">{difficultCount}</p>
           <p className="text-sm text-[#7a5a5a]">Difíceis</p>
         </div>
       </div>
@@ -55,7 +55,7 @@ export function StatsGrid({ stats, className }: StatsGridProps) {
           <Zap className="w-5 h-5 text-white" />
         </div>
         <div>
-          <p className="text-3xl font-bold text-[#1e2a4a]">{averageEnergy}</p>
+          <p className="text-3xl font-bold text-foreground">{averageEnergy}</p>
           <p className="text-sm text-[#4a7a7a]">Energia</p>
         </div>
       </div>
