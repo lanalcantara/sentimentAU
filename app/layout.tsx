@@ -18,21 +18,12 @@ const nunitoSans = Nunito_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'sentimentAU - Diário Emocional Inteligente',
+  title: 'sentimentAU - Seu Espaço Seguro',
   description: 'Diário emocional inteligente com análise de sentimentos por IA para indivíduos autistas.',
   keywords: ['autismo', 'diário emocional', 'análise de sentimentos', 'NLP', 'bem-estar', 'saúde mental'],
   authors: [{ name: 'sentimentAU' }],
   icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
+    icon: '/favicon.ico',
     apple: '/apple-icon.png',
   },
 }
