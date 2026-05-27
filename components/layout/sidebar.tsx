@@ -72,7 +72,7 @@ export function Sidebar() {
       <div className="px-7 pt-7 pb-2 flex items-center justify-between">
         <Link href="/" onClick={handleLinkClick} className="flex items-center gap-3 w-full">
           {/* Logo oficial em pixel art */}
-          <img src="/sentimentau-logo.png" alt="sentimentAU Logo" className="w-9 h-9 rounded-xl shrink-0 object-contain" />
+          <img src="/sentimentau-logo.png" alt="sentimentAU Logo" className="w-9 h-9 rounded-full shrink-0 object-cover border border-slate-700/10 bg-white shadow-sm" />
           <div className="truncate">
             <h1 className="font-extrabold text-lg tracking-wider text-slate-800 font-sans">sentimentAU</h1>
             <p className="text-[10px] text-slate-500 font-medium tracking-wide uppercase leading-none">Diário Emocional</p>

@@ -544,8 +544,8 @@ export default function DashboardPage() {
           <div className="w-full max-w-md">
             <Card className="border-border/60 shadow-md bg-card">
               <CardHeader className="text-center pb-4">
-                <div className="mx-auto w-24 h-24 mb-4 flex items-center justify-center">
-                  <img src="/sentimentau-logo.png" alt="sentimentAU Logo" className="w-full h-full object-contain" />
+                <div className="mx-auto w-24 h-24 mb-4 flex items-center justify-center rounded-full overflow-hidden border border-border/40 bg-white shadow-sm">
+                  <img src="/sentimentau-logo.png" alt="sentimentAU Logo" className="w-full h-full object-cover" />
                 </div>
                 <CardTitle className="text-2xl font-bold tracking-tight text-foreground">Seu Espaço Seguro</CardTitle>
                 <CardDescription className="text-muted-foreground text-sm mt-1 leading-relaxed">
