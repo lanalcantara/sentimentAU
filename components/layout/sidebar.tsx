@@ -11,7 +11,8 @@ import {
   Lightbulb,
   LogOut,
   Heart,
-  User
+  User,
+  Leaf
 } from 'lucide-react'
 import { SensoryAudio } from '@/lib/services/sensory-audio'
 
@@ -21,6 +22,7 @@ import { NotificationsPopover } from '@/components/profile/notifications-popover
 const navItems = [
   { href: '/', label: 'Painel', icon: LayoutDashboard },
   { href: '/novo-registo', label: 'Novo Registro', icon: PenLine },
+  { href: '/colecao', label: 'Coleção Botânica', icon: Leaf },
   { href: '/historico', label: 'Histórico', icon: History },
   { href: '/insights', label: 'Insights', icon: Lightbulb },
 ]
@@ -73,7 +75,7 @@ export function Sidebar() {
             <span className="text-xl">{FLOWERS[florAvatar]?.emoji || '🌱'}</span>
           </div>
           <div className="truncate">
-            <h1 className="font-bold text-lg tracking-tight text-slate-800">sentimentAU</h1>
+            <h1 className="font-bold text-lg tracking-tight text-slate-800 capitalize">{username || 'sentimentAU'}</h1>
             <p className="text-xs text-slate-500">Diário Emocional</p>
           </div>
         </Link>

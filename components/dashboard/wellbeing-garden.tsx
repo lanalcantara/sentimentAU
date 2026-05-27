@@ -144,10 +144,28 @@ function Flower({
 export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
   // Pre-process data: Group by day and find the average/predominant sentiment
   const processedData: Record<number, FlowerData[]> = {}
+  
+  const now = new Date()
+  const todayIndex = now.getDay()
+  
+  // Calculate boundaries for the current week (Sunday to Saturday)
+  const currentSunday = new Date(now)
+  currentSunday.setDate(now.getDate() - now.getDay())
+  currentSunday.setHours(0, 0, 0, 0)
+  
+  const currentSaturday = new Date(currentSunday)
+  currentSaturday.setDate(currentSunday.getDate() + 6)
+  currentSaturday.setHours(23, 59, 59, 999)
+
   data.forEach(item => {
     const dateObj = new Date(item.date)
-    const dayIndex = dateObj.getDay()
+    // Ignore any entries in the future
+    if (dateObj > now) return
     
+    // Ignore entries not belonging to the current week
+    if (dateObj < currentSunday || dateObj > currentSaturday) return
+    
+    const dayIndex = dateObj.getDay()
     if (!processedData[dayIndex]) {
       processedData[dayIndex] = []
     }
@@ -155,7 +173,6 @@ export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
   })
 
   // We will iterate through 0 (Sunday) to 6 (Saturday)
-  const todayIndex = new Date().getDay()
   const weekData = dayNames.map((dayName, idx) => {
     // Try to find if we have processed data for this day
     const entries = processedData[idx]
@@ -195,10 +212,13 @@ export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
     }
   })
   
-  // Calculate progress bar (percentage of positive/neutral days out of days that HAVE entries)
-  const validDays = weekData.filter(d => d.sentiment !== 'empty')
-  const positiveNeutralCount = validDays.filter(d => d.sentiment !== 'negative').length
-  const progressPercentage = validDays.length > 0 ? (positiveNeutralCount / validDays.length) * 100 : 0
+  // Zero out future days - never render flowers for days that haven't happened yet
+  const boundedWeekData = weekData.map((item, idx) =>
+    idx > todayIndex ? { date: dayNames[idx], sentiment: 'empty' as any } : item
+  )
+
+  // Calculate progress bar to extend exactly to the current day of the week
+  const progressPercentage = (todayIndex / 6) * 100
 
   return (
     <div className={cn('bg-[#7ee8d0] rounded-2xl p-6 overflow-hidden', className)}>
@@ -212,7 +232,7 @@ export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
       
       {/* Flowers */}
       <div className="flex items-end justify-around pb-4 min-h-[140px]">
-        {weekData.map((item, index) => {
+        {boundedWeekData.map((item, index) => {
           const isToday = index === todayIndex
           
           return (

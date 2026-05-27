@@ -126,8 +126,6 @@ export const DiaryService = {
    * Retrieves the latest public entry for other users to build a live community emotion mural.
    */
   async getCommunityFeed(currentUserId: string): Promise<any[]> {
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-
     const { data: latestEntries, error } = await supabaseAdmin
       .from('sentiment_entries')
       .select(`
@@ -140,8 +138,7 @@ export const DiaryService = {
         )
       `)
       .eq('is_public', true)
-      .gte('created_at', sevenDaysAgo)
-      // .neq('user_id', currentUserId) // Comentado temporariamente para testes locais permitirem ver os próprios posts
+      .neq('user_id', currentUserId) // Oculta os posts do próprio usuário logado
       .order('created_at', { ascending: false })
       .limit(20)
 

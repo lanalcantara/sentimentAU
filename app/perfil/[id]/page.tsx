@@ -6,8 +6,8 @@ import { Heart, UserPlus, Leaf } from 'lucide-react'
 import { WellbeingGarden } from '@/components/dashboard/wellbeing-garden'
 import { CommunityActions } from '@/components/profile/community-actions'
 
-export default async function ProfilePage({ params }: { params: { id: string } }) {
-  const { id } = params
+export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
 
   // Fetch profile
   const { data: profile } = await supabaseAdmin

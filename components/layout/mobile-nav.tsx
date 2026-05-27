@@ -11,7 +11,8 @@ import {
   Menu,
   Heart,
   LogOut,
-  User
+  User,
+  Leaf
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
@@ -23,6 +24,7 @@ import { NotificationsPopover } from '@/components/profile/notifications-popover
 const navItems = [
   { href: '/', label: 'Painel', icon: LayoutDashboard },
   { href: '/novo-registo', label: 'Novo Registro', icon: PenLine },
+  { href: '/colecao', label: 'Coleção Botânica', icon: Leaf },
   { href: '/historico', label: 'Histórico', icon: History },
   { href: '/insights', label: 'Insights', icon: Lightbulb },
 ]

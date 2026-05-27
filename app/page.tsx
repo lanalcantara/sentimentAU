@@ -448,12 +448,15 @@ export default function DashboardPage() {
       )}>
         {/* Dashboard Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">&#127804;</span>
-              <h1 className="text-2xl font-bold text-foreground">Seu Painel</h1>
+          <div className="flex-1 flex justify-between items-center pr-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">&#127804;</span>
+                <h1 className="text-2xl font-bold text-foreground">Seu Painel</h1>
+              </div>
+              <p className="text-muted-foreground mt-1">Como você está se sentindo esta semana?</p>
             </div>
-            <p className="text-muted-foreground mt-1">Como você está se sentindo esta semana?</p>
+            <span className="text-2xl font-extrabold tracking-tight text-primary/80 ml-auto pr-8">sentimentAU</span>
           </div>
           
           <div className="flex items-center gap-3">
@@ -510,9 +513,6 @@ export default function DashboardPage() {
 
                 {/* Wellbeing Garden Map */}
                 {stats && <WellbeingGarden data={stats.weeklyMoodData} />}
-
-                {/* Mood Charts based on active entries */}
-                <MoodChart entries={entries} />
               </>
             )}
 
