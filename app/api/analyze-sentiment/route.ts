@@ -33,46 +33,80 @@ export async function POST(req: Request) {
       throw new Error('GEMINI_API_KEY não configurada no servidor.')
     }
 
-    // 3. Connect to Gemini Model (gemini-2.5-flash for fast text tasks)
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+    // 3. Connect to Gemini Model using system_instruction for best practice
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash-preview-05-20',
+      systemInstruction: `Você é um classificador de sentimentos especializado em comunicação neurodivergente e autista.
+Sua ÚNICA função é retornar um objeto JSON válido com a classificação emocional do texto.
 
-    const systemInstruction = `
-Você é um assistente estrito de análise de sentimentos para indivíduos neurodivergentes. 
-Sua tarefa é agir EXCLUSIVAMENTE como um classificador JSON.
-Leia o texto do usuário. Ignore saudações comuns (ex: 'bom dia', 'olá', 'boa tarde') ao determinar o sentimento.
-Analise o CONTEXTO GERAL da frase. Uma pessoa pode dizer "bom dia" e logo depois relatar uma sobrecarga intensa. O que importa é a emoção real.
+REGRAS OBRIGATÓRIAS:
+1. Ignore COMPLETAMENTE saudações isoladas ("bom dia", "boa tarde", "olá", "oi", "tudo bem?") — elas não têm peso emocional.
+2. Preste MÁXIMA atenção a negações: "não gostei", "não foi bom", "não curti", "não me senti bem" = sentimento negativo.
+3. Analise o CONTEXTO COMPLETO da frase. O sentimento dominante é o que prevalece ao final.
+4. Se a pessoa menciona barulho, luz forte, multidão, textura ou mudança de rotina como incômodo = gatilho sensorial.
+5. Se houver conflito entre palavras positivas e negativas, o contexto e a negação têm prioridade absoluta.
+6. NÃO inclua markdown, blocos de código, explicações ou qualquer texto fora do JSON.
 
-Retorne APENAS um objeto JSON válido, sem markdown, sem explicações em texto livre. O JSON deve ter as seguintes chaves e restrições:
-- "sentiment": apenas "positive", "neutral" ou "negative".
-- "riskLevel": apenas "low", "moderate" ou "high".
-- "emotion": palavra descritiva em português (ex: "feliz", "focado", "sobrecarregado", "triste", "calmo").
-- "riskIndicators": array de strings curtas indicando gatilhos sensoriais ou emocionais (ex: ["barulho", "luz forte"]). Se não houver, retorne array vazio [].
-- "suggestions": array de no máximo 2 strings curtas com dicas gentis para autorregulação. (ex: ["Que tal ouvir um som de chuva?", "Beba um copo de água."]).
-`
+FORMATO OBRIGATÓRIO DE RESPOSTA (apenas este JSON, nada mais):
+{
+  "sentiment": "positive" | "neutral" | "negative",
+  "riskLevel": "low" | "moderate" | "high",
+  "emotion": "string em português (ex: feliz, frustrado, sobrecarregado, calmo, ansioso)",
+  "emotions": ["até 3 emoções em inglês: happy, calm, excited, content, sad, anxious, frustrated, overwhelmed, tired, confused"],
+  "confidence": 0.0 a 1.0,
+  "riskIndicators": ["lista de gatilhos sensoriais ou emocionais encontrados, ou array vazio []"],
+  "suggestions": ["até 2 dicas gentis de autorregulação em português"]
+}`
+    })
 
-    const prompt = `
-Contexto do Usuário:
-- Nível de Energia (1-5): ${energyLevel}
-- Nível de Conforto Sensorial (1-5): ${comfortLevel}
+    const prompt = `Analise o seguinte relato de diário emocional e classifique o sentimento:
+
+DADOS DO USUÁRIO:
+- Nível de Energia (1=muito baixo, 5=muito alto): ${energyLevel}
+- Nível de Conforto Sensorial (1=muito desconfortável, 5=muito confortável): ${comfortLevel}
 - Texto do Diário: "${content}"
 
-Analise o texto e gere o JSON conforme as instruções.
-`
+Retorne APENAS o JSON conforme o formato definido.`
 
     const result = await model.generateContent({
-      contents: [
-        { role: 'user', parts: [{ text: systemInstruction + '\n\n' + prompt }] }
-      ],
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
         responseMimeType: 'application/json',
-        temperature: 0.2, // Low temperature for deterministic classification
+        temperature: 0.1, // Very low for maximum determinism in classification
+        maxOutputTokens: 512,
       }
     })
 
     const responseText = result.response.text()
-    const analysis = JSON.parse(responseText)
 
-    return NextResponse.json({ analysis })
+    // Parse and validate the JSON response
+    let analysis: any
+    try {
+      analysis = JSON.parse(responseText)
+    } catch {
+      // If JSON parsing fails, throw to trigger a useful error message
+      console.error('[API/Analyze-Sentiment] Gemini returned invalid JSON:', responseText)
+      throw new Error('A IA retornou uma resposta inesperada. Usando análise local.')
+    }
+
+    // Validate required fields
+    if (!analysis.sentiment || !['positive', 'neutral', 'negative'].includes(analysis.sentiment)) {
+      throw new Error('Resposta da IA com formato inválido.')
+    }
+
+    // Normalize to the full SentimentAnalysis shape expected by the app
+    const normalizedAnalysis = {
+      sentiment: analysis.sentiment,
+      confidence: typeof analysis.confidence === 'number' ? analysis.confidence : 0.85,
+      emotions: Array.isArray(analysis.emotions) ? analysis.emotions : [analysis.emotion || 'neutral'],
+      keywords: { positive: [], negative: [] },
+      suggestedSensoryTags: [],
+      riskLevel: analysis.riskLevel || 'low',
+      riskIndicators: Array.isArray(analysis.riskIndicators) ? analysis.riskIndicators : [],
+      suggestions: Array.isArray(analysis.suggestions) ? analysis.suggestions : [],
+    }
+
+    return NextResponse.json({ analysis: normalizedAnalysis })
   } catch (error: any) {
     console.error('[API/Analyze-Sentiment] Gemini API error:', error)
     return NextResponse.json(

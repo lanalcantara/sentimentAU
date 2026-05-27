@@ -70,18 +70,36 @@ export const LocalAnalyzer = {
       .replace(/\bolá\b/gi, '')
       .replace(/\boi\b/gi, '')
 
+    // NEGATION DETECTION: "não gostei", "não foi bom", "não curti", etc.
+    // We neutralize positive keywords that appear after a negation word
+    // so they don't falsely bump the happy/calm score.
+    const negationPattern = /\b(não|nao|nem|nunca|jamais|tampouco|sem)\s+(\w+)/gi
+    const negatedWords = new Set<string>()
+    let negMatch: RegExpExecArray | null
+    while ((negMatch = negationPattern.exec(strippedContent)) !== null) {
+      negatedWords.add(negMatch[2].toLowerCase())
+    }
+
     for (const [emotion, keywords] of Object.entries(emotionKeywords) as [Emotion, string[]][]) {
       for (const keyword of keywords) {
         // Match base form or derivative
         const regex = new RegExp(`\\b${keyword}\\w*\\b`, 'gi')
         const matches = strippedContent.match(regex)
         if (matches) {
+          // Filter out matches that were preceded by a negation word
+          const validMatches = matches.filter(m => !negatedWords.has(m.toLowerCase()))
+          const negatedMatches = matches.length - validMatches.length
+
           // Weighted scoring: critical emotions receive higher priority weights
           let weight = 1
           if (emotion === 'overwhelmed' || emotion === 'frustrated') weight = 1.5
           if (emotion === 'sad' || emotion === 'anxious') weight = 1.2
 
-          emotionScores[emotion] += matches.length * weight
+          emotionScores[emotion] += validMatches.length * weight
+          // Negated positive words BOOST the negative emotions instead
+          if (negatedMatches > 0 && (emotion === 'happy' || emotion === 'calm' || emotion === 'excited' || emotion === 'content')) {
+            emotionScores['frustrated'] += negatedMatches * 1.3
+          }
           totalMatches += matches.length
         }
       }
