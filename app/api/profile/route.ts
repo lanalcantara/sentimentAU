@@ -45,11 +45,27 @@ export async function POST(req: Request) {
     }
 
     const userId = userIdCookie.split('=')[1].trim()
-    const { avatarUrl, flor_avatar_atual } = await req.json()
+    const { avatarUrl, flor_avatar_atual, unlockFlowerId } = await req.json()
 
     const updateData: any = {}
     if (avatarUrl !== undefined) updateData.avatar_url = avatarUrl
     if (flor_avatar_atual !== undefined) updateData.flor_avatar_atual = flor_avatar_atual
+
+    if (unlockFlowerId !== undefined) {
+      const { data: userRecord, error: userError } = await supabaseAdmin
+        .from('sentiment_users')
+        .select('flores_desbloqueadas')
+        .eq('id', userId)
+        .single()
+
+      if (userError) throw new Error(userError.message)
+
+      const currentFlowers = userRecord?.flores_desbloqueadas || ['semente']
+      if (!currentFlowers.includes(unlockFlowerId)) {
+        currentFlowers.push(unlockFlowerId)
+        updateData.flores_desbloqueadas = currentFlowers
+      }
+    }
 
     const { error } = await supabaseAdmin
       .from('sentiment_users')

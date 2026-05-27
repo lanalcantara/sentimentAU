@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { AppLayout } from '@/components/layout/app-layout'
 import { cn } from '@/lib/utils'
 import { WellbeingGarden } from '@/components/dashboard/wellbeing-garden'
+import { GardenRPG } from '@/components/dashboard/garden-rpg'
 import { StatsGrid } from '@/components/dashboard/stats-grid'
 import { MoodChart } from '@/components/dashboard/mood-chart'
 import { AvatarUpload } from '@/components/profile/avatar-upload'
@@ -83,6 +84,43 @@ const calculateDynamicStats = (entries: DiaryEntry[]): WellbeingStats => {
     commonTriggers,
     weeklyMoodData,
   }
+}
+
+const calculateStreak = (entries: DiaryEntry[]): number => {
+  if (entries.length === 0) return 0
+  
+  const dates = entries
+    .map(e => {
+      const d = new Date(e.createdAt)
+      d.setHours(0, 0, 0, 0)
+      return d.getTime()
+    })
+    .filter((v, i, a) => a.indexOf(v) === i)
+    .sort((a, b) => b - a)
+    
+  let streak = 0
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  
+  const yesterday = new Date(today)
+  yesterday.setDate(today.getDate() - 1)
+  
+  if (dates[0] !== today.getTime() && dates[0] !== yesterday.getTime()) {
+    return 0
+  }
+  
+  let currentExpected = dates[0]
+  for (let i = 0; i < dates.length; i++) {
+    if (dates[i] === currentExpected) {
+      streak++
+      const nextExpected = new Date(currentExpected)
+      nextExpected.setDate(nextExpected.getDate() - 1)
+      currentExpected = nextExpected.getTime()
+    } else {
+      break
+    }
+  }
+  return streak
 }
 
 export default function DashboardPage() {
@@ -584,6 +622,9 @@ export default function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Botanical RPG Minigame */}
+            <GardenRPG entriesCount={entries.length} streak={calculateStreak(entries)} />
           </div>
 
           {/* Sidebar Settings Column (Avatar Upload & ASMR Sound Test) */}
