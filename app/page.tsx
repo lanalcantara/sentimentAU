@@ -107,14 +107,25 @@ export default function DashboardPage() {
 
   const [communityMembers, setCommunityMembers] = useState<any[]>([])
 
-  const handleSendSupport = (id: string) => {
+  const handleSendSupport = async (userId: string) => {
     SensoryAudio.playClick()
+    // Optimistic UI update
     setCommunityMembers(prev => prev.map(m => {
-      if (m.id === id) {
+      if (m.userId === userId) {
         return { ...m, supportCount: m.supportCount + 1 }
       }
       return m
     }))
+
+    try {
+      await fetch('/api/community/hug', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetUserId: userId }),
+      })
+    } catch (err) {
+      console.error('[Dashboard] Failed to send hug:', err)
+    }
   }
 
   useEffect(() => {
@@ -524,8 +535,8 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {communityMembers.map((member) => (
                     <Link 
-                      href={`/perfil/${member.id}`}
-                      key={member.id}
+                      href={`/perfil/${member.userId}`}
+                      key={`${member.userId}-${member.createdAt}`}
                       className="p-4 rounded-2xl bg-muted border border-border flex flex-col justify-between space-y-3 hover:shadow-md transition-all hover:bg-card duration-300"
                     >
                       <div className="flex items-start gap-3">
@@ -558,7 +569,7 @@ export default function DashboardPage() {
                         <button
                           onClick={(e) => {
                             e.preventDefault()
-                            handleSendSupport(member.id)
+                            handleSendSupport(member.userId)
                           }}
                           className="flex items-center gap-1.5 py-1 px-3 rounded-xl bg-[#eef2f6] hover:bg-primary/10 hover:text-primary transition-all text-xs font-bold text-[#5c6e8c] cursor-pointer"
                         >

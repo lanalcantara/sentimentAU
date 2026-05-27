@@ -57,7 +57,7 @@ export default async function ProfilePage({ params }: { params: { id: string } }
 
   // Pre-calculate data for garden
   const weeklyMoodData = publicEntries.slice(0, 7).reverse().map((e: any) => ({
-    date: e.createdAt.toLocaleDateString('pt-PT', { weekday: 'short' }),
+    date: e.createdAt.toISOString(),
     sentiment: e.analysis?.sentiment || 'neutral',
     riskLevel: e.analysis?.riskLevel || 'low',
     energyLevel: e.energyLevel,

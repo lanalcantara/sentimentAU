@@ -93,9 +93,9 @@ export function NotificationsPopover() {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm text-[#1e2a4a] leading-snug">
-                        {n.tipo === 'hug' 
-                          ? <span>Alguém enviou um <strong>abraço tátil</strong> para o seu jardim!</span>
-                          : <span>Um novo jardineiro começou a seguir você!</span>
+                        {n.tipo === 'hug'
+                          ? <span><strong>{n.remetente}</strong> enviou um <strong>abraço tátil</strong> para o seu jardim! 🫂</span>
+                          : <span><strong>{n.remetente}</strong> começou a seguir o seu jardim! 🌱</span>
                         }
                       </p>
                       <p className="text-[10px] text-[#6a7a9a] mt-1 font-medium uppercase tracking-wider">

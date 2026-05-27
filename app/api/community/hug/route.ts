@@ -15,12 +15,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Faltando targetUserId' }, { status: 400 })
     }
 
-    // Send notification for hug
-    await supabaseAdmin.from('sentiment_notifications').insert({
-      remetente: currentUserId,
-      destinatario: targetUserId,
-      tipo: 'hug'
+    // Don't send a hug to yourself
+    if (targetUserId === currentUserId) {
+      return NextResponse.json({ error: 'Não é possível enviar abraço para si mesmo.' }, { status: 400 })
+    }
+
+    // Insert notification using real column names: sender_id, receiver_id, type, is_read
+    const { error } = await supabaseAdmin.from('sentiment_notifications').insert({
+      sender_id: currentUserId,
+      receiver_id: targetUserId,
+      type: 'hug',
+      is_read: false,
     })
+
+    if (error) throw error
 
     return NextResponse.json({ status: 'hug_sent' })
   } catch (error: any) {

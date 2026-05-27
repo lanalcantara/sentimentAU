@@ -129,12 +129,14 @@ export const DiaryService = {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
     const { data: latestEntries, error } = await supabaseAdmin
-      .from('mood_logs')
+      .from('sentiment_entries')
       .select(`
         *,
-        profiles!inner(
+        sentiment_users!inner(
+          id,
           username,
-          avatar_url
+          avatar_url,
+          flor_avatar_atual
         )
       `)
       .eq('is_public', true)
@@ -144,14 +146,14 @@ export const DiaryService = {
       .limit(20)
 
     if (error || !latestEntries) {
-      console.error('[DiaryService] Failed to fetch community feed from mood_logs:', error)
+      console.error('[DiaryService] Failed to fetch community feed from sentiment_entries:', error)
       return []
     }
 
     const feed: any[] = []
 
     for (const entry of latestEntries) {
-      const profile = Array.isArray(entry.profiles) ? entry.profiles[0] : entry.profiles
+      const profile = Array.isArray(entry.sentiment_users) ? entry.sentiment_users[0] : entry.sentiment_users
       
       let emotionLabel = 'Neutro'
       if (entry.sentiment === 'positive') emotionLabel = 'Feliz'
@@ -187,19 +189,21 @@ export const DiaryService = {
         : entry.content
 
       feed.push({
-        id: entry.user_id,
+        id: profile?.id || entry.user_id,
+        userId: entry.user_id,
         username: profile?.username || 'Usuário Anônimo',
-        florAvatarId: profile?.avatar_url || 'semente',
+        florAvatarId: profile?.flor_avatar_atual || 'semente',
         avatarBg,
         emotion: emotionLabel,
         sentiment: entry.sentiment,
         statusText: displaySnippet || 'Sentimento compartilhado',
-        supportCount: Math.floor(Math.random() * 5) + 1
+        supportCount: 0,
+        createdAt: entry.created_at,
       })
     }
 
-    // Filter to ensure distinct users in the feed (only showing their latest within the 20 limits)
-    const uniqueFeed = feed.filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i)
+    // Filter to ensure distinct users in the feed (only showing their latest)
+    const uniqueFeed = feed.filter((v, i, a) => a.findIndex(t => (t.userId === v.userId)) === i)
 
     return uniqueFeed
   }
