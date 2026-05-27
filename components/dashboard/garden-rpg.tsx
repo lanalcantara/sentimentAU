@@ -91,6 +91,9 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
   // Progress milestones for path unlocks
   const isNorthUnlocked = entriesCount >= 5 || streak >= 3
   const isEastUnlocked = entriesCount >= 10 || streak >= 5
+  // Inverse aliases used throughout the component
+  const isNorthLocked = !isNorthUnlocked
+  const isEastLocked = !isEastUnlocked
 
   // Map Biomes Configuration
   const getMapData = (mx: number, my: number) => {
