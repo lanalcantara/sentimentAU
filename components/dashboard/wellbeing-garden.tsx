@@ -167,7 +167,12 @@ export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
       }
     }
     
-    if (entries.length === 1) return entries[0]
+    if (entries.length === 1) {
+      return {
+        ...entries[0],
+        date: dayName
+      }
+    }
     
     // Calculate average sentiment for the day
     let score = 0

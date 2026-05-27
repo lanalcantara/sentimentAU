@@ -433,7 +433,7 @@ export default function DashboardPage() {
     <AppLayout>
       <div className={cn(
         "p-4 lg:p-8 space-y-6 min-h-screen transition-colors duration-500",
-        calmMode ? "bg-stone-50/95 [&_.bg-card]:opacity-95 [&_.bg-card]:border-stone-200" : "bg-background"
+        "bg-background"
       )}>
         {/* Dashboard Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

@@ -52,7 +52,7 @@ export function NotificationsPopover() {
     <Popover open={open} onOpenChange={handleOpen}>
       <PopoverTrigger asChild>
         <button
-          className="relative p-2 rounded-xl hover:bg-white/10 text-white/80 hover:text-white transition-colors cursor-pointer"
+          className="relative p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
           title="Notificações"
         >
           <Bell className="w-4 h-4" />
