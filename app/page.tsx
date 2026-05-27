@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { AppLayout } from '@/components/layout/app-layout'
+import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { WellbeingGarden } from '@/components/dashboard/wellbeing-garden'
 import { GardenRPG } from '@/components/dashboard/garden-rpg'
@@ -128,8 +129,17 @@ export default function DashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   
   // Auth state inputs
+  const [viewMode, setViewMode] = useState<'auth' | 'otp' | 'forgot' | 'reset'>('auth')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('')
+  
+  const [otpCode, setOtpCode] = useState('')
+  const [recoveryEmail, setRecoveryEmail] = useState('')
+  const [recoveryCode, setRecoveryCode] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [tempUserId, setTempUserId] = useState('')
+
   const [authError, setAuthError] = useState('')
   const [authSuccess, setAuthSuccess] = useState('')
   const [authLoading, setAuthLoading] = useState(false)
@@ -239,8 +249,103 @@ export default function DashboardPage() {
 
   // Handles signup & login submission
   const handleAuthSubmit = async (type: 'login' | 'signup') => {
-    if (!username.trim() || !password) {
-      setAuthError('Por favor, preencha todos os campos.')
+    if (type === 'signup') {
+      if (!username.trim() || !email.trim() || !password) {
+        setAuthError('Por favor, preencha todos os campos.')
+        return
+      }
+      if (username.trim().length < 3) {
+        setAuthError('O nome de usuário deve ter pelo menos 3 caracteres.')
+        return
+      }
+      if (password.length < 4) {
+        setAuthError('A senha deve ter pelo menos 4 caracteres.')
+        return
+      }
+    } else {
+      if (!username.trim() || !password) {
+        setAuthError('Por favor, preencha todos os campos.')
+        return
+      }
+    }
+
+    setAuthError('')
+    setAuthSuccess('')
+    setAuthLoading(true)
+
+    try {
+      if (type === 'signup') {
+        // 1. Check with our API first if username or email is already taken
+        const checkRes = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: username.trim(), email: email.trim(), password, action: 'check' }),
+        })
+        const checkData = await checkRes.json()
+        if (!checkRes.ok) {
+          throw new Error(checkData.error || 'Erro ao validar nome de usuário ou e-mail.')
+        }
+
+        // 2. Call Supabase Auth signUp
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: email.trim(),
+          password: password,
+        })
+
+        if (signUpError) {
+          throw new Error(signUpError.message)
+        }
+
+        if (!signUpData.user) {
+          throw new Error('Não foi possível iniciar o cadastro. Tente novamente.')
+        }
+
+        setTempUserId(signUpData.user.id)
+        setAuthSuccess('Código de verificação enviado para o seu e-mail! Insira-o abaixo.')
+        setViewMode('otp')
+      } else {
+        // Login Flow
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: username.trim(), password }),
+        })
+
+        const data = await res.json()
+        if (!res.ok) {
+          throw new Error(data.error || 'Nome de usuário ou senha incorretos.')
+        }
+
+        // Sync client-side Supabase session if user has an email
+        if (data.user?.email) {
+          try {
+            await supabase.auth.signInWithPassword({
+              email: data.user.email,
+              password,
+            })
+          } catch (e) {
+            console.warn('[Login] Supabase client sync warning:', e)
+          }
+        }
+
+        setAuthSuccess('Autenticado com sucesso!')
+        
+        setTimeout(() => {
+          setIsAuthenticated(true)
+          setDashboardLoading(true)
+        }, 800)
+      }
+    } catch (err: any) {
+      setAuthError(err.message || 'Erro inesperado. Tente novamente.')
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  // Handles OTP Verification code submission
+  const handleOtpSubmit = async () => {
+    if (!otpCode.trim()) {
+      setAuthError('Por favor, digite o código de verificação.')
       return
     }
 
@@ -249,27 +354,151 @@ export default function DashboardPage() {
     setAuthLoading(true)
 
     try {
-      const endpoint = type === 'login' ? '/api/auth/login' : '/api/auth/signup'
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username.trim(), password }),
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: email.trim(),
+        token: otpCode.trim(),
+        type: 'signup',
       })
 
-      const data = await res.json()
-      if (!res.ok) {
-        throw new Error(data.error || 'Ocorreu um erro ao processar o seu pedido.')
+      if (error) {
+        throw new Error(error.message)
       }
 
-      setAuthSuccess(type === 'login' ? 'Autenticado com sucesso!' : 'Conta criada com sucesso!')
-      
-      // Delay slightly for pleasant feedback
+      if (!data.user) {
+        throw new Error('Falha na autenticação do código OTP.')
+      }
+
+      // Finalize database insertion in sentiment_users and set session cookies
+      const confirmRes = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: data.user.id,
+          username: username.trim(),
+          email: email.trim(),
+          password,
+        }),
+      })
+
+      const confirmData = await confirmRes.json()
+      if (!confirmRes.ok) {
+        throw new Error(confirmData.error || 'Erro ao finalizar o cadastro no banco de dados.')
+      }
+
+      setAuthSuccess('Conta criada e verificada com sucesso! Bem-vindo(a).')
+
       setTimeout(() => {
         setIsAuthenticated(true)
         setDashboardLoading(true)
       }, 800)
     } catch (err: any) {
       setAuthError(err.message || 'Erro inesperado. Tente novamente.')
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  // Trigger password recovery email
+  const handleForgotPassword = async () => {
+    if (!recoveryEmail.trim()) {
+      setAuthError('Por favor, insira o seu e-mail cadastrado.')
+      return
+    }
+
+    setAuthError('')
+    setAuthSuccess('')
+    setAuthLoading(true)
+
+    try {
+      // Check if user with this email exists in sentiment_users first
+      const checkEmailRes = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: 'check_only', email: recoveryEmail.trim(), password: 'none', action: 'check' }),
+      })
+      
+      const checkEmailData = await checkEmailRes.json()
+      // If NOT taken, it means it is NOT in our database! (because action: 'check' returns error if it is taken)
+      if (checkEmailRes.ok) {
+        throw new Error('Não encontramos nenhuma conta cadastrada com este e-mail.')
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(recoveryEmail.trim())
+      if (error) {
+        throw new Error(error.message)
+      }
+
+      setAuthSuccess('Código de recuperação enviado! Verifique seu e-mail e insira os dados abaixo.')
+      setViewMode('reset')
+    } catch (err: any) {
+      setAuthError(err.message || 'Erro ao enviar código de recuperação.')
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  // Redefine password using token/OTP
+  const handleResetPassword = async () => {
+    if (!recoveryCode.trim() || !newPassword) {
+      setAuthError('Por favor, preencha todos os campos.')
+      return
+    }
+
+    if (newPassword.length < 4) {
+      setAuthError('A nova senha deve ter pelo menos 4 caracteres.')
+      return
+    }
+
+    setAuthError('')
+    setAuthSuccess('')
+    setAuthLoading(true)
+
+    try {
+      // 1. Verify OTP with Supabase
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: recoveryEmail.trim(),
+        token: recoveryCode.trim(),
+        type: 'recovery',
+      })
+
+      if (error) {
+        throw new Error(error.message)
+      }
+
+      if (!data.user) {
+        throw new Error('Código de recuperação inválido ou expirado.')
+      }
+
+      // 2. Update password in Supabase Auth
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword,
+      })
+
+      if (updateError) {
+        throw new Error(updateError.message)
+      }
+
+      // 3. Update hashed password in public.sentiment_users table
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: data.user.id,
+          password: newPassword,
+        }),
+      })
+
+      const resData = await res.json()
+      if (!res.ok) {
+        throw new Error(resData.error || 'Erro ao atualizar a senha no banco de dados.')
+      }
+
+      setAuthSuccess('Senha redefinida com sucesso! Você já pode entrar com sua nova senha.')
+      setViewMode('auth')
+      setUsername('')
+      setPassword('')
+    } catch (err: any) {
+      setAuthError(err.message || 'Erro ao redefinir a senha.')
     } finally {
       setAuthLoading(false)
     }
@@ -315,8 +544,8 @@ export default function DashboardPage() {
           <div className="w-full max-w-md">
             <Card className="border-border/60 shadow-md bg-card">
               <CardHeader className="text-center pb-4">
-                <div className="mx-auto w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center mb-2">
-                  <span className="text-2xl">&#128522;</span>
+                <div className="mx-auto w-24 h-24 mb-4 flex items-center justify-center">
+                  <img src="/sentimentau-logo.png" alt="sentimentAU Logo" className="w-full h-full object-contain" />
                 </div>
                 <CardTitle className="text-2xl font-bold tracking-tight text-foreground">Seu Espaço Seguro</CardTitle>
                 <CardDescription className="text-muted-foreground text-sm mt-1 leading-relaxed">
@@ -325,147 +554,350 @@ export default function DashboardPage() {
               </CardHeader>
               
               <CardContent>
-                <Tabs defaultValue="login" className="w-full">
-                  <TabsList className="grid grid-cols-2 rounded-xl mb-6 bg-muted p-1">
-                    <TabsTrigger 
-                      onClick={() => SensoryAudio.play('bubble')}
-                      value="login" 
-                      className="rounded-lg py-2 font-medium text-sm data-[state=active]:bg-card cursor-pointer"
-                    >
-                      Entrar
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      onClick={() => SensoryAudio.play('bubble')}
-                      value="signup" 
-                      className="rounded-lg py-2 font-medium text-sm data-[state=active]:bg-card cursor-pointer"
-                    >
-                      Criar Conta
-                    </TabsTrigger>
-                  </TabsList>
+                {/* Errors & Success alert */}
+                {authError && (
+                  <div className="p-3 mb-4 rounded-xl border border-red-200/50 bg-red-50 text-red-700 text-xs font-medium leading-relaxed">
+                    ⚠️ {authError}
+                  </div>
+                )}
 
-                  {/* Errors & Success alert */}
-                  {authError && (
-                    <div className="p-3 mb-4 rounded-xl border border-red-200/50 bg-red-50 text-red-700 text-xs font-medium leading-relaxed">
-                      ⚠️ {authError}
+                {authSuccess && (
+                  <div className="p-3 mb-4 rounded-xl border border-green-200/50 bg-green-50 text-green-700 text-xs font-medium flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
+                    <span>{authSuccess}</span>
+                  </div>
+                )}
+
+                {/* VIEW 1: LOGIN & SIGNUP TABS */}
+                {viewMode === 'auth' && (
+                  <Tabs defaultValue="login" className="w-full">
+                    <TabsList className="grid grid-cols-2 rounded-xl mb-6 bg-muted p-1">
+                      <TabsTrigger 
+                        onClick={() => SensoryAudio.play('bubble')}
+                        value="login" 
+                        className="rounded-lg py-2 font-medium text-sm data-[state=active]:bg-card cursor-pointer"
+                      >
+                        Entrar
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        onClick={() => SensoryAudio.play('bubble')}
+                        value="signup" 
+                        className="rounded-lg py-2 font-medium text-sm data-[state=active]:bg-card cursor-pointer"
+                      >
+                        Criar Conta
+                      </TabsTrigger>
+                    </TabsList>
+
+                    {/* LOGIN TAB */}
+                    <TabsContent value="login" className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="login-username" className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
+                          <Leaf className="w-3.5 h-3.5" /> Nome de Usuário ou E-mail
+                        </Label>
+                        <Input
+                          id="login-username"
+                          type="text"
+                          placeholder="ex: joao123 ou joao@email.com"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                          className="rounded-xl border-border bg-input py-2.5"
+                          disabled={authLoading}
+                        />
+                        <p className="text-[10px] text-muted-foreground">Insira o seu nome de usuário ou e-mail cadastrado.</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <Label htmlFor="login-password" className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
+                            <Lock className="w-3.5 h-3.5" /> Senha
+                          </Label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              SensoryAudio.play('bubble')
+                              setAuthError('')
+                              setAuthSuccess('')
+                              setViewMode('forgot')
+                            }}
+                            className="text-xs text-primary hover:underline font-semibold cursor-pointer"
+                          >
+                            Esqueci minha senha
+                          </button>
+                        </div>
+                        <Input
+                          id="login-password"
+                          type="password"
+                          placeholder="••••••"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="rounded-xl border-border bg-input py-2.5"
+                          disabled={authLoading}
+                        />
+                      </div>
+
+                      <Button
+                        onClick={() => {
+                          SensoryAudio.play('bubble')
+                          handleAuthSubmit('login')
+                        }}
+                        className="w-full py-2.5 rounded-xl font-semibold bg-primary hover:bg-primary/95 text-primary-foreground mt-4 shadow-sm cursor-pointer"
+                        disabled={authLoading}
+                      >
+                        {authLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin shrink-0" /> Entrando...
+                          </>
+                        ) : (
+                          'Entrar no Meu Diário'
+                        )}
+                      </Button>
+                    </TabsContent>
+
+                    {/* SIGNUP TAB */}
+                    <TabsContent value="signup" className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-username" className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
+                          <Leaf className="w-3.5 h-3.5" /> Nome de Usuário
+                        </Label>
+                        <Input
+                          id="signup-username"
+                          type="text"
+                          placeholder="ex: joao123"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                          className="rounded-xl border-border bg-input py-2.5"
+                          disabled={authLoading}
+                        />
+                        <p className="text-[10px] text-muted-foreground">Escolha um nome simples sem espaços (ex: marta_silva).</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-email" className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
+                          <Leaf className="w-3.5 h-3.5" /> E-mail
+                        </Label>
+                        <Input
+                          id="signup-email"
+                          type="email"
+                          placeholder="ex: marta@email.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="rounded-xl border-border bg-input py-2.5"
+                          disabled={authLoading}
+                        />
+                        <p className="text-[10px] text-muted-foreground">E-mail obrigatório para validação da conta.</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-password" className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
+                          <Lock className="w-3.5 h-3.5" /> Senha
+                        </Label>
+                        <Input
+                          id="signup-password"
+                          type="password"
+                          placeholder="Crie uma senha"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="rounded-xl border-border bg-input py-2.5"
+                          disabled={authLoading}
+                        />
+                        <p className="text-[10px] text-muted-foreground">Escolha uma senha com pelo menos 4 letras ou números.</p>
+                      </div>
+
+                      <Button
+                        onClick={() => {
+                          SensoryAudio.play('bubble')
+                          handleAuthSubmit('signup')
+                        }}
+                        className="w-full py-2.5 rounded-xl font-semibold bg-primary hover:bg-primary/95 text-primary-foreground mt-4 shadow-sm cursor-pointer"
+                        disabled={authLoading}
+                      >
+                        {authLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin shrink-0" /> Criando conta...
+                          </>
+                        ) : (
+                          'Criar a Minha Conta'
+                        )}
+                      </Button>
+                    </TabsContent>
+                  </Tabs>
+                )}
+
+                {/* VIEW 2: OTP CODE VERIFICATION */}
+                {viewMode === 'otp' && (
+                  <div className="space-y-4">
+                    <div className="text-center space-y-1">
+                      <h3 className="text-sm font-bold text-foreground">Confirmar Cadastro</h3>
+                      <p className="text-xs text-muted-foreground">Insira o código de verificação enviado para o e-mail: <strong className="text-foreground">{email}</strong></p>
                     </div>
-                  )}
-
-                  {authSuccess && (
-                    <div className="p-3 mb-4 rounded-xl border border-green-200/50 bg-green-50 text-green-700 text-xs font-medium flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
-                      <span>{authSuccess}</span>
-                    </div>
-                  )}
-
-                  {/* LOGIN FORM */}
-                  <TabsContent value="login" className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="login-username" className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-                        <Leaf className="w-3.5 h-3.5" /> Nome de Usuário
+                      <Label htmlFor="otp-code" className="text-xs text-muted-foreground font-semibold">
+                        Código de Verificação (OTP)
                       </Label>
                       <Input
-                        id="login-username"
+                        id="otp-code"
                         type="text"
-                        placeholder="ex: joao123"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        className="rounded-xl border-border bg-input py-2.5"
-                        disabled={authLoading}
-                      />
-                      <p className="text-[10px] text-muted-foreground">Insira o seu nome de usuário cadastrado.</p>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="login-password" className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-                        <Lock className="w-3.5 h-3.5" /> Senha
-                      </Label>
-                      <Input
-                        id="login-password"
-                        type="password"
-                        placeholder="••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="rounded-xl border-border bg-input py-2.5"
+                        placeholder="ex: 123456"
+                        value={otpCode}
+                        onChange={(e) => setOtpCode(e.target.value)}
+                        className="rounded-xl border-border bg-input py-2.5 text-center font-mono tracking-widest text-lg font-bold"
                         disabled={authLoading}
                       />
                     </div>
-
                     <Button
                       onClick={() => {
                         SensoryAudio.play('bubble')
-                        handleAuthSubmit('login')
+                        handleOtpSubmit()
                       }}
                       className="w-full py-2.5 rounded-xl font-semibold bg-primary hover:bg-primary/95 text-primary-foreground mt-4 shadow-sm cursor-pointer"
                       disabled={authLoading}
                     >
                       {authLoading ? (
                         <>
-                          <Loader2 className="w-4 h-4 animate-spin shrink-0" /> Entrando...
+                          <Loader2 className="w-4 h-4 animate-spin shrink-0" /> Verificando...
                         </>
                       ) : (
-                        'Entrar no Meu Diário'
+                        'Confirmar Código'
                       )}
                     </Button>
-                  </TabsContent>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        SensoryAudio.play('bubble')
+                        setAuthError('')
+                        setAuthSuccess('')
+                        setViewMode('auth')
+                      }}
+                      className="text-xs text-muted-foreground hover:text-foreground font-semibold w-full text-center block mt-2 cursor-pointer"
+                    >
+                      Voltar para Criar Conta
+                    </button>
+                  </div>
+                )}
 
-                  {/* SIGNUP FORM */}
-                  <TabsContent value="signup" className="space-y-4">
+                {/* VIEW 3: FORGOT PASSWORD EMAIL REQUEST */}
+                {viewMode === 'forgot' && (
+                  <div className="space-y-4">
+                    <div className="text-center space-y-1">
+                      <h3 className="text-sm font-bold text-foreground">Recuperação de Senha</h3>
+                      <p className="text-xs text-muted-foreground">Insira seu e-mail cadastrado para enviarmos um código de redefinição.</p>
+                    </div>
                     <div className="space-y-2">
-                      <Label htmlFor="signup-username" className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-                        <Leaf className="w-3.5 h-3.5" /> Nome de Usuário
+                      <Label htmlFor="forgot-email" className="text-xs text-muted-foreground font-semibold">
+                        E-mail Cadastrado
                       </Label>
                       <Input
-                        id="signup-username"
-                        type="text"
-                        placeholder="ex: joao123"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        id="forgot-email"
+                        type="email"
+                        placeholder="ex: marta@email.com"
+                        value={recoveryEmail}
+                        onChange={(e) => setRecoveryEmail(e.target.value)}
                         className="rounded-xl border-border bg-input py-2.5"
                         disabled={authLoading}
                       />
-                      <p className="text-[10px] text-muted-foreground">Escolha um nome simples sem espaços (ex: marta_silva).</p>
                     </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-password" className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
-                        <Lock className="w-3.5 h-3.5" /> Senha
-                      </Label>
-                      <Input
-                        id="signup-password"
-                        type="password"
-                        placeholder="Crie uma senha"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="rounded-xl border-border bg-input py-2.5"
-                        disabled={authLoading}
-                      />
-                      <p className="text-[10px] text-muted-foreground">Escolha uma senha com pelo menos 4 letras ou números.</p>
-                    </div>
-
                     <Button
                       onClick={() => {
                         SensoryAudio.play('bubble')
-                        handleAuthSubmit('signup')
+                        handleForgotPassword()
                       }}
                       className="w-full py-2.5 rounded-xl font-semibold bg-primary hover:bg-primary/95 text-primary-foreground mt-4 shadow-sm cursor-pointer"
                       disabled={authLoading}
                     >
                       {authLoading ? (
                         <>
-                          <Loader2 className="w-4 h-4 animate-spin shrink-0" /> Criando conta...
+                          <Loader2 className="w-4 h-4 animate-spin shrink-0" /> Enviando...
                         </>
                       ) : (
-                        'Criar a Minha Conta'
+                        'Enviar Código de Recuperação'
                       )}
                     </Button>
-                  </TabsContent>
-                </Tabs>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        SensoryAudio.play('bubble')
+                        setAuthError('')
+                        setAuthSuccess('')
+                        setViewMode('auth')
+                      }}
+                      className="text-xs text-muted-foreground hover:text-foreground font-semibold w-full text-center block mt-2 cursor-pointer"
+                    >
+                      Voltar para o Login
+                    </button>
+                  </div>
+                )}
+
+                {/* VIEW 4: RESET PASSWORD REDEFINITION */}
+                {viewMode === 'reset' && (
+                  <div className="space-y-4">
+                    <div className="text-center space-y-1">
+                      <h3 className="text-sm font-bold text-foreground">Redefinir sua Senha</h3>
+                      <p className="text-xs text-muted-foreground">Insira o código de recuperação enviado para: <strong className="text-foreground">{recoveryEmail}</strong></p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="reset-code" className="text-xs text-muted-foreground font-semibold">
+                        Código de Recuperação (OTP)
+                      </Label>
+                      <Input
+                        id="reset-code"
+                        type="text"
+                        placeholder="ex: 123456"
+                        value={recoveryCode}
+                        onChange={(e) => setRecoveryCode(e.target.value)}
+                        className="rounded-xl border-border bg-input py-2.5 text-center font-mono tracking-widest text-lg font-bold"
+                        disabled={authLoading}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="new-password" className="text-xs text-muted-foreground font-semibold">
+                        Nova Senha
+                      </Label>
+                      <Input
+                        id="new-password"
+                        type="password"
+                        placeholder="Nova senha (min. 4 caracteres)"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="rounded-xl border-border bg-input py-2.5"
+                        disabled={authLoading}
+                      />
+                    </div>
+                    <Button
+                      onClick={() => {
+                        SensoryAudio.play('bubble')
+                        handleResetPassword()
+                      }}
+                      className="w-full py-2.5 rounded-xl font-semibold bg-primary hover:bg-primary/95 text-primary-foreground mt-4 shadow-sm cursor-pointer"
+                      disabled={authLoading}
+                    >
+                      {authLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin shrink-0" /> Redefinindo...
+                        </>
+                      ) : (
+                        'Redefinir e Salvar Senha'
+                      )}
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        SensoryAudio.play('bubble')
+                        setAuthError('')
+                        setAuthSuccess('')
+                        setViewMode('auth')
+                      }}
+                      className="text-xs text-muted-foreground hover:text-foreground font-semibold w-full text-center block mt-2 cursor-pointer"
+                    >
+                      Voltar para o Login
+                    </button>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             <div className="mt-6 text-center text-xs text-muted-foreground flex justify-center items-center gap-1 bg-card/40 py-2.5 px-4 rounded-xl border border-border/20">
               <Shield className="w-3.5 h-3.5 text-secondary" />
-              <span>O seu diário é guardado de forma cifrada e segura.</span>
+              <span>Seu diário é guardado de forma criptografada e segura.</span>
             </div>
           </div>
         </main>

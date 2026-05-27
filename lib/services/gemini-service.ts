@@ -14,7 +14,7 @@ export const GeminiService = {
     comfortLevel: number
   }): Promise<{ analysis: SentimentAnalysis; tokensConsumed: number }> {
     if (!GEMINI_API_KEY) {
-      throw new Error('Chave de API do Gemini (GEMINI_API_KEY) está em falta.')
+      throw new Error('Chave de API do Gemini (GEMINI_API_KEY) não foi configurada.')
     }
 
     const systemPrompt = `Você é um especialista em análise de sentimentos para indivíduos no espectro autista. 

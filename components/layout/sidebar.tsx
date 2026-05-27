@@ -68,18 +68,36 @@ export function Sidebar() {
 
   return (
     <aside className="hidden lg:flex flex-col w-64 bg-[#7ee8d0] text-slate-800 min-h-screen border-r border-border shadow-sm">
-      {/* Logo */}
-      <div className="p-6 flex items-center justify-between">
-        <Link href="/" onClick={handleLinkClick} className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-green-50 border border-green-100 flex items-center justify-center shrink-0 shadow-sm">
-            <span className="text-xl">{FLOWERS[florAvatar]?.emoji || '🌱'}</span>
-          </div>
+      {/* Top Absolute Title 'sentimentAU' */}
+      <div className="px-7 pt-7 pb-2 flex items-center justify-between">
+        <Link href="/" onClick={handleLinkClick} className="flex items-center gap-3 w-full">
+          {/* Logo oficial em pixel art */}
+          <img src="/sentimentau-logo.png" alt="sentimentAU Logo" className="w-9 h-9 rounded-xl shrink-0 object-contain" />
           <div className="truncate">
-            <h1 className="font-bold text-lg tracking-tight text-slate-800 capitalize">{username || 'sentimentAU'}</h1>
-            <p className="text-xs text-slate-500">Diário Emocional</p>
+            <h1 className="font-extrabold text-lg tracking-wider text-slate-800 font-sans">sentimentAU</h1>
+            <p className="text-[10px] text-slate-500 font-medium tracking-wide uppercase leading-none">Diário Emocional</p>
           </div>
         </Link>
       </div>
+
+      {/* User Profile Block */}
+      {username && (
+        <div className="px-7 py-3">
+          <div className="flex items-center gap-3 px-3 py-2 bg-[#69d9be] border border-[#59cbaf]/40 rounded-xl shadow-sm">
+            <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center border border-border text-lg shadow-sm shrink-0">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={username} className="w-full h-full object-cover rounded-full" />
+              ) : (
+                <span>{FLOWERS[florAvatar]?.emoji || '🌱'}</span>
+              )}
+            </div>
+            <div className="truncate flex-1">
+              <span className="text-[10px] text-[#2c7261] font-semibold block uppercase tracking-wider leading-none">Usuário</span>
+              <span className="text-sm font-bold text-slate-800 capitalize truncate block mt-0.5">{username}</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="flex-1 px-3 mt-2">
@@ -119,20 +137,8 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Profile & Logout Section */}
-      <div className="px-3 pb-6 border-t border-border pt-4 space-y-2">
-        {username && (
-          <div className="flex items-center gap-3 px-4 py-2">
-            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-border text-xl shadow-sm shrink-0">
-              {avatarUrl ? (
-                <img src={avatarUrl} alt={username} className="w-full h-full object-cover rounded-full" />
-              ) : (
-                <span>{FLOWERS[florAvatar]?.emoji || '🌱'}</span>
-              )}
-            </div>
-            <span className="text-sm font-semibold text-slate-700 capitalize truncate">{username}</span>
-          </div>
-        )}
+      {/* Logout Section */}
+      <div className="px-3 pb-6 border-t border-border pt-4">
 
         <button 
           onClick={async () => {

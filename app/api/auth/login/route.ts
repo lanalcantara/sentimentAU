@@ -7,16 +7,17 @@ export async function POST(req: Request) {
     
     if (!username || !password) {
       return NextResponse.json(
-        { error: 'Nome de utilizador e palavra-passe são obrigatórios.' },
+        { error: 'Nome de usuário/e-mail e senha são obrigatórios.' },
         { status: 400 }
       )
     }
 
+    // AuthService.login supports both username or email inputs
     const user = await AuthService.login(username, password)
     
     const response = NextResponse.json({ success: true, user })
     
-    // Set a secure, HTTP-Only session cookie (fully JWT-free, simple and clean)
+    // Set a secure, HTTP-Only session cookie
     response.cookies.set('session_user_id', user.id, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
