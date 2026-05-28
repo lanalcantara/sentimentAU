@@ -743,11 +743,11 @@ export default function DashboardPage() {
                         type="text"
                         inputMode="numeric"
                         pattern="[0-9]*"
-                        maxLength={6}
-                        placeholder="000000"
+                        maxLength={8}
+                        placeholder="00000000"
                         value={otpCode}
-                        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                        className="rounded-xl border-border bg-input py-2.5 text-center font-mono tracking-[0.5em] text-2xl font-bold"
+                        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                        className="rounded-xl border-border bg-input py-2.5 text-center font-mono tracking-[0.3em] text-xl font-bold"
                         disabled={authLoading}
                       />
                     </div>
@@ -877,10 +877,13 @@ export default function DashboardPage() {
                       <Input
                         id="reset-code"
                         type="text"
-                        placeholder="ex: 123456"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={8}
+                        placeholder="00000000"
                         value={recoveryCode}
-                        onChange={(e) => setRecoveryCode(e.target.value)}
-                        className="rounded-xl border-border bg-input py-2.5 text-center font-mono tracking-widest text-lg font-bold"
+                        onChange={(e) => setRecoveryCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                        className="rounded-xl border-border bg-input py-2.5 text-center font-mono tracking-[0.3em] text-xl font-bold"
                         disabled={authLoading}
                       />
                     </div>
