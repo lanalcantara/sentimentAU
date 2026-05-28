@@ -286,10 +286,14 @@ export default function DashboardPage() {
           throw new Error(checkData.error || 'Erro ao validar nome de usuário ou e-mail.')
         }
 
-        // 2. Call Supabase Auth signUp
+        // 2. Call Supabase Auth signUp (no emailRedirectTo → forces OTP code, not magic link)
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: email.trim(),
           password: password,
+          options: {
+            // Leaving emailRedirectTo undefined so Supabase uses the
+            // email template configured in the dashboard (must use {{ .Token }})
+          },
         })
 
         if (signUpError) {
@@ -737,10 +741,13 @@ export default function DashboardPage() {
                       <Input
                         id="otp-code"
                         type="text"
-                        placeholder="ex: 123456"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={6}
+                        placeholder="000000"
                         value={otpCode}
-                        onChange={(e) => setOtpCode(e.target.value)}
-                        className="rounded-xl border-border bg-input py-2.5 text-center font-mono tracking-widest text-lg font-bold"
+                        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                        className="rounded-xl border-border bg-input py-2.5 text-center font-mono tracking-[0.5em] text-2xl font-bold"
                         disabled={authLoading}
                       />
                     </div>
@@ -760,18 +767,47 @@ export default function DashboardPage() {
                         'Confirmar Código'
                       )}
                     </Button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        SensoryAudio.play('bubble')
-                        setAuthError('')
-                        setAuthSuccess('')
-                        setViewMode('auth')
-                      }}
-                      className="text-xs text-muted-foreground hover:text-foreground font-semibold w-full text-center block mt-2 cursor-pointer"
-                    >
-                      Voltar para Criar Conta
-                    </button>
+                    <div className="flex flex-col items-center gap-1 mt-1">
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          SensoryAudio.play('bubble')
+                          setAuthError('')
+                          setAuthSuccess('')
+                          setOtpCode('')
+                          setAuthLoading(true)
+                          try {
+                            const { error: resendError } = await supabase.auth.signUp({
+                              email: email.trim(),
+                              password: password,
+                            })
+                            if (resendError) throw new Error(resendError.message)
+                            setAuthSuccess('Novo código enviado para o seu e-mail!')
+                          } catch (err: any) {
+                            setAuthError(err.message || 'Erro ao reenviar. Tente novamente.')
+                          } finally {
+                            setAuthLoading(false)
+                          }
+                        }}
+                        disabled={authLoading}
+                        className="text-xs text-primary hover:text-primary/80 font-semibold cursor-pointer disabled:opacity-50"
+                      >
+                        🔄 Reenviar código
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          SensoryAudio.play('bubble')
+                          setAuthError('')
+                          setAuthSuccess('')
+                          setOtpCode('')
+                          setViewMode('auth')
+                        }}
+                        className="text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer"
+                      >
+                        Voltar para Criar Conta
+                      </button>
+                    </div>
                   </div>
                 )}
 
