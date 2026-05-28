@@ -744,7 +744,7 @@ export default function DashboardPage() {
                         inputMode="numeric"
                         pattern="[0-9]*"
                         maxLength={8}
-                        placeholder="00000000"
+                        placeholder="••••••••"
                         value={otpCode}
                         onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
                         className="rounded-xl border-border bg-input py-2.5 text-center font-mono tracking-[0.3em] text-xl font-bold"
@@ -880,7 +880,7 @@ export default function DashboardPage() {
                         inputMode="numeric"
                         pattern="[0-9]*"
                         maxLength={8}
-                        placeholder="00000000"
+                        placeholder="••••••••"
                         value={recoveryCode}
                         onChange={(e) => setRecoveryCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
                         className="rounded-xl border-border bg-input py-2.5 text-center font-mono tracking-[0.3em] text-xl font-bold"
