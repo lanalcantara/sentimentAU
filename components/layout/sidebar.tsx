@@ -28,6 +28,7 @@ import { Button } from '@/components/ui/button'
 
 import { FLOWERS } from '@/lib/flowers'
 import { NotificationsPopover } from '@/components/profile/notifications-popover'
+import { toast } from 'sonner'
 
 const navItems = [
   { href: '/', label: 'Painel', icon: LayoutDashboard },
@@ -47,6 +48,27 @@ export function Sidebar() {
   const [breathingActive, setBreathingActive] = useState(false)
   const [breathPhase, setBreathPhase] = useState<'inhale' | 'hold-in' | 'exhale' | 'hold-out'>('inhale')
   const [breathTime, setBreathTime] = useState(4)
+
+  const triggerBreathingUnlock = async () => {
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ triggerSelfRegulation: true })
+      })
+      const data = await res.json()
+      if (res.ok && data.unlockedFlower) {
+        toast.success(`✨ Você conquistou uma nova flor por se autorregular num dia difícil: ${FLOWERS[data.unlockedFlower]?.label} ${FLOWERS[data.unlockedFlower]?.emoji}!`, {
+          description: 'Ela foi adicionada ao seu Jardim do Bem-Estar.',
+          duration: 6000
+        })
+        window.dispatchEvent(new Event('flower_unlocked'))
+        window.dispatchEvent(new Event('avatar_updated'))
+      }
+    } catch (err) {
+      console.error('Failed to trigger breathing self-regulation:', err)
+    }
+  }
 
   const loadProfile = async () => {
     try {
@@ -315,7 +337,11 @@ export function Sidebar() {
               <Button
                 onClick={() => {
                   SensoryAudio.playClick()
-                  setBreathingActive(!breathingActive)
+                  const nextActive = !breathingActive
+                  setBreathingActive(nextActive)
+                  if (nextActive) {
+                    triggerBreathingUnlock()
+                  }
                 }}
                 variant={breathingActive ? "outline" : "default"}
                 className="rounded-xl px-6 py-2 font-bold cursor-pointer"

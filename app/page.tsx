@@ -21,6 +21,7 @@ import { useCalmMode } from '@/lib/context/calm-mode-context'
 import type { DiaryEntry, WellbeingStats } from '@/lib/types'
 import { SensoryAudio, type ASMRSoundType } from '@/lib/services/sensory-audio'
 import { FLOWERS } from '@/lib/flowers'
+import { toast } from 'sonner'
 
 // Dynamic Stats Calculator based on real Postgres entries
 const calculateDynamicStats = (entries: DiaryEntry[]): WellbeingStats => {
@@ -173,6 +174,27 @@ export default function DashboardPage() {
       })
     } catch (err) {
       console.error('[Dashboard] Failed to send hug:', err)
+    }
+  }
+
+  const triggerSelfRegulationUnlock = async () => {
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ triggerSelfRegulation: true })
+      })
+      const data = await res.json()
+      if (res.ok && data.unlockedFlower) {
+        toast.success(`✨ Você conquistou uma nova flor por se autorregular num dia difícil: ${FLOWERS[data.unlockedFlower]?.label} ${FLOWERS[data.unlockedFlower]?.emoji}!`, {
+          description: 'Ela foi adicionada ao seu Jardim do Bem-Estar.',
+          duration: 6000
+        })
+        window.dispatchEvent(new Event('flower_unlocked'))
+        window.dispatchEvent(new Event('avatar_updated'))
+      }
+    } catch (err) {
+      console.error('Failed to trigger self-regulation:', err)
     }
   }
 
@@ -1105,32 +1127,43 @@ export default function DashboardPage() {
                         </div>
 
                         <div className="flex items-center justify-between pt-1 border-t border-dashed border-border">
-                          <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                            🟢 Online hoje
-                          </span>
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault()
-                              if (!member.hasHugged) {
-                                handleSendSupport(member.userId)
-                              }
-                            }}
-                            disabled={member.hasHugged}
-                            className={cn(
-                              "community-support-button flex items-center gap-1.5 py-1 px-3 rounded-xl transition-all text-xs font-bold cursor-pointer",
-                              member.hasHugged
-                                ? "bg-[#fce7f3] text-[#db2777] cursor-not-allowed opacity-80"
-                                : "bg-[#eef2f6] hover:bg-primary/10 hover:text-primary text-[#5c6e8c]"
-                            )}
-                          >
-                            <span>{member.hasHugged ? '🫂 Abraço Enviado' : '🫂 Enviar Abraço'}</span>
-                            <span className={cn(
-                              "community-support-count font-extrabold px-1.5 py-0.5 rounded-md text-[9px] shadow-sm",
-                              member.hasHugged ? "bg-white text-[#db2777]" : "bg-card/90 text-primary"
-                            )}>
-                              {member.supportCount}
-                            </span>
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                SensoryAudio.playClick()
+                                window.location.href = `/perfil/${member.userId}`
+                              }}
+                              className="flex items-center gap-1 py-1 px-2.5 rounded-xl bg-green-50 hover:bg-green-100 text-green-700 text-xs font-bold cursor-pointer"
+                            >
+                              <Leaf className="w-3.5 h-3.5 mr-0.5" />
+                              <span>Ver Jardim</span>
+                            </button>
+
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                if (!member.hasHugged) {
+                                  handleSendSupport(member.userId)
+                                }
+                              }}
+                              disabled={member.hasHugged}
+                              className={cn(
+                                "community-support-button flex items-center gap-1.5 py-1 px-3 rounded-xl transition-all text-xs font-bold cursor-pointer",
+                                member.hasHugged
+                                  ? "bg-[#fce7f3] text-[#db2777] cursor-not-allowed opacity-80"
+                                  : "bg-[#eef2f6] hover:bg-primary/10 hover:text-primary text-[#5c6e8c]"
+                              )}
+                            >
+                              <span>{member.hasHugged ? '🫂 Abraço Enviado' : '🫂 Enviar Abraço'}</span>
+                              <span className={cn(
+                                "community-support-count font-extrabold px-1.5 py-0.5 rounded-md text-[9px] shadow-sm",
+                                member.hasHugged ? "bg-white text-[#db2777]" : "bg-card/90 text-primary"
+                              )}>
+                                {member.supportCount}
+                              </span>
+                            </button>
+                          </div>
                         </div>
                       </Link>
                     ))}
@@ -1165,7 +1198,7 @@ export default function DashboardPage() {
                       }
                       window.dispatchEvent(new Event('sensory_audio_toggle'))
                     }}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                    className={`speaker-toggle-btn w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer ${
                       isMuted 
                         ? 'bg-red-50 hover:bg-red-100 text-red-500' 
                         : 'bg-[#eef2f6] hover:bg-[#dfe5eb] text-primary'
@@ -1247,8 +1280,9 @@ export default function DashboardPage() {
                     <button
                       onClick={() => {
                         SensoryAudio.play('water-drop')
+                        triggerSelfRegulationUnlock()
                       }}
-                      className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[#d4e8f9] hover:bg-[#b8dafa] transition-all cursor-pointer group"
+                      className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[#d4e8f9] hover:bg-[#b8dafa] transition-all cursor-pointer group asmr-button"
                     >
                       <div className="w-8 h-8 rounded-full bg-[#6b8fd4]/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
                         💧
@@ -1259,8 +1293,9 @@ export default function DashboardPage() {
                     <button
                       onClick={() => {
                         SensoryAudio.play('bubble')
+                        triggerSelfRegulationUnlock()
                       }}
-                      className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[#c4f5f0] hover:bg-[#a6efe7] transition-all cursor-pointer group"
+                      className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[#c4f5f0] hover:bg-[#a6efe7] transition-all cursor-pointer group asmr-button"
                     >
                       <div className="w-8 h-8 rounded-full bg-[#4ecdc4]/20 flex items-center justify-center text-[#4ecdc4] group-hover:scale-110 transition-transform">
                         🫧
@@ -1271,8 +1306,9 @@ export default function DashboardPage() {
                     <button
                       onClick={() => {
                         SensoryAudio.play('chime')
+                        triggerSelfRegulationUnlock()
                       }}
-                      className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[#fcecc4] hover:bg-[#fae2a5] transition-all cursor-pointer group"
+                      className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[#fcecc4] hover:bg-[#fae2a5] transition-all cursor-pointer group asmr-button"
                     >
                       <div className="w-8 h-8 rounded-full bg-[#f5a623]/20 flex items-center justify-center text-[#f5a623] group-hover:scale-110 transition-transform">
                         🔔
@@ -1291,8 +1327,9 @@ export default function DashboardPage() {
                     <button
                       onClick={() => {
                         SensoryAudio.play('mc-xp')
+                        triggerSelfRegulationUnlock()
                       }}
-                      className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-[#e8f5e9] hover:bg-[#c8e6c9] border border-[#a5d6a7]/20 transition-all cursor-pointer group text-left"
+                      className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-[#e8f5e9] hover:bg-[#c8e6c9] border border-[#a5d6a7]/20 transition-all cursor-pointer group text-left asmr-button"
                     >
                       <div className="w-7 h-7 rounded-xl bg-[#2e7d32]/10 flex items-center justify-center text-sm group-hover:scale-105 transition-transform">
                         🟢
@@ -1307,8 +1344,9 @@ export default function DashboardPage() {
                     <button
                       onClick={() => {
                         SensoryAudio.play('mc-levelup')
+                        triggerSelfRegulationUnlock()
                       }}
-                      className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-[#fffde7] hover:bg-[#fff9c4] border border-[#fff59d]/20 transition-all cursor-pointer group text-left"
+                      className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-[#fffde7] hover:bg-[#fff9c4] border border-[#fff59d]/20 transition-all cursor-pointer group text-left asmr-button"
                     >
                       <div className="w-7 h-7 rounded-xl bg-[#f57f17]/10 flex items-center justify-center text-sm group-hover:scale-105 transition-transform">
                         👑
@@ -1322,8 +1360,9 @@ export default function DashboardPage() {
                     <button
                       onClick={() => {
                         SensoryAudio.play('mc-anvil')
+                        triggerSelfRegulationUnlock()
                       }}
-                      className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-[#eceff1] hover:bg-[#cfd8dc] border border-[#b0bec5]/20 transition-all cursor-pointer group text-left"
+                      className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-[#eceff1] hover:bg-[#cfd8dc] border border-[#b0bec5]/20 transition-all cursor-pointer group text-left asmr-button"
                     >
                       <div className="w-7 h-7 rounded-xl bg-[#37474f]/10 flex items-center justify-center text-sm group-hover:scale-105 transition-transform">
                         ⚙️

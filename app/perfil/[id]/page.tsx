@@ -2,10 +2,11 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { AppLayout } from '@/components/layout/app-layout'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { FLOWERS } from '@/lib/flowers'
-import { Heart, UserPlus, Leaf } from 'lucide-react'
+import { Heart, UserPlus, Leaf, Trophy } from 'lucide-react'
 import { WellbeingGarden } from '@/components/dashboard/wellbeing-garden'
 import { CommunityActions } from '@/components/profile/community-actions'
 import { headers } from 'next/headers'
+import { cn } from '@/lib/utils'
 
 export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -34,6 +35,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
 
   let initialFollowing = false
   let initialHugged = false
+  let initialWatered = false
 
   if (currentUserId && currentUserId !== id) {
     const { data: follow } = await supabaseAdmin
@@ -52,6 +54,15 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
       .in('type', ['abraco', 'abraco_tatil'])
       .maybeSingle()
     initialHugged = !!hug
+
+    const { data: water } = await supabaseAdmin
+      .from('sentiment_notifications')
+      .select('id')
+      .eq('sender_id', currentUserId)
+      .eq('receiver_id', id)
+      .eq('type', 'regar')
+      .maybeSingle()
+    initialWatered = !!water
   }
 
   // Fetch public entries
@@ -109,7 +120,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
               )}
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-2xl font-bold text-foreground capitalize">Jardim de {profile.username}</h1>
+              <h1 className="text-2xl font-bold text-foreground capitalize">
+                {currentUserId !== profile.id 
+                  ? `Você está visitando o Jardim de ${profile.username} 🌿` 
+                  : `Jardim de ${profile.username}`}
+              </h1>
               <p className="text-muted-foreground text-sm mt-1">
                 {publicEntries.length} sementes plantadas na comunidade
               </p>
@@ -120,6 +135,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
               targetUsername={profile.username} 
               initialFollowing={initialFollowing}
               initialHugged={initialHugged}
+              initialWatered={initialWatered}
             />
           </div>
         </div>
@@ -137,6 +153,37 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
               Nenhuma flor plantada publicamente ainda.
             </div>
           )}
+        </div>
+
+        {/* Unlocked Flowers Collection */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-primary shrink-0" />
+            Coleção Botânica de {profile.username}
+          </h2>
+          <Card className="bg-card border border-border rounded-3xl p-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+              {Object.entries(FLOWERS).map(([key, flower]) => {
+                const isUnlocked = unlockedFlowers.includes(key)
+                return (
+                  <div 
+                    key={key} 
+                    className={cn(
+                      "flex flex-col items-center p-3 rounded-2xl border text-center transition-all",
+                      isUnlocked 
+                        ? "bg-[#f0fdf4] border-green-200/60 shadow-sm" 
+                        : "bg-muted/40 border-dashed border-border opacity-50"
+                    )}
+                  >
+                    <span className="text-3xl mb-1">{isUnlocked ? flower.emoji : '🔒'}</span>
+                    <span className="text-[10px] font-extrabold text-foreground truncate max-w-full">
+                      {isUnlocked ? flower.label : 'Bloqueada'}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </Card>
         </div>
 
         {/* Public Entries List */}

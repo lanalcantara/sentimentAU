@@ -45,11 +45,57 @@ export async function POST(req: Request) {
     }
 
     const userId = userIdCookie.split('=')[1].trim()
-    const { avatarUrl, flor_avatar_atual, unlockFlowerId } = await req.json()
+    const { avatarUrl, flor_avatar_atual, unlockFlowerId, flores_desbloqueadas, triggerSelfRegulation } = await req.json()
 
     const updateData: any = {}
     if (avatarUrl !== undefined) updateData.avatar_url = avatarUrl
     if (flor_avatar_atual !== undefined) updateData.flor_avatar_atual = flor_avatar_atual
+    if (flores_desbloqueadas !== undefined) updateData.flores_desbloqueadas = flores_desbloqueadas
+
+    let unlockedNewFlower: string | null = null
+
+    if (triggerSelfRegulation === true) {
+      // 1. Get user's latest diary entry
+      const { data: latestEntries, error: entryError } = await supabaseAdmin
+        .from('sentiment_entries')
+        .select('sentiment')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+
+      if (entryError) throw new Error(entryError.message)
+
+      if (latestEntries && latestEntries.length > 0) {
+        const latest = latestEntries[0]
+        if (latest.sentiment === 'negative') {
+          // 2. Get user record
+          const { data: userRecord, error: userError } = await supabaseAdmin
+            .from('sentiment_users')
+            .select('flores_desbloqueadas')
+            .eq('id', userId)
+            .single()
+
+          if (userError) throw new Error(userError.message)
+
+          if (userRecord) {
+            const currentFlowers = userRecord.flores_desbloqueadas || ['semente']
+            
+            if (!currentFlowers.includes('lotus')) {
+              unlockedNewFlower = 'lotus'
+            } else if (!currentFlowers.includes('lirio')) {
+              unlockedNewFlower = 'lirio'
+            } else if (!currentFlowers.includes('cacto')) {
+              unlockedNewFlower = 'cacto'
+            }
+
+            if (unlockedNewFlower) {
+              currentFlowers.push(unlockedNewFlower)
+              updateData.flores_desbloqueadas = currentFlowers
+            }
+          }
+        }
+      }
+    }
 
     if (unlockFlowerId !== undefined) {
       const { data: userRecord, error: userError } = await supabaseAdmin
@@ -74,7 +120,7 @@ export async function POST(req: Request) {
 
     if (error) throw new Error(error.message)
 
-    return NextResponse.json({ success: true, avatarUrl })
+    return NextResponse.json({ success: true, avatarUrl, unlockedFlower: unlockedNewFlower })
   } catch (error: any) {
     console.error('[API/Profile/POST] Error:', error)
     return NextResponse.json(

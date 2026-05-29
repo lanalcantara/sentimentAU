@@ -338,3 +338,33 @@
 .calm-mode .stats-card p * {
   color: #1A1A1A !important;
 }
+
+/* Sobrescreve botões de ASMR no Modo Calmo com fundo escuro e texto amarelo solar */
+.calm-mode .asmr-button {
+  background-color: #262626 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+.calm-mode .asmr-button span,
+.calm-mode .asmr-button p,
+.calm-mode .asmr-button .text-foreground,
+.calm-mode .asmr-button span * {
+  color: #f5c842 !important; /* Amarelo solar forte */
+}
+
+/* Sobrescreve badge de Streak do RPG no Modo Calmo */
+.calm-mode .rpg-streak-badge {
+  background-color: #262626 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+.calm-mode .rpg-streak-badge span {
+  color: #f5c842 !important; /* Amarelo solar forte */
+  background-color: transparent !important;
+}
+
+/* Correção de Contraste Absoluta para Botões D-Pad e Alto-falante */
+.rpg-control-btn svg,
+.speaker-toggle-btn svg {
+  stroke: #f5c842 !important;
+  color: #f5c842 !important;
+}
+
