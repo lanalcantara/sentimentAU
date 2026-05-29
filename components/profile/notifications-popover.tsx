@@ -151,29 +151,29 @@ export function NotificationsPopover() {
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0 mr-4 mt-2 rounded-2xl shadow-lg border-[#eaeef5]" align="end">
-        <div className="p-4 border-b border-[#eaeef5] flex items-center justify-between bg-[#f8fafc] rounded-t-2xl">
-          <h3 className="font-bold text-foreground">Notificações</h3>
+        <div className="p-4 border-b border-[#eaeef5] flex items-center justify-between bg-[#f8fafc] rounded-t-2xl calm-popover-header">
+          <h3 className="font-bold text-foreground calm-notif-title">Notificações</h3>
           <div className="flex items-center gap-2">
             {unreadCount > 0 && (
-              <span className="text-xs bg-[#e8f5e9] text-green-700 font-bold px-2 py-0.5 rounded-full">
+              <span className="text-xs bg-[#e8f5e9] text-green-700 font-bold px-2 py-0.5 rounded-full calm-popover-badge-new">
                 {unreadCount} novas
               </span>
             )}
-            <span className="text-[10px] text-muted-foreground font-medium bg-green-50 px-2 py-0.5 rounded-full border border-green-100">
+            <span className="text-[10px] text-muted-foreground font-medium bg-green-50 px-2 py-0.5 rounded-full border border-green-100 calm-popover-badge-realtime">
               ⚡ Em tempo real
             </span>
           </div>
         </div>
         <div className="max-h-[320px] overflow-y-auto">
           {notifications.length === 0 ? (
-            <div className="p-6 text-center text-sm text-[#6a7a9a]">
+            <div className="p-6 text-center text-sm text-[#6a7a9a] calm-popover-empty">
               <Bell className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
-              Seu jardim está tranquilo no momento.
+              <span className="calm-notif-body">Seu jardim está tranquilo no momento.</span>
             </div>
           ) : (
             <div className="flex flex-col">
               {notifications.map((n) => (
-                <div key={n.id} className={`p-4 border-b border-[#eaeef5] last:border-0 hover:bg-[#f8fafc] transition-colors ${!n.lido ? 'bg-blue-50/30' : ''}`}>
+                <div key={n.id} className={`p-4 border-b border-[#eaeef5] last:border-0 hover:bg-[#f8fafc] transition-colors calm-popover-item ${!n.lido ? 'bg-blue-50/30 calm-popover-item-unread' : ''}`}>
                   <div className="flex items-start gap-3">
                     {getNotifIcon(n.tipo)}
                     <div className="flex-1 min-w-0">
@@ -193,7 +193,7 @@ export function NotificationsPopover() {
             </div>
           )}
         </div>
-        <div className="p-3 border-t border-[#eaeef5] bg-[#f8fafc] rounded-b-2xl">
+        <div className="p-3 border-t border-[#eaeef5] bg-[#f8fafc] rounded-b-2xl calm-popover-footer">
           <Link
             href="/meu-jardim"
             className="block text-center text-xs font-bold text-[#16a34a] hover:text-[#15803d] transition-colors py-1"

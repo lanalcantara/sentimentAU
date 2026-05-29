@@ -169,9 +169,9 @@ export default function MeuJardimPage() {
           <div className="space-y-5">
 
             {/* Stats Card */}
-            <Card className="border-0 shadow-sm rounded-2xl bg-gradient-to-br from-[#f0fdf4] to-white overflow-hidden">
+            <Card className="border-0 shadow-sm rounded-2xl bg-gradient-to-br from-[#f0fdf4] to-white overflow-hidden meu-jardim-stats-card">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-bold flex items-center gap-2 text-[#16a34a]">
+                <CardTitle className="text-sm font-bold flex items-center gap-2 text-[#16a34a] calm-title-yellow">
                   <Trophy className="w-4 h-4" />
                   Resumo do Jardim
                 </CardTitle>
@@ -183,14 +183,14 @@ export default function MeuJardimPage() {
                   { label: 'Dias positivos',      value: `${positiveCount} ☀️`, color: '#d97706' },
                 ].map(row => (
                   <div key={row.label} className="flex justify-between items-center">
-                    <span className="text-xs font-medium" style={{ color: '#374151' }}>{row.label}</span>
-                    <span className="text-sm font-extrabold" style={{ color: row.color }}>{row.value}</span>
+                    <span className="text-xs font-medium calm-body-offwhite" style={{ color: '#374151' }}>{row.label}</span>
+                    <span className="text-sm font-extrabold calm-body-offwhite" style={{ color: row.color }}>{row.value}</span>
                   </div>
                 ))}
                 <div className="pt-2 border-t border-[#e8f5e9]">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-medium" style={{ color: '#374151' }}>Progresso geral</span>
-                    <span className="text-xs font-bold text-[#16a34a]">
+                    <span className="text-xs font-medium calm-body-offwhite" style={{ color: '#374151' }}>Progresso geral</span>
+                    <span className="text-xs font-bold text-[#16a34a] calm-body-offwhite">
                       {Math.round((unlockedCount / totalCount) * 100)}%
                     </span>
                   </div>
@@ -206,12 +206,12 @@ export default function MeuJardimPage() {
 
             {/* Waterers Card */}
             <Card className="border-0 shadow-sm rounded-2xl overflow-hidden">
-              <CardHeader className="pb-3 bg-gradient-to-r from-[#f0f9ff] to-white">
-                <CardTitle className="text-sm font-bold flex items-center gap-2 text-[#0284c7]">
+              <CardHeader className="pb-3 bg-gradient-to-r from-[#f0f9ff] to-white meu-jardim-waterers-header">
+                <CardTitle className="text-sm font-bold flex items-center gap-2 text-[#0284c7] calm-title-yellow">
                   <CloudRain className="w-4 h-4" />
                   Regaram seu jardim
                 </CardTitle>
-                <CardDescription className="text-xs" style={{ color: '#374151' }}>
+                <CardDescription className="text-xs calm-body-offwhite" style={{ color: '#374151' }}>
                   Colegas que passaram esta semana
                 </CardDescription>
               </CardHeader>
@@ -223,26 +223,32 @@ export default function MeuJardimPage() {
                     ))}
                   </div>
                 ) : waterers.length === 0 ? (
-                  <div className="text-center py-6">
-                    <CloudRain className="w-8 h-8 mx-auto mb-2" style={{ color: '#93c5fd', opacity: 0.7 }} />
-                    <p className="text-xs leading-relaxed" style={{ color: '#374151' }}>
-                      Nenhum colega regou seu jardim esta semana. Visite outros jardins para incentivar!
+                  <div className="text-center py-4 space-y-3">
+                    <CloudRain className="w-8.5 h-8.5 mx-auto mb-1 text-[#93c5fd]/80" />
+                    <p className="text-xs leading-relaxed calm-body-offwhite" style={{ color: '#374151' }}>
+                      Nenhum colega regou seu jardim esta semana.
                     </p>
+                    <Link
+                      href="/"
+                      className="inline-block w-full py-2.5 px-4 text-center text-xs font-bold bg-white text-slate-900 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm cursor-pointer meu-jardim-calm-button"
+                    >
+                      Visite outros jardins para incentivar!
+                    </Link>
                   </div>
                 ) : (
                   <div className="space-y-2">
                     {waterers.map(w => {
                       const flowerData = FLOWERS[w.florRemetente || 'semente']
                       return (
-                        <div key={w.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-[#f0f9ff]/60 hover:bg-[#f0f9ff] transition-colors">
-                          <div className="w-9 h-9 rounded-full bg-[#e0f2fe] flex items-center justify-center text-lg shrink-0">
+                        <div key={w.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-[#f0f9ff]/60 hover:bg-[#f0f9ff] transition-colors meu-jardim-waterer-item calm-body-offwhite">
+                          <div className="w-9 h-9 rounded-full bg-[#e0f2fe] flex items-center justify-center text-lg shrink-0 meu-jardim-avatar-bg">
                             {flowerData?.emoji || '🌱'}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold truncate" style={{ color: '#111827' }}>
+                            <p className="text-sm font-bold truncate calm-body-offwhite" style={{ color: '#111827' }}>
                               {w.remetente}
                             </p>
-                            <p className="text-[10px]" style={{ color: '#6b7280' }}>
+                            <p className="text-[10px] calm-body-offwhite" style={{ color: '#6b7280' }}>
                               {formatDistanceToNow(new Date(w.data), { addSuffix: true, locale: ptBR })}
                             </p>
                           </div>
@@ -256,11 +262,11 @@ export default function MeuJardimPage() {
             </Card>
 
             {/* Tip card */}
-            <div className="rounded-2xl bg-gradient-to-br from-[#fffbeb] to-[#fef3c7] p-4 border border-[#fde68a]/50">
-              <p className="text-xs font-bold mb-1 uppercase tracking-wider" style={{ color: '#92400e' }}>
+            <div className="rounded-2xl bg-gradient-to-br from-[#fffbeb] to-[#fef3c7] p-4 border border-[#fde68a]/50 meu-jardim-tip-card">
+              <p className="text-xs font-bold mb-1 uppercase tracking-wider calm-title-yellow" style={{ color: '#92400e' }}>
                 💡 Dica do Jardim
               </p>
-              <p className="text-xs leading-relaxed" style={{ color: '#78350f' }}>
+              <p className="text-xs leading-relaxed calm-body-offwhite" style={{ color: '#78350f' }}>
                 Registre suas emoções todos os dias para desbloquear novas flores raras.
                 Autorregular em dias difíceis também ganha flores especiais! 🪷
               </p>

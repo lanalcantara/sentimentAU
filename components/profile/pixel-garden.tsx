@@ -334,12 +334,38 @@ function drawRainAnimation(ctx: CanvasRenderingContext2D, W: number, H: number, 
   }
 }
 
+const CANTEIRO_CENTERS = [
+  { flowerId: 'semente', cx: 175, cy: 200 },
+  { flowerId: 'broto', cx: 263, cy: 300 },
+  { flowerId: 'margarida', cx: 315, cy: 271 },
+  { flowerId: 'girassol', cx: 383, cy: 114 },
+  { flowerId: 'rosa', cx: 468, cy: 158 },
+  { flowerId: 'tulipa', cx: 223, cy: 112 },
+  { flowerId: 'lotus', cx: 341, cy: 121 },
+  { flowerId: 'cerejeira', cx: 151, cy: 128 },
+]
+
 export function PixelGarden({ unlockedFlowers, username, onWater, hasWatered }: PixelGardenProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const tickRef = useRef(0)
   const animFrameRef = useRef<number>()
   const [isRaining, setIsRaining] = useState(false)
   const rainFrameRef = useRef(0)
+
+  // Preload assets for isometric scene
+  const [bgImage, setBgImage] = useState<HTMLImageElement | null>(null)
+  const [emptyCanteiroImage, setEmptyCanteiroImage] = useState<HTMLImageElement | null>(null)
+  const [hoveredFlower, setHoveredFlower] = useState<{ label: string; x: number; y: number } | null>(null)
+
+  useEffect(() => {
+    const bg = new Image()
+    bg.src = '/approved_canvas.png'
+    bg.onload = () => setBgImage(bg)
+
+    const emp = new Image()
+    emp.src = '/empty_canteiro.png'
+    emp.onload = () => setEmptyCanteiroImage(emp)
+  }, [])
 
   const render = useCallback(() => {
     const canvas = canvasRef.current
@@ -352,35 +378,27 @@ export function PixelGarden({ unlockedFlowers, username, onWater, hasWatered }: 
     ctx.imageSmoothingEnabled = false
     tickRef.current++
 
-    // 1. Grass background
-    drawGrass(ctx, W, H)
+    // 1. Draw approved isometric scene background
+    if (bgImage) {
+      ctx.drawImage(bgImage, 0, 0, W, H)
+    } else {
+      // Fallback green background while loading
+      ctx.fillStyle = '#5a8c3c'
+      ctx.fillRect(0, 0, W, H)
+    }
 
-    // 2. Dirt path
-    drawPath(ctx)
+    // 2. Overlay empty canteiro sprites dynamically for locked flowers
+    if (emptyCanteiroImage) {
+      CANTEIRO_CENTERS.forEach(({ flowerId, cx, cy }) => {
+        const isUnlocked = unlockedFlowers.includes(flowerId)
+        if (!isUnlocked) {
+          // empty_canteiro has width 100, height 75. Center is (54, 62)
+          ctx.drawImage(emptyCanteiroImage, cx - 54, cy - 62)
+        }
+      })
+    }
 
-    // 3. Greenhouse
-    drawGreenhouse(ctx)
-
-    // 4. Trees
-    drawTrees(ctx)
-
-    // 5. Flower beds (dynamic from unlocked flowers)
-    drawFlowerBeds(ctx, unlockedFlowers, tickRef.current)
-
-    // 6. Fountain
-    drawFountain(ctx)
-
-    // 7. Tools
-    drawTools(ctx)
-
-    // 8. Fence border hint
-    ctx.fillStyle = COLORS.woodDark
-    drawPixelRect(ctx, 0, 0, W, 4, COLORS.woodDark)
-    drawPixelRect(ctx, 0, H - 4, W, 4, COLORS.woodDark)
-    drawPixelRect(ctx, 0, 0, 4, H, COLORS.woodDark)
-    drawPixelRect(ctx, W - 4, 0, 4, H, COLORS.woodDark)
-
-    // 9. Rain overlay
+    // 3. Rain overlay
     if (isRaining) {
       ctx.fillStyle = 'rgba(100, 160, 220, 0.15)'
       ctx.fillRect(0, 0, W, H)
@@ -389,7 +407,7 @@ export function PixelGarden({ unlockedFlowers, username, onWater, hasWatered }: 
     }
 
     animFrameRef.current = requestAnimationFrame(render)
-  }, [unlockedFlowers, isRaining])
+  }, [unlockedFlowers, isRaining, bgImage, emptyCanteiroImage])
 
   useEffect(() => {
     animFrameRef.current = requestAnimationFrame(render)
@@ -407,17 +425,73 @@ export function PixelGarden({ unlockedFlowers, username, onWater, hasWatered }: 
     setTimeout(() => setIsRaining(false), 3500)
   }
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const rect = canvas.getBoundingClientRect()
+
+    // Map screen mouse position to canvas drawing resolution coordinates
+    const mouseX = ((e.clientX - rect.left) / rect.width) * canvas.width
+    const mouseY = ((e.clientY - rect.top) / rect.height) * canvas.height
+
+    let found = false
+    for (const c of CANTEIRO_CENTERS) {
+      const dx = mouseX - c.cx
+      const dy = mouseY - c.cy
+      const dist = Math.sqrt(dx * dx + dy * dy)
+
+      // Canteiro is click-sensitive in a 30px radius
+      if (dist < 32) {
+        const isUnlocked = unlockedFlowers.includes(c.flowerId)
+        const flowerInfo = FLOWERS[c.flowerId]
+
+        const pctX = (c.cx / canvas.width) * 100
+        const pctY = ((c.cy - 38) / canvas.height) * 100 // place slightly above the flower center
+
+        setHoveredFlower({
+          label: isUnlocked
+            ? `${flowerInfo?.emoji} ${flowerInfo?.label}`
+            : '🔒 Canteiro Bloqueado',
+          x: pctX,
+          y: pctY,
+        })
+        found = true
+        break
+      }
+    }
+
+    if (!found) {
+      setHoveredFlower(null)
+    }
+  }
+
+  const handleMouseLeave = () => {
+    setHoveredFlower(null)
+  }
+
   return (
     <div className="space-y-3">
       {/* Canvas Scene */}
       <div className="relative rounded-2xl overflow-hidden border-4 border-[#5a8c3c] shadow-inner bg-[#4a7430]">
         <canvas
           ref={canvasRef}
-          width={400}
-          height={220}
-          className="block w-full"
+          width={668}
+          height={365}
+          className="block w-full cursor-crosshair"
           style={{ imageRendering: 'pixelated' }}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
         />
+        {/* Hover Tooltip Overlay */}
+        {hoveredFlower && (
+          <div
+            className="absolute bg-black/85 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-xl shadow-lg border border-white/10 pointer-events-none -translate-x-1/2 -translate-y-full transition-all duration-200 z-30 whitespace-nowrap"
+            style={{ left: `${hoveredFlower.x}%`, top: `${hoveredFlower.y}%` }}
+          >
+            {hoveredFlower.label}
+            <div className="absolute left-1/2 bottom-0 w-2 h-2 bg-black border-r border-b border-white/10 rotate-45 -translate-x-1/2 translate-y-1/2" />
+          </div>
+        )}
         {/* Overlay label */}
         <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-lg">
           🌿 Jardim de {username}
