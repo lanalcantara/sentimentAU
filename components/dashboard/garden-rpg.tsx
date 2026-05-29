@@ -1177,8 +1177,6 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
     return () => cancelAnimationFrame(animationFrameId)
   }, [chests, entriesCount, streak])
 
-  const mapData = getMapData(mapX, mapY)
-
   return (
     <Card className="relative bg-card border-0 shadow-sm rounded-3xl p-6 space-y-4 overflow-hidden">
       
