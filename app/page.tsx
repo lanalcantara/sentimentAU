@@ -258,8 +258,8 @@ export default function DashboardPage() {
         setAuthError('O nome de usuário deve ter pelo menos 3 caracteres.')
         return
       }
-      if (password.length < 4) {
-        setAuthError('A senha deve ter pelo menos 4 caracteres.')
+      if (password.length < 6) {
+        setAuthError('Para sua segurança, a senha deve ter pelo menos 6 caracteres.')
         return
       }
     } else {
@@ -448,8 +448,8 @@ export default function DashboardPage() {
       return
     }
 
-    if (newPassword.length < 4) {
-      setAuthError('A nova senha deve ter pelo menos 4 caracteres.')
+    if (newPassword.length < 6) {
+      setAuthError('Para sua segurança, a nova senha deve ter pelo menos 6 caracteres.')
       return
     }
 
@@ -501,6 +501,9 @@ export default function DashboardPage() {
       setViewMode('auth')
       setUsername('')
       setPassword('')
+      setRecoveryEmail('')
+      setRecoveryCode('')
+      setNewPassword('')
     } catch (err: any) {
       setAuthError(err.message || 'Erro ao redefinir a senha.')
     } finally {
@@ -704,7 +707,7 @@ export default function DashboardPage() {
                           className="rounded-xl border-border bg-input py-2.5"
                           disabled={authLoading}
                         />
-                        <p className="text-[10px] text-muted-foreground">Escolha uma senha com pelo menos 4 letras ou números.</p>
+                        <p className="text-[10px] text-muted-foreground">Escolha uma senha com pelo menos 6 letras ou números.</p>
                       </div>
 
                       <Button
@@ -894,7 +897,7 @@ export default function DashboardPage() {
                       <Input
                         id="new-password"
                         type="password"
-                        placeholder="Nova senha (min. 4 caracteres)"
+                        placeholder="Nova senha (min. 6 caracteres)"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         className="rounded-xl border-border bg-input py-2.5"

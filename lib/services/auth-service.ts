@@ -22,8 +22,8 @@ export const AuthService = {
     if (trimmedUsername.length < 3) {
       throw new Error('O nome de usuário deve ter pelo menos 3 caracteres.')
     }
-    if (passwordSecret.length < 4) {
-      throw new Error('A senha deve ter pelo menos 4 caracteres.')
+    if (passwordSecret.length < 6) {
+      throw new Error('A senha deve ter pelo menos 6 caracteres.')
     }
 
     const passwordHash = hashPassword(passwordSecret)
