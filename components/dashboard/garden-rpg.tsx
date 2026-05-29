@@ -66,7 +66,7 @@ const UNIFIED_TREES = [
   { x: 720, y: 40, r: 12, visualR: 24, type: 'northeast' },
   { x: 730, y: 150, r: 12, visualR: 22, type: 'northeast' },
   { x: 450, y: 220, r: 12, visualR: 24, type: 'northeast' },
-  { x: 680, y: 250, r: 12, visualR: 22, type: 'northeast' },,
+  { x: 680, y: 250, r: 12, visualR: 22, type: 'northeast' },
 ]
 
 const UNIFIED_DEC_FLOWERS = [
@@ -351,6 +351,8 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
 
     // 9. Tree collisions (active map trees)
     for (const tree of UNIFIED_TREES) {
+      // Safety guard: skip undefined/malformed entries
+      if (!tree || typeof tree.x === 'undefined' || typeof tree.y === 'undefined') continue
       const dxTree = x - tree.x
       const dyTree = y - tree.y
       const distTree = Math.sqrt(dxTree * dxTree + dyTree * dyTree)
