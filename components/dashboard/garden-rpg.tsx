@@ -363,7 +363,7 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
     targetXRef.current = clickX
     targetYRef.current = clickY
     
-    SensoryAudio.play('water-drop')
+    SensoryAudio.playClick()
   }
 
   // Interacting with near chests or triggering relaxation pond
@@ -429,7 +429,9 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
     }
 
     // Unlock chest
-    SensoryAudio.play('mc-levelup')
+    const activeSound = SensoryAudio.getClickSound()
+    const rewardSound = activeSound.startsWith('mc-') ? activeSound : 'mc-levelup'
+    SensoryAudio.play(rewardSound)
     createChestSparkles(targetChest.x, targetChest.y)
 
     setChests(prev => prev.map(c => c.id === targetChest.id ? { ...c, isOpened: true } : c))
@@ -1129,7 +1131,7 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
             <div className="pt-2 w-full">
               <Button 
                 onClick={() => {
-                  SensoryAudio.play('bubble')
+                  SensoryAudio.playClick()
                   setShowRelaxationRoom(false)
                 }}
                 className="w-full rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 shadow-md transition-colors cursor-pointer"

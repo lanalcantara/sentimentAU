@@ -70,7 +70,12 @@ export const SensoryAudio = {
 
   playClick() {
     this.init() // Ensure initialized
-    this.play(this.getClickSound())
+    const sound = this.getClickSound()
+    if (sound.startsWith('mc-')) {
+      this.play('bubble')
+    } else {
+      this.play(sound)
+    }
   },
 
   play(type: ASMRSoundType) {

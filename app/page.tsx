@@ -556,7 +556,7 @@ export default function DashboardPage() {
           
           <button 
             onClick={() => {
-              SensoryAudio.play('bubble')
+              SensoryAudio.playClick()
               toggleCalmMode()
             }}
             className={`px-4 py-2 text-sm font-medium rounded-full cursor-pointer border transition-all duration-300 ${
@@ -602,14 +602,14 @@ export default function DashboardPage() {
                   <Tabs defaultValue="login" className="w-full">
                     <TabsList className="grid grid-cols-2 rounded-xl mb-6 bg-muted p-1">
                       <TabsTrigger 
-                        onClick={() => SensoryAudio.play('bubble')}
+                        onClick={() => SensoryAudio.playClick()}
                         value="login" 
                         className="rounded-lg py-2 font-medium text-sm data-[state=active]:bg-card cursor-pointer"
                       >
                         Entrar
                       </TabsTrigger>
                       <TabsTrigger 
-                        onClick={() => SensoryAudio.play('bubble')}
+                        onClick={() => SensoryAudio.playClick()}
                         value="signup" 
                         className="rounded-lg py-2 font-medium text-sm data-[state=active]:bg-card cursor-pointer"
                       >
@@ -643,7 +643,7 @@ export default function DashboardPage() {
                           <button
                             type="button"
                             onClick={() => {
-                              SensoryAudio.play('bubble')
+                              SensoryAudio.playClick()
                               setAuthError('')
                               setAuthSuccess('')
                               setViewMode('forgot')
@@ -666,7 +666,7 @@ export default function DashboardPage() {
 
                       <Button
                         onClick={() => {
-                          SensoryAudio.play('bubble')
+                          SensoryAudio.playClick()
                           handleAuthSubmit('login')
                         }}
                         className="w-full py-2.5 rounded-xl font-semibold bg-primary hover:bg-primary/95 text-primary-foreground mt-4 shadow-sm cursor-pointer"
@@ -734,7 +734,7 @@ export default function DashboardPage() {
 
                       <Button
                         onClick={() => {
-                          SensoryAudio.play('bubble')
+                          SensoryAudio.playClick()
                           handleAuthSubmit('signup')
                         }}
                         className="w-full py-2.5 rounded-xl font-semibold bg-primary hover:bg-primary/95 text-primary-foreground mt-4 shadow-sm cursor-pointer"
@@ -778,7 +778,7 @@ export default function DashboardPage() {
                     </div>
                     <Button
                       onClick={() => {
-                        SensoryAudio.play('bubble')
+                        SensoryAudio.playClick()
                         handleOtpSubmit()
                       }}
                       className="w-full py-2.5 rounded-xl font-semibold bg-primary hover:bg-primary/95 text-primary-foreground mt-4 shadow-sm cursor-pointer"
@@ -859,7 +859,7 @@ export default function DashboardPage() {
                     </div>
                     <Button
                       onClick={() => {
-                        SensoryAudio.play('bubble')
+                        SensoryAudio.playClick()
                         handleForgotPassword()
                       }}
                       className="w-full py-2.5 rounded-xl font-semibold bg-primary hover:bg-primary/95 text-primary-foreground mt-4 shadow-sm cursor-pointer"
@@ -876,7 +876,7 @@ export default function DashboardPage() {
                     <button
                       type="button"
                       onClick={() => {
-                        SensoryAudio.play('bubble')
+                        SensoryAudio.playClick()
                         setAuthError('')
                         setAuthSuccess('')
                         setViewMode('auth')
@@ -928,7 +928,7 @@ export default function DashboardPage() {
                     </div>
                     <Button
                       onClick={() => {
-                        SensoryAudio.play('bubble')
+                        SensoryAudio.playClick()
                         handleResetPassword()
                       }}
                       className="w-full py-2.5 rounded-xl font-semibold bg-primary hover:bg-primary/95 text-primary-foreground mt-4 shadow-sm cursor-pointer"
@@ -945,7 +945,7 @@ export default function DashboardPage() {
                     <button
                       type="button"
                       onClick={() => {
-                        SensoryAudio.play('bubble')
+                        SensoryAudio.playClick()
                         setAuthError('')
                         setAuthSuccess('')
                         setViewMode('auth')
@@ -990,14 +990,13 @@ export default function DashboardPage() {
               </div>
               <p className="text-muted-foreground mt-1">Como você está se sentindo esta semana?</p>
             </div>
-            <span className="text-2xl font-extrabold tracking-tight text-primary/80 ml-auto pr-8">sentimentAU</span>
           </div>
           
           <div className="flex items-center gap-3">
             {/* Modo Calmo Trigger */}
             <button 
               onClick={() => {
-                SensoryAudio.play('bubble')
+                SensoryAudio.playClick()
                 toggleCalmMode()
               }}
               className={`px-4 py-2 text-xs font-semibold rounded-xl cursor-pointer border transition-all duration-300 ${
@@ -1032,7 +1031,7 @@ export default function DashboardPage() {
                 <div className="pt-2">
                   <Link href="/novo-registo">
                     <Button 
-                      onClick={() => SensoryAudio.play('bubble')}
+                      onClick={() => SensoryAudio.playClick()}
                       className="gap-2 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground font-semibold shadow-sm"
                     >
                       <PenLine className="w-4.5 h-4.5 shrink-0" /> Escrever Primeiro Registro
@@ -1141,7 +1140,7 @@ export default function DashboardPage() {
                       SensoryAudio.setMuted(nextMuted)
                       setIsMuted(nextMuted)
                       if (!nextMuted) {
-                        setTimeout(() => SensoryAudio.play('bubble'), 50)
+                         setTimeout(() => SensoryAudio.playClick(), 50)
                       }
                       window.dispatchEvent(new Event('sensory_audio_toggle'))
                     }}

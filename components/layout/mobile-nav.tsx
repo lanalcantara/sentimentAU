@@ -64,7 +64,7 @@ export function MobileNav() {
   }, [])
 
   const handleLinkClick = () => {
-    SensoryAudio.play('bubble')
+    SensoryAudio.playClick()
   }
 
   return (
@@ -80,12 +80,20 @@ export function MobileNav() {
         <div className="flex items-center gap-1">
           <NotificationsPopover />
           {/* Small Top Right Avatar preview on mobile header */}
+          {/* Small Top Right Avatar preview on mobile header */}
           {username && (
             <div className="w-9 h-9 rounded-full bg-card/10 flex items-center justify-center border border-white/20 text-lg shadow-inner shrink-0">
-              {avatarUrl ? (
+              {avatarUrl && !avatarUrl.startsWith('/flores/') ? (
                 <img src={avatarUrl} alt={username} className="w-full h-full object-cover rounded-full" />
               ) : (
-                <span>{FLOWERS[florAvatar]?.emoji || '🌱'}</span>
+                <span>
+                  {(() => {
+                    const flowerId = avatarUrl && avatarUrl.startsWith('/flores/')
+                      ? avatarUrl.match(/\/flores\/(.+)\.png/)?.[1] || florAvatar
+                      : florAvatar
+                    return FLOWERS[flowerId]?.emoji || '🌱'
+                  })()}
+                </span>
               )}
             </div>
           )}
@@ -104,7 +112,14 @@ export function MobileNav() {
               <div>
                 <div className="flex items-center gap-2 mb-8">
                   <div className="w-8 h-8 rounded-lg bg-[#e85a6b] flex items-center justify-center">
-                    <span className="text-lg">{FLOWERS[florAvatar]?.emoji || '🌱'}</span>
+                    <span className="text-lg">
+                      {(() => {
+                        const flowerId = avatarUrl && avatarUrl.startsWith('/flores/')
+                          ? avatarUrl.match(/\/flores\/(.+)\.png/)?.[1] || florAvatar
+                          : florAvatar
+                        return FLOWERS[flowerId]?.emoji || '🌱'
+                      })()}
+                    </span>
                   </div>
                   <div>
                     <span className="font-bold">sentimentAU</span>
@@ -158,10 +173,17 @@ export function MobileNav() {
                 {username && (
                   <div className="flex items-center gap-3 px-4 py-2">
                     <div className="w-10 h-10 rounded-full bg-card/10 flex items-center justify-center border border-white/20 text-xl shadow-inner shrink-0">
-                      {avatarUrl ? (
+                      {avatarUrl && !avatarUrl.startsWith('/flores/') ? (
                         <img src={avatarUrl} alt={username} className="w-full h-full object-cover rounded-full" />
                       ) : (
-                        <span>{FLOWERS[florAvatar]?.emoji || '🌱'}</span>
+                        <span>
+                          {(() => {
+                            const flowerId = avatarUrl && avatarUrl.startsWith('/flores/')
+                              ? avatarUrl.match(/\/flores\/(.+)\.png/)?.[1] || florAvatar
+                              : florAvatar
+                            return FLOWERS[flowerId]?.emoji || '🌱'
+                          })()}
+                        </span>
                       )}
                     </div>
                     <span className="text-sm font-semibold text-white/90 capitalize truncate">{username}</span>

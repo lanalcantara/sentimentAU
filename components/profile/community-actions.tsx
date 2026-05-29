@@ -10,7 +10,7 @@ export function CommunityActions({ targetUserId, targetUsername }: { targetUserI
   const [isHoveringHug, setIsHoveringHug] = useState(false)
 
   const handleFollow = async () => {
-    SensoryAudio.play('chime')
+    SensoryAudio.playClick()
     setIsFollowing(!isFollowing)
     
     try {
@@ -27,7 +27,7 @@ export function CommunityActions({ targetUserId, targetUsername }: { targetUserI
 
   const handleHug = async () => {
     if (hasHugged) return
-    SensoryAudio.play('bubble')
+    SensoryAudio.playClick()
     setHasHugged(true)
     
     try {

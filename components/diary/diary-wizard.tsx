@@ -111,7 +111,7 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
   }, [])
 
   const toggleRecording = () => {
-    SensoryAudio.play('bubble')
+    SensoryAudio.playClick()
     if (isRecording) {
       recognitionRef.current?.stop()
       setIsRecording(false)
@@ -217,7 +217,7 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
         <EnergySlider
           value={energyLevel}
           onChange={(val) => {
-            SensoryAudio.play('bubble')
+            SensoryAudio.playClick()
             setEnergyLevel(val)
           }}
           label="Nível de Energia"
@@ -227,7 +227,7 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
         <EnergySlider
           value={comfortLevel}
           onChange={(val) => {
-            SensoryAudio.play('bubble')
+            SensoryAudio.playClick()
             setComfortLevel(val)
           }}
           label="Nível de Conforto Sensorial"
@@ -238,7 +238,7 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
 
       <Button 
         onClick={() => {
-          SensoryAudio.play('bubble')
+          SensoryAudio.playClick()
           handleAnalyze()
         }}
         disabled={!content.trim()}
@@ -272,7 +272,7 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
           <Button 
             variant="outline" 
             onClick={() => {
-              SensoryAudio.play('bubble')
+              SensoryAudio.playClick()
               setStep(1)
             }}
             className="rounded-xl px-6 h-12 border-border font-medium cursor-pointer"
@@ -349,7 +349,7 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
             <Button 
               variant="outline" 
               onClick={() => {
-                SensoryAudio.play('bubble')
+                SensoryAudio.playClick()
                 setStep(1)
               }}
               className="flex-1 h-12 rounded-xl gap-2 border-border cursor-pointer text-muted-foreground hover:text-foreground"
@@ -359,7 +359,7 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
             </Button>
             <Button 
               onClick={() => {
-                SensoryAudio.play('bubble')
+                SensoryAudio.playClick()
                 setSensoryTags(analysis.suggestedSensoryTags || [])
                 setStep(3)
               }}
@@ -391,7 +391,7 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
       <SensoryTagSelector
         selected={sensoryTags}
         onChange={(tags) => {
-          SensoryAudio.play('bubble')
+          SensoryAudio.playClick()
           setSensoryTags(tags)
         }}
         suggested={analysis?.suggestedSensoryTags}
@@ -401,7 +401,7 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
         <Button 
           variant="outline" 
           onClick={() => {
-            SensoryAudio.play('bubble')
+            SensoryAudio.playClick()
             setStep(2)
           }}
           className="flex-1 h-12 rounded-xl gap-2 border-border cursor-pointer text-muted-foreground hover:text-foreground"
@@ -411,7 +411,7 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
         </Button>
         <Button 
           onClick={() => {
-            SensoryAudio.play('bubble')
+            SensoryAudio.playClick()
             setStep(4)
           }}
           className="flex-1 h-12 rounded-xl gap-2 bg-primary hover:bg-primary/95 text-primary-foreground font-semibold shadow-sm cursor-pointer"
@@ -489,7 +489,7 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
                   className="sr-only peer" 
                   checked={isPublic}
                   onChange={(e) => {
-                    SensoryAudio.play('bubble')
+                    SensoryAudio.playClick()
                     setIsPublic(e.target.checked)
                   }}
                 />
@@ -505,7 +505,7 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
             <Button 
               variant="outline" 
               onClick={() => {
-                SensoryAudio.play('bubble')
+                SensoryAudio.playClick()
                 setStep(3)
               }}
               className="flex-1 h-12 rounded-xl gap-2 border-border cursor-pointer text-muted-foreground hover:text-foreground"

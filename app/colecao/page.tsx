@@ -7,6 +7,7 @@ import { FLOWERS } from '@/lib/flowers'
 import { cn } from '@/lib/utils'
 import { Leaf, Award, Sun, CloudRain, Loader2 } from 'lucide-react'
 import { SensoryAudio } from '@/lib/services/sensory-audio'
+import { toast } from 'sonner'
 
 export default function ColecaoPage() {
   const [unlockedFlowers, setUnlockedFlowers] = useState<string[]>(['semente'])
@@ -41,17 +42,24 @@ export default function ColecaoPage() {
   const handleSelectAvatar = async (flowerId: string) => {
     if (!unlockedFlowers.includes(flowerId)) return
     
-    SensoryAudio.play('chime')
+    SensoryAudio.playClick()
     try {
-      await fetch('/api/profile', {
+      const res = await fetch('/api/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ flor_avatar_atual: flowerId })
+        body: JSON.stringify({ 
+          flor_avatar_atual: flowerId,
+          avatarUrl: `/flores/${flowerId}.png`
+        })
       })
-      // Dispatch event to update sidebar
+      if (!res.ok) throw new Error('Failed to update avatar')
+      
+      // Dispatch event to update sidebar & profile card
       window.dispatchEvent(new Event('avatar_updated'))
+      toast.success('Seu novo avatar botânico foi definido com sucesso! 🌸')
     } catch (err) {
       console.error('Failed to set avatar', err)
+      toast.error('Não foi possível alterar seu avatar. Tente novamente.')
     }
   }
 

@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Camera, Upload, Leaf, Loader2, X, Check, CheckCircle2, RefreshCcw } from 'lucide-react'
 import { toast } from 'sonner'
 import { SensoryAudio } from '@/lib/services/sensory-audio'
+import { FLOWERS } from '@/lib/flowers'
 
 // Helper to center the initial crop
 function centerAspectCrop(mediaWidth: number, mediaHeight: number, aspect: number) {
@@ -29,6 +30,7 @@ function centerAspectCrop(mediaWidth: number, mediaHeight: number, aspect: numbe
 
 export function AvatarUpload() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [florAvatar, setFlorAvatar] = useState<string>('semente')
   const [username, setUsername] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
@@ -42,28 +44,39 @@ export function AvatarUpload() {
   const imgRef = useRef<HTMLImageElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const loadProfile = async () => {
+    try {
+      const res = await fetch('/api/profile')
+      const data = await res.json()
+      if (res.ok && data.user) {
+        setAvatarUrl(data.user.avatar_url || null)
+        setFlorAvatar(data.user.flor_avatar_atual || 'semente')
+        setUsername(data.user.username)
+      }
+    } catch (err) {
+      console.error('[AvatarUpload] Error loading profile:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // Fetch current profile on mount
   useEffect(() => {
-    async function loadProfile() {
-      try {
-        const res = await fetch('/api/profile')
-        const data = await res.json()
-        if (res.ok && data.user) {
-          setAvatarUrl(data.user.avatar_url || null)
-          setUsername(data.user.username)
-        }
-      } catch (err) {
-        console.error('[AvatarUpload] Error loading profile:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
     loadProfile()
+    
+    const handleAvatarUpdate = () => {
+      loadProfile()
+    }
+    
+    window.addEventListener('avatar_updated', handleAvatarUpdate)
+    return () => {
+      window.removeEventListener('avatar_updated', handleAvatarUpdate)
+    }
   }, [])
 
   // Trigger sound feedback
   const playClick = () => {
-    SensoryAudio.play('bubble')
+    SensoryAudio.playClick()
   }
 
   const playSuccess = () => {
@@ -204,14 +217,21 @@ export function AvatarUpload() {
         onDrop={onDropFile}
         className="relative group w-28 h-28 rounded-full border-4 border-primary/20 bg-muted flex items-center justify-center cursor-pointer overflow-hidden transition-all duration-300 hover:border-primary/60 hover:shadow-md"
       >
-        {avatarUrl ? (
+        {avatarUrl && !avatarUrl.startsWith('/flores/') ? (
           <img 
             src={avatarUrl} 
             alt={`Avatar de ${username}`} 
             className="w-full h-full object-cover object-center"
           />
         ) : (
-          <Leaf className="w-12 h-12 text-muted-foreground opacity-50" />
+          <span className="text-5xl select-none">
+            {(() => {
+              const flowerId = avatarUrl && avatarUrl.startsWith('/flores/')
+                ? avatarUrl.match(/\/flores\/(.+)\.png/)?.[1] || florAvatar
+                : florAvatar
+              return FLOWERS[flowerId]?.emoji || '🌱'
+            })()}
+          </span>
         )}
         
         {/* Hover Camera Overlay */}
