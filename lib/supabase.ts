@@ -8,8 +8,14 @@ if (!supabaseUrl) {
   console.warn('Warning: NEXT_PUBLIC_SUPABASE_URL environment variable is missing.')
 }
 
-// Client-side client (respects Row-Level Security)
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Client-side client (respects Row-Level Security), Realtime enabled
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  realtime: {
+    params: {
+      eventsPerSecond: 10,
+    },
+  },
+})
 
 // Server-side admin client (bypasses RLS securely for backend services)
 export const supabaseAdmin = supabaseUrl && supabaseServiceRoleKey

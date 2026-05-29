@@ -12,7 +12,8 @@ import {
   LogOut,
   Heart,
   User,
-  Leaf
+  Leaf,
+  Sprout
 } from 'lucide-react'
 import { SensoryAudio } from '@/lib/services/sensory-audio'
 import { motion } from 'framer-motion'
@@ -34,6 +35,7 @@ const navItems = [
   { href: '/', label: 'Painel', icon: LayoutDashboard },
   { href: '/novo-registo', label: 'Novo Registro', icon: PenLine },
   { href: '/colecao', label: 'Coleção Botânica', icon: Leaf },
+  { href: '/meu-jardim', label: 'Meu Jardim', icon: Sprout },
   { href: '/historico', label: 'Histórico', icon: History },
   { href: '/insights', label: 'Insights', icon: Lightbulb },
 ]
