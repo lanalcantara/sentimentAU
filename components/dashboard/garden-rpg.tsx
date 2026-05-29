@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { FLOWERS } from '@/lib/flowers'
 import { SensoryAudio } from '@/lib/services/sensory-audio'
+import { useCalmMode } from '@/lib/context/calm-mode-context'
 import { toast } from 'sonner'
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Sparkles, Trophy } from 'lucide-react'
 
@@ -58,6 +59,14 @@ const UNIFIED_TREES = [
   { x: 300 + 384, y: 40 + 288, r: 12, visualR: 24, type: 'east' },
   { x: 30 + 384, y: 250 + 288, r: 12, visualR: 22, type: 'east' },
   { x: 110 + 384, y: 260 + 288, r: 12, visualR: 24, type: 'east' },
+  
+  // Vale do Nordeste / Quadrant 4 trees (384 <= X <= 768, 0 <= Y <= 288)
+  { x: 420, y: 40, r: 12, visualR: 24, type: 'northeast' },
+  { x: 520, y: 30, r: 12, visualR: 22, type: 'northeast' },
+  { x: 720, y: 40, r: 12, visualR: 24, type: 'northeast' },
+  { x: 730, y: 150, r: 12, visualR: 22, type: 'northeast' },
+  { x: 450, y: 220, r: 12, visualR: 24, type: 'northeast' },
+  { x: 680, y: 250, r: 12, visualR: 22, type: 'northeast' },,
 ]
 
 const UNIFIED_DEC_FLOWERS = [
@@ -80,6 +89,13 @@ const UNIFIED_DEC_FLOWERS = [
   { x: 80 + 384, y: 200 + 288, color: '#f43f5e', type: 'east' },
   { x: 180 + 384, y: 180 + 288, color: '#a855f7', type: 'east' },
   { x: 50 + 384, y: 90 + 288, color: '#f5c842', type: 'east' },
+  
+  // Northeast (added X + 384, Y: 0..288)
+  { x: 80 + 384, y: 150, color: '#f472b6', type: 'northeast' },
+  { x: 130 + 384, y: 60, color: '#fda4af', type: 'northeast' },
+  { x: 230 + 384, y: 55, color: '#fda4af', type: 'northeast' },
+  { x: 310 + 384, y: 170, color: '#f472b6', type: 'northeast' },
+  { x: 140 + 384, y: 220, color: '#fda4af', type: 'northeast' },
 ]
 
 interface Chest {
@@ -120,6 +136,7 @@ interface FlowerDetail {
 
 export function GardenRPG({ entriesCount, streak }: { entriesCount: number; streak: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const { calmMode } = useCalmMode()
   
   // Biome Display Names
   const [currentBiomeName, setCurrentBiomeName] = useState('Clareira Central (Bosque Inicial)')
@@ -171,6 +188,11 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
       return {
         name: 'Vale do Norte (Floresta do Rio)',
         description: 'Lindo vale com cerejeiras cor-de-rosa, um rio e uma ponte rústica de madeira.',
+      }
+    } else if (x >= 384 && y < 288) {
+      return {
+        name: 'Recanto Zen (Vale do Nordeste)',
+        description: 'Um jardim sereno de meditação com cerejeiras e caminhos de pedra que ligam os vales.',
       }
     } else if (x >= 384 && y >= 288) {
       return {
@@ -253,9 +275,22 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
     if (x < PLAYER_COLLISION_RADIUS || x > MAP_WIDTH - PLAYER_COLLISION_RADIUS) return true
     if (y < PLAYER_COLLISION_RADIUS || y > MAP_HEIGHT - PLAYER_COLLISION_RADIUS) return true
 
-    // 2. Void Quadrant (Top-Right: X >= 384, Y <= 288)
-    if (x > 384 - PLAYER_COLLISION_RADIUS && y < 288 + PLAYER_COLLISION_RADIUS) {
-      if (x > 384 || y < 288) return true
+    // 2. Divider between Top and Bottom halves in right half (X >= 384)
+    if (x >= 384) {
+      const isNearBoundaryY = y > 288 - PLAYER_COLLISION_RADIUS && y < 288 + PLAYER_COLLISION_RADIUS
+      if (isNearBoundaryY) {
+        const inRoadX = x >= 595 && x <= 645 // road crossing Y=288
+        if (!inRoadX) {
+          return true
+        }
+        // If either North is locked or East is locked, restrict movement accordingly
+        if (isNorthLocked && y < 288) {
+          return true
+        }
+        if (isEastLocked && y > 288) {
+          return true
+        }
+      }
     }
 
     // 3. Divider between Left and Right halves in bottom half (Y > 288)
@@ -293,10 +328,11 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
     const distPond = Math.sqrt((x - px) ** 2 + (y - py) ** 2)
     if (distPond < PLAYER_COLLISION_RADIUS) return true
 
-    // 6. River collision (North Map quadrant)
-    if (x < 384 && y >= 90 - PLAYER_COLLISION_RADIUS && y <= 125 + PLAYER_COLLISION_RADIUS) {
-      const onBridge = x >= 84 && x <= 116
-      if (!onBridge) return true
+    // 6. River collision (North Map quadrants 1 and 4)
+    if (y >= 90 - PLAYER_COLLISION_RADIUS && y <= 125 + PLAYER_COLLISION_RADIUS) {
+      const onBridge1 = x >= 84 && x <= 116
+      const onBridge2 = x >= 584 && x <= 616
+      if (!onBridge1 && !onBridge2) return true
     }
     
     // 7. Special Blooming Spot collision (North Map quadrant)
@@ -685,14 +721,25 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
       ctx.fillStyle = '#fff7ed'
       ctx.fillRect(384, 288, 384, 288)
 
-      // Quadrant 4: Void Top-Right (384, 0)
-      ctx.fillStyle = '#1A2421'
+      // Quadrant 4: Vale do Nordeste (384, 0) - Pink grass continuation
+      ctx.fillStyle = '#fdf2f8'
       ctx.fillRect(384, 0, 384, 288)
 
       // Draw decorative tufts per quadrant
-      // Vale do Norte
+      // Vale do Norte (Q1)
       ctx.fillStyle = '#fbcfe8'
       for (let i = 0; i < 384; i += 24) {
+        for (let j = 0; j < 288; j += 24) {
+          const ox = (i * 7 + j * 13) % 12
+          const oy = (i * 3 + j * 17) % 12
+          ctx.fillRect(i + ox, j + oy, 2, 2)
+          ctx.fillRect(i + ox + 3, j + oy + 1, 1, 2)
+        }
+      }
+
+      // Vale do Nordeste (Q4)
+      ctx.fillStyle = '#fbcfe8'
+      for (let i = 384; i < 768; i += 24) {
         for (let j = 0; j < 288; j += 24) {
           const ox = (i * 7 + j * 13) % 12
           const oy = (i * 3 + j * 17) % 12
@@ -765,6 +812,31 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
       ctx.strokeStyle = '#fef08a'
       ctx.stroke()
 
+      // Northeast paths (Quadrant 4)
+      // Path connecting bridges above river
+      ctx.beginPath()
+      ctx.moveTo(100, 85)
+      ctx.quadraticCurveTo(340, 50, 580, 85)
+      ctx.lineWidth = 16
+      ctx.strokeStyle = '#fef08a'
+      ctx.stroke()
+
+      // Path below river connecting bridge 1 and bridge 2
+      ctx.beginPath()
+      ctx.moveTo(100, 130)
+      ctx.quadraticCurveTo(340, 180, 580, 130)
+      ctx.lineWidth = 18
+      ctx.strokeStyle = '#fef08a'
+      ctx.stroke()
+
+      // Path going down from bridge 2 to Vale do Leste
+      ctx.beginPath()
+      ctx.moveTo(580, 130)
+      ctx.quadraticCurveTo(620, 288, 544, 432)
+      ctx.lineWidth = 20
+      ctx.strokeStyle = '#fef08a'
+      ctx.stroke()
+
       // Draw path texture details (pebbles/dirt specs)
       ctx.fillStyle = '#eab308'
       ctx.fillRect(96, 60, 2, 2)
@@ -823,15 +895,18 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
       ctx.fillRect(pond.x + 85, pond.y + 15, 2, 10)
       ctx.fillRect(pond.x + 88, pond.y + 18, 2, 8)
 
-      // North River
+      // North River (spans across both North quadrants: X: 0 to 768)
       ctx.fillStyle = '#60a5fa'
-      ctx.fillRect(0, 90, 384, 35)
+      ctx.fillRect(0, 90, 768, 35)
       ctx.fillStyle = '#93c5fd'
       ctx.fillRect(40, 100, 30, 2)
       ctx.fillRect(200, 115, 45, 2)
       ctx.fillRect(300, 98, 20, 2)
+      ctx.fillRect(450, 105, 40, 2)
+      ctx.fillRect(600, 112, 35, 2)
+      ctx.fillRect(700, 98, 25, 2)
 
-      // Wooden Bridge
+      // Wooden Bridge 1 (Quadrant 1)
       ctx.fillStyle = '#b45309'
       ctx.fillRect(80, 85, 40, 45)
       ctx.fillStyle = '#78350f'
@@ -841,6 +916,17 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
       ctx.fillStyle = '#d97706'
       ctx.fillRect(77, 85, 3, 45)
       ctx.fillRect(120, 85, 3, 45)
+
+      // Wooden Bridge 2 (Quadrant 4)
+      ctx.fillStyle = '#b45309'
+      ctx.fillRect(580, 85, 40, 45)
+      ctx.fillStyle = '#78350f'
+      for (let by = 90; by <= 125; by += 7) {
+        ctx.fillRect(580, by, 40, 2)
+      }
+      ctx.fillStyle = '#d97706'
+      ctx.fillRect(577, 85, 3, 45)
+      ctx.fillRect(620, 85, 3, 45)
 
       // Special Blooming Spot in North Map
       ctx.save()
@@ -1149,10 +1235,10 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
         let treeColor = '#22c55e'
         let treeHighlight = '#4ade80'
         
-        if (tree.x < 384 && tree.y < 288) { // North
+        if (tree.y < 288) { // North or Northeast (Cherry Blossoms!)
           treeColor = '#f472b6'
           treeHighlight = '#fbcfe8'
-        } else if (tree.x >= 384 && tree.y >= 288) { // East
+        } else if (tree.x >= 384 && tree.y >= 288) { // East (Autumn)
           treeColor = '#f97316'
           treeHighlight = '#fbbf24'
         }
@@ -1182,26 +1268,30 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
       
       {/* SENSORY RELAXATION SPACE OVERLAY (FONTE DO RELAXAMENTO) */}
       {showRelaxationRoom && (
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-50/95 to-blue-50/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-50 rounded-3xl animate-in fade-in duration-300">
+        <div className={`absolute inset-0 ${
+          calmMode 
+            ? 'bg-gradient-to-br from-[#1A2421]/95 to-[#1E1E1E]/95' 
+            : 'bg-gradient-to-br from-teal-50/95 to-blue-50/95'
+        } backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-50 rounded-3xl animate-in fade-in duration-300`}>
           <div className="space-y-4 max-w-sm flex flex-col items-center">
             
             {/* Smooth expanding water ripple animation */}
             <div className="relative w-36 h-36 flex items-center justify-center mb-2">
-              <div className="absolute inset-0 rounded-full border-2 border-teal-300/40 animate-ping" style={{ animationDuration: '3.5s' }} />
-              <div className="absolute inset-4 rounded-full border border-teal-400/50 animate-ping" style={{ animationDuration: '2.5s' }} />
-              <div className="absolute inset-8 rounded-full border border-teal-500/30 animate-pulse" />
+              <div className={`absolute inset-0 rounded-full border-2 ${calmMode ? 'border-teal-500/20' : 'border-teal-300/40'} animate-ping`} style={{ animationDuration: '3.5s' }} />
+              <div className={`absolute inset-4 rounded-full border ${calmMode ? 'border-teal-500/30' : 'border-teal-400/50'} animate-ping`} style={{ animationDuration: '2.5s' }} />
+              <div className={`absolute inset-8 rounded-full border ${calmMode ? 'border-teal-500/40' : 'border-teal-500/30'} animate-pulse`} />
               
-              <div className="w-16 h-16 rounded-full bg-teal-100 flex items-center justify-center shadow-sm">
+              <div className={`w-16 h-16 rounded-full ${calmMode ? 'bg-teal-950/60' : 'bg-teal-100'} flex items-center justify-center shadow-sm`}>
                 <span className="text-3xl animate-bounce" style={{ animationDuration: '3s' }}>🪷</span>
               </div>
             </div>
             
-            <h3 className="text-lg font-extrabold text-teal-900 flex items-center gap-1.5 justify-center">
+            <h3 className="relaxation-title text-lg font-extrabold flex items-center gap-1.5 justify-center">
               <span>Fonte do Relaxamento</span>
               <span className="animate-pulse">💧</span>
             </h3>
             
-            <p className="text-xs text-teal-700/80 leading-relaxed font-medium">
+            <p className="relaxation-desc text-xs leading-relaxed font-medium">
               Respire fundo... Sinta as ondas da água e ouça os sons suaves da natureza para se autorregular.
             </p>
             
