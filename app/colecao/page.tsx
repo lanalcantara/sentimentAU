@@ -54,7 +54,7 @@ export default function ColecaoPage() {
           <div className="w-16 h-16 bg-[#e8f5e9] rounded-full flex items-center justify-center mb-2">
             <Leaf className="w-8 h-8 text-[#4caf50]" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground font-fredoka">Álbum do Jardineiro</h1>
+          <h1 className="text-3xl font-bold text-foreground">Álbum do Jardineiro</h1>
           <p className="text-[#6a7a9a] max-w-md">
             Cada dia que você registra é uma nova semente plantada. Acompanhe as flores que você já descobriu no seu jardim emocional!
           </p>

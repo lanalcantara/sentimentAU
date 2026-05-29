@@ -25,7 +25,7 @@ export default function DefinicoesPage() {
       <div className="p-4 lg:p-8 max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-foreground font-fredoka">Configurações</h1>
+          <h1 className="text-2xl font-bold text-foreground">Configurações</h1>
           <p className="text-muted-foreground">Personalize a sua experiência</p>
         </div>
 

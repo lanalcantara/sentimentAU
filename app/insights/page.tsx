@@ -34,7 +34,7 @@ export default function InsightsPage() {
           <div className="w-16 h-16 bg-[#eef2f6] rounded-full flex items-center justify-center mb-2">
             <Lightbulb className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground font-fredoka">Insights e Clima Emocional</h1>
+          <h1 className="text-3xl font-bold text-foreground">Insights e Clima Emocional</h1>
           <p className="text-[#6a7a9a] max-w-md">
             Analise a evolução de seus sentimentos e o nível de energia do seu jardim com base nos seus últimos registros.
           </p>

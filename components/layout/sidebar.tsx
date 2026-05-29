@@ -200,7 +200,7 @@ export function Sidebar() {
           {/* Logo oficial em pixel art */}
           <img src="/sentimentau-logo.png" alt="sentimentAU Logo" className="w-9 h-9 rounded-full shrink-0 object-cover border border-slate-700/10 bg-white shadow-sm" />
           <div className="truncate">
-            <h1 className="font-extrabold text-lg tracking-wider text-sidebar-foreground font-fredoka">sentimentAU</h1>
+            <h1 className="font-extrabold text-lg tracking-wider text-sidebar-foreground">sentimentAU</h1>
             <p className="text-[10px] text-sidebar-foreground/60 font-medium tracking-wide uppercase leading-none">Diário Emocional</p>
           </div>
         </Link>

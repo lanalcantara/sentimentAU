@@ -109,7 +109,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
               )}
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-2xl font-bold text-foreground capitalize font-fredoka">Jardim de {profile.username}</h1>
+              <h1 className="text-2xl font-bold text-foreground capitalize">Jardim de {profile.username}</h1>
               <p className="text-muted-foreground text-sm mt-1">
                 {publicEntries.length} sementes plantadas na comunidade
               </p>

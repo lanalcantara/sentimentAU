@@ -17,7 +17,7 @@ export function StatsGrid({ stats, className }: StatsGridProps) {
   return (
     <div className={cn('grid grid-cols-2 lg:grid-cols-4 gap-4', className)}>
       {/* Registros - Blue */}
-      <div className="bg-[#d4e8f9] rounded-2xl p-4 flex items-center gap-3">
+      <div className="bg-[#d4e8f9] rounded-2xl p-4 flex items-center gap-3 stats-card">
         <div className="w-10 h-10 bg-[#6b8fd4] rounded-lg flex items-center justify-center">
           <Calendar className="w-5 h-5 text-white" />
         </div>
@@ -28,7 +28,7 @@ export function StatsGrid({ stats, className }: StatsGridProps) {
       </div>
 
       {/* Positivos - Yellow/Orange */}
-      <div className="bg-[#fcecc4] rounded-2xl p-4 flex items-center gap-3">
+      <div className="bg-[#fcecc4] rounded-2xl p-4 flex items-center gap-3 stats-card">
         <div className="w-10 h-10 bg-[#f5a623] rounded-lg flex items-center justify-center">
           <Sun className="w-5 h-5 text-white" />
         </div>
@@ -39,7 +39,7 @@ export function StatsGrid({ stats, className }: StatsGridProps) {
       </div>
 
       {/* Difíceis - Pink/Coral */}
-      <div className="bg-[#fce4e4] rounded-2xl p-4 flex items-center gap-3">
+      <div className="bg-[#fce4e4] rounded-2xl p-4 flex items-center gap-3 stats-card">
         <div className="w-10 h-10 bg-[#e85a6b] rounded-lg flex items-center justify-center">
           <Cloud className="w-5 h-5 text-white" />
         </div>
@@ -50,7 +50,7 @@ export function StatsGrid({ stats, className }: StatsGridProps) {
       </div>
 
       {/* Energia - Cyan/Turquoise */}
-      <div className="bg-[#c4f5f0] rounded-2xl p-4 flex items-center gap-3">
+      <div className="bg-[#c4f5f0] rounded-2xl p-4 flex items-center gap-3 stats-card">
         <div className="w-10 h-10 bg-[#4ecdc4] rounded-lg flex items-center justify-center">
           <Zap className="w-5 h-5 text-white" />
         </div>

@@ -219,7 +219,6 @@
 @theme inline {
   --font-sans: 'Nunito', 'Nunito Fallback';
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';
-  --font-fredoka: var(--font-fredoka), 'Fredoka', sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -294,7 +293,7 @@
 }
 
 .calm-mode .calm-today-label {
-  background-color: #EAEAEA !important;
+  background-color: #f5c842 !important;
   color: #1A2421 !important;
 }
 
@@ -330,4 +329,12 @@
   background-color: #f5c842 !important;
   color: #1A2421 !important;
   opacity: 1 !important;
+}
+
+/* Sobrescreve textos e números de cards de métricas para cor escura e nítida no Modo Calmo */
+.calm-mode .stats-card p,
+.calm-mode .stats-card span,
+.calm-mode .stats-card .text-foreground,
+.calm-mode .stats-card p * {
+  color: #1A1A1A !important;
 }

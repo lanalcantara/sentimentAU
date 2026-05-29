@@ -986,7 +986,7 @@ export default function DashboardPage() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-2xl">&#127804;</span>
-                <h1 className="text-2xl font-bold text-foreground font-fredoka">Seu Painel</h1>
+                <h1 className="text-2xl font-bold text-foreground">Seu Painel</h1>
               </div>
               <p className="text-muted-foreground mt-1">Como você está se sentindo esta semana?</p>
             </div>

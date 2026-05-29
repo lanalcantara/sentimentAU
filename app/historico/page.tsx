@@ -63,7 +63,7 @@ export default function HistoricoPage() {
       <div className="p-4 lg:p-8 space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-foreground font-fredoka">Histórico</h1>
+          <h1 className="text-2xl font-bold text-foreground">Histórico</h1>
           <p className="text-muted-foreground">Seus registros emocionais</p>
         </div>
 
