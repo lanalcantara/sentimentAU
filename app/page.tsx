@@ -358,9 +358,10 @@ export default function DashboardPage() {
     setAuthLoading(true)
 
     try {
+      const cleanCode = otpCode.replace(/\s+/g, '')
       const { data, error } = await supabase.auth.verifyOtp({
         email: email.trim(),
-        token: otpCode.trim(),
+        token: cleanCode,
         type: 'signup',
       })
 
@@ -468,10 +469,11 @@ export default function DashboardPage() {
     setAuthLoading(true)
 
     try {
-      // 1. Verify OTP with Supabase
+      // 1. Verify OTP with Supabase (cleaning spaces first)
+      const cleanCode = recoveryCode.replace(/\s+/g, '')
       const { data, error } = await supabase.auth.verifyOtp({
         email: recoveryEmail.trim(),
-        token: recoveryCode.trim(),
+        token: cleanCode,
         type: 'recovery',
       })
 
