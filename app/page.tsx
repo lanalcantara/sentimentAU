@@ -396,7 +396,17 @@ export default function DashboardPage() {
         setDashboardLoading(true)
       }, 800)
     } catch (err: any) {
-      setAuthError(err.message || 'Erro inesperado. Tente novamente.')
+      let errMsg = err.message || 'Erro inesperado. Tente novamente.'
+      const lowerMsg = errMsg.toLowerCase()
+      if (
+        lowerMsg.includes('token has expired') ||
+        lowerMsg.includes('invalid') ||
+        lowerMsg.includes('expired') ||
+        lowerMsg.includes('otp')
+      ) {
+        errMsg = 'O código digitado está incorreto ou expirou. Por favor, tente novamente com o código mais recente.'
+      }
+      setAuthError(errMsg)
     } finally {
       setAuthLoading(false)
     }
@@ -505,7 +515,17 @@ export default function DashboardPage() {
       setRecoveryCode('')
       setNewPassword('')
     } catch (err: any) {
-      setAuthError(err.message || 'Erro ao redefinir a senha.')
+      let errMsg = err.message || 'Erro ao redefinir a senha.'
+      const lowerMsg = errMsg.toLowerCase()
+      if (
+        lowerMsg.includes('token has expired') ||
+        lowerMsg.includes('invalid') ||
+        lowerMsg.includes('expired') ||
+        lowerMsg.includes('otp')
+      ) {
+        errMsg = 'O código digitado está incorreto ou expirou. Por favor, tente novamente com o código mais recente.'
+      }
+      setAuthError(errMsg)
     } finally {
       setAuthLoading(false)
     }
