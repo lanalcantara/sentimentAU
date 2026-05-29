@@ -138,7 +138,6 @@ export const DiaryService = {
         )
       `)
       .eq('is_public', true)
-      .neq('user_id', currentUserId) // Oculta os posts do próprio usuário logado
       .order('created_at', { ascending: false })
       .limit(20)
 
@@ -201,6 +200,25 @@ export const DiaryService = {
 
     // Filter to ensure distinct users in the feed (only showing their latest)
     const uniqueFeed = feed.filter((v, i, a) => a.findIndex(t => (t.userId === v.userId)) === i)
+
+    // Fetch hugs count and status for feed members from database
+    const realUserIds = uniqueFeed.map(x => x.userId)
+
+    if (realUserIds.length > 0) {
+      const { data: hugsData } = await supabaseAdmin
+        .from('sentiment_notifications')
+        .select('sender_id, receiver_id')
+        .in('type', ['abraco', 'abraco_tatil'])
+        .in('receiver_id', realUserIds)
+
+      const hugsList = hugsData || []
+
+      uniqueFeed.forEach(member => {
+        const memberHugs = hugsList.filter(h => h.receiver_id === member.userId)
+        member.supportCount = memberHugs.length
+        member.hasHugged = memberHugs.some(h => h.sender_id === currentUserId)
+      })
+    }
 
     return uniqueFeed
   }

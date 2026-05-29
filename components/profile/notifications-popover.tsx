@@ -57,13 +57,13 @@ export function NotificationsPopover() {
         >
           <Bell className="w-4 h-4" />
           {unreadCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 animate-pulse border border-[#1e2a4a]" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 animate-pulse border border-background" />
           )}
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0 mr-4 mt-2 rounded-2xl shadow-lg border-[#eaeef5]" align="end">
         <div className="p-4 border-b border-[#eaeef5] flex items-center justify-between bg-[#f8fafc] rounded-t-2xl">
-          <h3 className="font-bold text-[#1e2a4a]">Notificações</h3>
+          <h3 className="font-bold text-foreground">Notificações</h3>
           {unreadCount > 0 && (
             <span className="text-xs bg-[#e8f5e9] text-green-700 font-bold px-2 py-0.5 rounded-full">
               {unreadCount} novas
@@ -81,7 +81,7 @@ export function NotificationsPopover() {
                 <div key={n.id} className={`p-4 border-b border-[#eaeef5] last:border-0 hover:bg-[#f8fafc] transition-colors ${!n.lido ? 'bg-blue-50/30' : ''}`}>
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5">
-                      {n.tipo === 'hug' ? (
+                      {n.tipo === 'hug' || n.tipo === 'abraco' ? (
                         <div className="w-8 h-8 rounded-full bg-[#fdf2f8] flex items-center justify-center">
                           <Heart className="w-4 h-4 text-[#db2777]" />
                         </div>
@@ -92,11 +92,16 @@ export function NotificationsPopover() {
                       )}
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm text-[#1e2a4a] leading-snug">
-                        {n.tipo === 'hug'
-                          ? <span><strong>{n.remetente}</strong> enviou um <strong>abraço tátil</strong> para o seu jardim! 🫂</span>
-                          : <span><strong>{n.remetente}</strong> começou a seguir o seu jardim! 🌱</span>
-                        }
+                      <p className="text-sm text-foreground leading-snug">
+                        {n.tipo === 'hug' || n.tipo === 'abraco' ? (
+                          n.mensagem ? (
+                            <span><strong>{n.remetente}</strong>: {n.mensagem} 🫂</span>
+                          ) : (
+                            <span><strong>{n.remetente}</strong> enviou um <strong>abraço tátil</strong> para o seu jardim! 🫂</span>
+                          )
+                        ) : (
+                          <span><strong>{n.remetente}</strong> {n.mensagem || 'começou a seguir o seu jardim! 🌱'}</span>
+                        )}
                       </p>
                       <p className="text-[10px] text-[#6a7a9a] mt-1 font-medium uppercase tracking-wider">
                         {formatDistanceToNow(new Date(n.data), { addSuffix: true, locale: ptBR })}

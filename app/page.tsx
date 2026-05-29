@@ -160,7 +160,7 @@ export default function DashboardPage() {
     // Optimistic UI update
     setCommunityMembers(prev => prev.map(m => {
       if (m.userId === userId) {
-        return { ...m, supportCount: m.supportCount + 1 }
+        return { ...m, supportCount: m.supportCount + 1, hasHugged: true }
       }
       return m
     }))
@@ -986,7 +986,7 @@ export default function DashboardPage() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-2xl">&#127804;</span>
-                <h1 className="text-2xl font-bold text-foreground">Seu Painel</h1>
+                <h1 className="text-2xl font-bold text-foreground font-fredoka">Seu Painel</h1>
               </div>
               <p className="text-muted-foreground mt-1">Como você está se sentindo esta semana?</p>
             </div>
@@ -1065,56 +1065,77 @@ export default function DashboardPage() {
               </CardHeader>
               
               <CardContent className="p-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {communityMembers.map((member) => (
-                    <Link 
-                      href={`/perfil/${member.userId}`}
-                      key={`${member.userId}-${member.createdAt}`}
-                      className="p-4 rounded-2xl bg-muted border border-border flex flex-col justify-between space-y-3 hover:shadow-md transition-all hover:bg-card duration-300"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-sm ${member.avatarBg} shrink-0 overflow-hidden`}>
-                          {FLOWERS[member.florAvatarId]?.emoji || '🌱'}
-                        </div>
-                        <div className="space-y-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-foreground text-sm truncate">{member.username || 'Usuário Anônimo'}</span>
-                            <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                              member.sentiment === 'positive' 
-                                ? 'bg-green-100 text-green-700'
-                                : member.sentiment === 'negative'
-                                ? 'bg-red-100 text-red-700'
-                                : 'bg-blue-100 text-blue-700'
-                            }`}>
-                              {member.emotion}
-                            </span>
+                {communityMembers.length === 0 ? (
+                  <div className="text-center py-10 px-4 rounded-2xl bg-muted/40 border border-dashed border-border/80 flex flex-col items-center justify-center space-y-2">
+                    <span className="text-3xl">🌱</span>
+                    <h4 className="font-bold text-sm text-foreground">O jardim da comunidade está tranquilo</h4>
+                    <p className="text-xs text-muted-foreground max-w-sm">
+                      Nenhum membro compartilhou registros publicamente hoje. Seja o primeiro a compartilhar escrevendo no seu diário!
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {communityMembers.map((member) => (
+                      <Link 
+                        href={`/perfil/${member.userId}`}
+                        key={`${member.userId}-${member.createdAt}`}
+                        className="p-4 rounded-2xl bg-muted border border-border flex flex-col justify-between space-y-3 hover:shadow-md transition-all hover:bg-card duration-300"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-sm ${member.avatarBg} shrink-0 overflow-hidden`}>
+                            {FLOWERS[member.florAvatarId]?.emoji || '🌱'}
                           </div>
-                          <p className="text-xs text-muted-foreground leading-relaxed italic pr-2">
-                            "{member.statusText}"
-                          </p>
+                          <div className="space-y-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-foreground text-sm truncate">{member.username || 'Usuário Anônimo'}</span>
+                              <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider community-sentiment-tag ${
+                                member.sentiment === 'positive' 
+                                  ? 'bg-green-100 text-green-700'
+                                  : member.sentiment === 'negative'
+                                  ? 'bg-red-100 text-red-700'
+                                  : 'bg-blue-100 text-blue-700'
+                              }`}>
+                                {member.emotion}
+                              </span>
+                            </div>
+                            <p className="text-xs text-muted-foreground leading-relaxed italic pr-2">
+                              "{member.statusText}"
+                            </p>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="flex items-center justify-between pt-1 border-t border-dashed border-border">
-                        <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                          🟢 Online hoje
-                        </span>
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault()
-                            handleSendSupport(member.userId)
-                          }}
-                          className="flex items-center gap-1.5 py-1 px-3 rounded-xl bg-[#eef2f6] hover:bg-primary/10 hover:text-primary transition-all text-xs font-bold text-[#5c6e8c] cursor-pointer"
-                        >
-                          <span>🫂 Enviar Abraço</span>
-                          <span className="bg-card/90 text-primary font-extrabold px-1.5 py-0.5 rounded-md text-[9px] shadow-sm">
-                            {member.supportCount}
+                        <div className="flex items-center justify-between pt-1 border-t border-dashed border-border">
+                          <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                            🟢 Online hoje
                           </span>
-                        </button>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault()
+                              if (!member.hasHugged) {
+                                handleSendSupport(member.userId)
+                              }
+                            }}
+                            disabled={member.hasHugged}
+                            className={cn(
+                              "community-support-button flex items-center gap-1.5 py-1 px-3 rounded-xl transition-all text-xs font-bold cursor-pointer",
+                              member.hasHugged
+                                ? "bg-[#fce7f3] text-[#db2777] cursor-not-allowed opacity-80"
+                                : "bg-[#eef2f6] hover:bg-primary/10 hover:text-primary text-[#5c6e8c]"
+                            )}
+                          >
+                            <span>{member.hasHugged ? '🫂 Abraço Enviado' : '🫂 Enviar Abraço'}</span>
+                            <span className={cn(
+                              "community-support-count font-extrabold px-1.5 py-0.5 rounded-md text-[9px] shadow-sm",
+                              member.hasHugged ? "bg-white text-[#db2777]" : "bg-card/90 text-primary"
+                            )}>
+                              {member.supportCount}
+                            </span>
+                          </button>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -1127,7 +1148,7 @@ export default function DashboardPage() {
             <AvatarUpload />
 
             {/* ASMR Sound Panel Card */}
-            <Card className="bg-card border-0 shadow-sm rounded-3xl p-6 space-y-4">
+            <Card className="right-column-card bg-card border-0 shadow-sm rounded-3xl p-6 space-y-4">
               <CardHeader className="p-0 pb-1">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">

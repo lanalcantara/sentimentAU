@@ -76,7 +76,7 @@ export function MoodChart({ entries, className }: MoodChartProps) {
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-[#6b8fd4]" />
-            <CardTitle className="text-base font-bold text-[#1e2a4a]">Evolução do Humor</CardTitle>
+            <CardTitle className="text-base font-bold text-foreground">Evolução do Humor</CardTitle>
           </div>
           <p className="text-sm text-[#6a7a9a]">Últimos 7 registros</p>
         </CardHeader>
@@ -131,7 +131,7 @@ export function MoodChart({ entries, className }: MoodChartProps) {
             <div className="w-8 h-8 rounded-full bg-[#fcecc4] flex items-center justify-center">
               <Sun className="w-4 h-4 text-[#f5a623]" />
             </div>
-            <CardTitle className="text-base font-bold text-[#1e2a4a]">Nível de Energia do Jardim</CardTitle>
+            <CardTitle className="text-base font-bold text-foreground">Nível de Energia do Jardim</CardTitle>
           </div>
           <p className="text-sm text-[#6a7a9a]">Clima emocional dos últimos 7 dias</p>
         </CardHeader>

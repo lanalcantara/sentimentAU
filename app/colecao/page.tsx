@@ -39,29 +39,7 @@ export default function ColecaoPage() {
     loadData()
   }, [])
 
-  const handleSelectAvatar = async (flowerId: string) => {
-    if (!unlockedFlowers.includes(flowerId)) return
-    
-    SensoryAudio.playClick()
-    try {
-      const res = await fetch('/api/profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          flor_avatar_atual: flowerId,
-          avatarUrl: `/flores/${flowerId}.png`
-        })
-      })
-      if (!res.ok) throw new Error('Failed to update avatar')
-      
-      // Dispatch event to update sidebar & profile card
-      window.dispatchEvent(new Event('avatar_updated'))
-      toast.success('Seu novo avatar botânico foi definido com sucesso! 🌸')
-    } catch (err) {
-      console.error('Failed to set avatar', err)
-      toast.error('Não foi possível alterar seu avatar. Tente novamente.')
-    }
-  }
+
 
   // Calculate friendly stats using real user entries
   const totalDias = entries.length
@@ -76,7 +54,7 @@ export default function ColecaoPage() {
           <div className="w-16 h-16 bg-[#e8f5e9] rounded-full flex items-center justify-center mb-2">
             <Leaf className="w-8 h-8 text-[#4caf50]" />
           </div>
-          <h1 className="text-3xl font-bold text-[#1e2a4a]">Álbum do Jardineiro</h1>
+          <h1 className="text-3xl font-bold text-foreground font-fredoka">Álbum do Jardineiro</h1>
           <p className="text-[#6a7a9a] max-w-md">
             Cada dia que você registra é uma nova semente plantada. Acompanhe as flores que você já descobriu no seu jardim emocional!
           </p>
@@ -116,7 +94,7 @@ export default function ColecaoPage() {
 
         {/* Album Grid */}
         <div className="mt-12">
-          <h2 className="text-xl font-bold text-[#1e2a4a] mb-6 flex items-center gap-2">
+          <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
             <span>Coleção Botânica</span>
             <span className="text-sm font-normal bg-[#e8f5e9] text-[#2e7d32] px-3 py-1 rounded-full">
               {unlockedFlowers.length} de {Object.keys(FLOWERS).length} flores
@@ -135,10 +113,9 @@ export default function ColecaoPage() {
                 return (
                   <Card 
                     key={id} 
-                    onClick={() => handleSelectAvatar(id)}
                     className={cn(
                       'border-0 shadow-sm rounded-2xl transition-all duration-300 relative overflow-hidden',
-                      isUnlocked ? 'bg-white cursor-pointer hover:shadow-md hover:-translate-y-1' : 'bg-[#f1f5f9] opacity-80 cursor-not-allowed grayscale'
+                      isUnlocked ? 'bg-white hover:shadow-md hover:-translate-y-1' : 'bg-[#f1f5f9] opacity-80 cursor-not-allowed grayscale'
                     )}
                   >
                     {!isUnlocked && (
@@ -153,7 +130,7 @@ export default function ColecaoPage() {
                       )}>
                         {flower.emoji}
                       </div>
-                      <CardTitle className="text-base text-[#1e2a4a]">{flower.label}</CardTitle>
+                      <CardTitle className="text-base text-foreground">{flower.label}</CardTitle>
                     </CardHeader>
                     <CardContent className="text-center">
                       <CardDescription className={cn(
@@ -163,11 +140,7 @@ export default function ColecaoPage() {
                         {isUnlocked ? flower.description : 'Continue registrando seus sentimentos para descobrir esta flor.'}
                       </CardDescription>
                       
-                      {isUnlocked && (
-                        <div className="mt-4 text-[10px] uppercase font-bold text-primary/60 tracking-wider">
-                          Toque para usar como avatar
-                        </div>
-                      )}
+
                     </CardContent>
                   </Card>
                 )

@@ -5,6 +5,7 @@ import { FLOWERS } from '@/lib/flowers'
 import { Heart, UserPlus, Leaf } from 'lucide-react'
 import { WellbeingGarden } from '@/components/dashboard/wellbeing-garden'
 import { CommunityActions } from '@/components/profile/community-actions'
+import { headers } from 'next/headers'
 
 export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -22,6 +23,35 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
         <div className="p-8 text-center text-muted-foreground">Jardim não encontrado.</div>
       </AppLayout>
     )
+  }
+
+  // Check initial follow & hug status from database
+  const cookieHeader = (await headers()).get('cookie') || ''
+  const userIdCookie = cookieHeader
+    .split(';')
+    .find((c) => c.trim().startsWith('session_user_id='))
+  const currentUserId = userIdCookie ? userIdCookie.split('=')[1].trim() : null
+
+  let initialFollowing = false
+  let initialHugged = false
+
+  if (currentUserId && currentUserId !== id) {
+    const { data: follow } = await supabaseAdmin
+      .from('sentiment_follows')
+      .select('id')
+      .eq('follower_id', currentUserId)
+      .eq('following_id', id)
+      .maybeSingle()
+    initialFollowing = !!follow
+
+    const { data: hug } = await supabaseAdmin
+      .from('sentiment_notifications')
+      .select('id')
+      .eq('sender_id', currentUserId)
+      .eq('receiver_id', id)
+      .in('type', ['abraco', 'abraco_tatil'])
+      .maybeSingle()
+    initialHugged = !!hug
   }
 
   // Fetch public entries
@@ -79,13 +109,18 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
               )}
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-2xl font-bold text-foreground capitalize">Jardim de {profile.username}</h1>
+              <h1 className="text-2xl font-bold text-foreground capitalize font-fredoka">Jardim de {profile.username}</h1>
               <p className="text-muted-foreground text-sm mt-1">
                 {publicEntries.length} sementes plantadas na comunidade
               </p>
             </div>
             
-            <CommunityActions targetUserId={profile.id} targetUsername={profile.username} />
+            <CommunityActions 
+              targetUserId={profile.id} 
+              targetUsername={profile.username} 
+              initialFollowing={initialFollowing}
+              initialHugged={initialHugged}
+            />
           </div>
         </div>
 

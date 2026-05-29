@@ -34,6 +34,10 @@ export default function NovoRegistoPage() {
         throw new Error(errData.error || 'Falha ao salvar o registro no banco de dados.')
       }
 
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('diary_updated'))
+      }
+
       router.push('/?saved=true')
     } catch (e: any) {
       console.error('[NovoRegisto] Saving error:', e)

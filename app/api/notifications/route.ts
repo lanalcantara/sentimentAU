@@ -5,7 +5,7 @@ import { cookies } from 'next/headers'
 export async function GET(req: Request) {
   try {
     const cookieStore = await cookies()
-    const userIdCookie = cookieStore.get('sentiment_user_id')?.value
+    const userIdCookie = cookieStore.get('session_user_id')?.value
     if (!userIdCookie) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
     const currentUserId = userIdCookie
@@ -30,6 +30,7 @@ export async function GET(req: Request) {
       data: n.created_at,
       remetente: n.sender?.username || 'Alguém',
       florRemetente: n.sender?.flor_avatar_atual || 'semente',
+      mensagem: n.message || '',
     }))
 
     return NextResponse.json({ notifications })
@@ -41,7 +42,7 @@ export async function GET(req: Request) {
 export async function PUT(req: Request) {
   try {
     const cookieStore = await cookies()
-    const userIdCookie = cookieStore.get('sentiment_user_id')?.value
+    const userIdCookie = cookieStore.get('session_user_id')?.value
     if (!userIdCookie) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
     const currentUserId = userIdCookie

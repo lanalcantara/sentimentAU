@@ -74,8 +74,8 @@ function Flower({
           viewBox="0 0 36 36"
         >
           {/* Base Grass - always visible */}
-          <path d="M12 32 Q15 25 18 32" stroke="#4ade80" strokeWidth="2" fill="none" opacity="0.6"/>
-          <path d="M18 32 Q21 27 24 32" stroke="#4ade80" strokeWidth="2" fill="none" opacity="0.6"/>
+          <path d="M12 32 Q15 25 18 32" stroke="var(--garden-stem)" strokeWidth="2" fill="none" opacity="0.8"/>
+          <path d="M18 32 Q21 27 24 32" stroke="var(--garden-stem)" strokeWidth="2" fill="none" opacity="0.8"/>
 
           {/* STEM INSIDE SVG */}
           {sentiment !== 'empty' && (
@@ -84,7 +84,7 @@ function Flower({
               y="28" 
               width="3" 
               height="14" 
-              fill={isSad ? "#9ca3af" : "#4ade80"} 
+              fill={isSad ? "#9ca3af" : "var(--garden-stem)"} 
               rx="1.5"
             />
           )}
@@ -133,7 +133,9 @@ function Flower({
       {/* Day label */}
       <span className={cn(
         "text-xs font-bold px-2 py-0.5 rounded-full mt-1 transition-colors",
-        isToday ? "bg-white text-[#1e2a4a] shadow-md ring-2 ring-white/50" : "text-[#2a4a4a]"
+        isToday 
+          ? "bg-[var(--garden-stem)] text-white calm-today-label shadow-md ring-2 ring-white/20" 
+          : "text-[var(--garden-stem)]/80 calm-day-label"
       )}>
         {isToday ? <strong>(Hoje)</strong> : dayName}
       </span>
@@ -221,12 +223,12 @@ export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
   const progressPercentage = (todayIndex / 6) * 100
 
   return (
-    <div className={cn('bg-[#7ee8d0] rounded-2xl p-6 overflow-hidden', className)}>
+    <div className={cn('wellbeing-garden-card bg-[#b1d156] text-[#1A2421]/95 border border-black/5 rounded-2xl p-6 overflow-hidden transition-all duration-300', className)}>
       <div className="flex items-center gap-2 mb-1">
         <span className="text-xl">&#127803;</span>
-        <h3 className="text-lg font-bold text-[#1e2a4a]">Jardim do Bem-Estar</h3>
+        <h3 className="text-lg font-bold text-[#1A2421]">Jardim do Bem-Estar</h3>
       </div>
-      <p className="text-sm text-[#2a4a4a] mb-6">
+      <p className="text-sm text-[#1A2421]/70 mb-6">
         Seu jardim reflete as emoções registradas ao longo da semana.
       </p>
       
@@ -248,9 +250,9 @@ export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
       </div>
 
       {/* Progress bar */}
-      <div className="h-3 bg-[#5ed8c0] rounded-full overflow-hidden mb-4">
+      <div className="h-3 bg-black/10 calm-progress-bg rounded-full overflow-hidden mb-4">
         <motion.div 
-          className="h-full bg-[#4ade80] rounded-full"
+          className="h-full bg-[#1b3024] calm-progress-fill rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${progressPercentage}%` }}
           transition={{ duration: 1, delay: 0.5 }}
@@ -258,12 +260,12 @@ export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
       </div>
       
       {/* Legend */}
-      <div className="flex items-center justify-center gap-6 text-sm text-[#2a4a4a]">
+      <div className="flex items-center justify-center gap-6 text-sm text-[#1A2421]/75 legend-text">
         <span className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-[#f5c842]" /> Florescendo
         </span>
         <span className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-[#7ec8e3]" /> Estável
+          <span className="w-3 h-3 rounded-full bg-[#B0C4DE]" /> Estável
         </span>
         <span className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-[#9ca3af]" /> Precisando ser regada

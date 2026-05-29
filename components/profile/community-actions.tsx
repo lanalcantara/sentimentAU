@@ -4,9 +4,19 @@ import { useState } from 'react'
 import { Heart, UserPlus, UserCheck } from 'lucide-react'
 import { SensoryAudio } from '@/lib/services/sensory-audio'
 
-export function CommunityActions({ targetUserId, targetUsername }: { targetUserId: string, targetUsername: string }) {
-  const [isFollowing, setIsFollowing] = useState(false)
-  const [hasHugged, setHasHugged] = useState(false)
+export function CommunityActions({ 
+  targetUserId, 
+  targetUsername,
+  initialFollowing = false,
+  initialHugged = false
+}: { 
+  targetUserId: string
+  targetUsername: string
+  initialFollowing?: boolean
+  initialHugged?: boolean
+}) {
+  const [isFollowing, setIsFollowing] = useState(initialFollowing)
+  const [hasHugged, setHasHugged] = useState(initialHugged)
   const [isHoveringHug, setIsHoveringHug] = useState(false)
 
   const handleFollow = async () => {
@@ -60,7 +70,7 @@ export function CommunityActions({ targetUserId, targetUsername }: { targetUserI
         onClick={handleHug}
         onMouseEnter={() => setIsHoveringHug(true)}
         onMouseLeave={() => setIsHoveringHug(false)}
-        className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all duration-300 ${
+        className={`community-support-button flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all duration-300 ${
           hasHugged 
             ? 'bg-[#fce7f3] text-[#db2777] scale-95' 
             : 'bg-[#fdf2f8] text-[#db2777] hover:bg-[#fce7f3] hover:scale-105'

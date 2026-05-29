@@ -206,7 +206,7 @@ export function AvatarUpload() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 bg-card border border-border/40 p-6 rounded-3xl shadow-sm max-w-sm w-full mx-auto">
+    <div className="right-column-card flex flex-col items-center gap-4 bg-card border border-border/40 p-6 rounded-3xl shadow-sm max-w-sm w-full mx-auto">
       {/* Avatar Display Frame */}
       <div 
         onClick={() => {
@@ -235,7 +235,7 @@ export function AvatarUpload() {
         )}
         
         {/* Hover Camera Overlay */}
-        <div className="absolute inset-0 bg-[#1e2a4a]/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+        <div className="absolute inset-0 bg-[#1b3024]/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
           <Camera className="w-6 h-6 text-white" />
         </div>
       </div>

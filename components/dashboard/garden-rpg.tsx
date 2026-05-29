@@ -14,6 +14,25 @@ const CANVAS_HEIGHT = 288
 const PLAYER_SPEED = 2.2
 const PLAYER_COLLISION_RADIUS = 9
 
+const FLOWER_POSITIONS: Record<string, { x: number; y: number; emoji: string }> = {
+  'semente': { x: 35, y: 75, emoji: '🌱' },
+  'broto': { x: 55, y: 105, emoji: '🌿' },
+  'margarida': { x: 30, y: 180, emoji: '🌼' },
+  'girassol': { x: 60, y: 220, emoji: '🌻' },
+  'rosa': { x: 180, y: 45, emoji: '🌹' },
+  'tulipa': { x: 220, y: 45, emoji: '🌷' },
+  'lotus': { x: 242, y: 105, emoji: '🪷' },
+  'cerejeira': { x: 320, y: 62, emoji: '🌸' },
+  'orquidea': { x: 200, y: 90, emoji: '🏵️' },
+  'lirio': { x: 145, y: 190, emoji: '⚜️' },
+  'violeta': { x: 225, y: 235, emoji: '🪻' },
+  'hibisco': { x: 275, y: 200, emoji: '🌺' },
+  'trevo': { x: 345, y: 165, emoji: '🍀' },
+  'cacto': { x: 25, y: 135, emoji: '🌵' },
+  'cogumelo': { x: 330, y: 225, emoji: '🍄' },
+  'arvore': { x: 150, y: 70, emoji: '🌳' },
+}
+
 interface Chest {
   id: string
   x: number // Pixel X
@@ -101,8 +120,8 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
       return {
         name: 'Clareira Central (Bosque Inicial)',
         description: 'Um bosque aconchegante com estradas de terra ligando as demais áreas.',
-        bgColor: '#dcfce7', // Soft green
-        tuftColor: '#bbf7d0',
+        bgColor: '#8bae96', // Verde sálvia médio
+        tuftColor: '#a0c0ab',
         treeColor: '#22c55e',
         treeHighlight: '#4ade80',
         trees: [
@@ -264,6 +283,12 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
         const onBridge = x >= 84 && x <= 116
         if (!onBridge) return true
       }
+      
+      // Special Blooming Spot collision
+      const dx = x - 140
+      const dy = y - 35
+      const dist = Math.sqrt(dx * dx + dy * dy)
+      if (dist < PLAYER_COLLISION_RADIUS + 4) return true
     } 
     else if (mapX === 1 && mapY === 0) {
       // Autumn Lake collision (East Map)
@@ -395,6 +420,28 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
       }
     }
 
+    // 2.1. Check if bordering the Special Blooming Spot in Map [0,1] (North)
+    if (mapX === 0 && mapY === 1) {
+      const dx = px - 140
+      const dy = py - 35
+      const distSpot = Math.sqrt(dx * dx + dy * dy)
+      if (distSpot < 32) {
+        if (entriesCount > 10) {
+          SensoryAudio.play('mc-levelup')
+          createChestSparkles(140, 35)
+          bubbleTextRef.current = 'Obrigado por compartilhar sua jornada! 🌟'
+          bubbleTimerRef.current = 150
+          toast.success('✨ Você fez o Cantinho do Norte florescer! Um portal de luz e paz se abriu aqui. 🌸')
+        } else {
+          SensoryAudio.play('mc-anvil')
+          bubbleTextRef.current = 'Preciso de mais de 10 registros!'
+          bubbleTimerRef.current = 150
+          toast.info('Este cantinho está esperando você registrar mais momentos para florescer! 🌿')
+        }
+        return
+      }
+    }
+
     // 3. Find closest chest on current map
     let closestChest: Chest | null = null
     let minDist = 40 
@@ -435,6 +482,12 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
     createChestSparkles(targetChest.x, targetChest.y)
 
     setChests(prev => prev.map(c => c.id === targetChest.id ? { ...c, isOpened: true } : c))
+    
+    // Add flower to unlockedFlowers state immediately for local canvas updates
+    setUnlockedFlowers(prev => {
+      if (prev.includes(targetChest.flowerId)) return prev
+      return [...prev, targetChest.flowerId]
+    })
     
     const flower = FLOWERS[targetChest.flowerId]
     toast.success(`🏵️ Baú aberto! Você desbloqueou a flor: ${flower?.label} ${flower?.emoji}!`, {
@@ -807,6 +860,55 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
         ctx.fillStyle = '#d97706' // Handrails
         ctx.fillRect(77, 85, 3, 45)
         ctx.fillRect(120, 85, 3, 45)
+
+        // Draw Special Blooming Spot on North Map
+        const isUnlocked = entriesCount > 10
+        ctx.save()
+        
+        // Shadow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)'
+        ctx.beginPath()
+        ctx.ellipse(140, 39, 8, 4, 0, 0, Math.PI * 2)
+        ctx.fill()
+
+        // Draw Element
+        if (isUnlocked) {
+          // Draw a glowing aura
+          const grad = ctx.createRadialGradient(140, 35, 2, 140, 35, 12)
+          grad.addColorStop(0, 'rgba(253, 224, 71, 0.4)')
+          grad.addColorStop(1, 'rgba(253, 224, 71, 0)')
+          ctx.fillStyle = grad
+          ctx.beginPath()
+          ctx.arc(140, 35, 12, 0, Math.PI * 2)
+          ctx.fill()
+
+          // Draw Golden Flower/Tree
+          ctx.font = '14px "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif'
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'middle'
+          ctx.fillText('✨', 140, 32)
+          ctx.fillText('🌸', 140, 35)
+        } else {
+          // Inactive locked sprout
+          ctx.font = '12px "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif'
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'middle'
+          ctx.fillText('🔒', 140, 35)
+        }
+
+        // Show interact key prompt if close
+        const dx = 140 - pxRef.current
+        const dy = 35 - pyRef.current
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        if (dist < 32) {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.85)'
+          ctx.fillRect(140 - 14, 35 - 26, 28, 11)
+          ctx.fillStyle = '#1e293b'
+          ctx.font = 'bold 8px sans-serif'
+          ctx.fillText('SPACE', 140 - 12, 35 - 18)
+        }
+
+        ctx.restore()
       } 
       else if (mapX === 1 && mapY === 0) {
         // East Autumn Lake
@@ -878,6 +980,27 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
         ctx.fillStyle = '#f5c842' // center
         ctx.fillRect(f.x + 1, f.y + 2, 2, 2)
       })
+
+      // 4.1. Draw Unlocked Botanical Flowers on Clareira Central Map
+      if (mapX === 0 && mapY === 0) {
+        ctx.save()
+        Object.entries(FLOWER_POSITIONS).forEach(([id, pos]) => {
+          if (unlockedFlowers.includes(id)) {
+            // Draw small soft shadow under the flower
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.08)'
+            ctx.beginPath()
+            ctx.ellipse(pos.x, pos.y + 4, 6, 3, 0, 0, Math.PI * 2)
+            ctx.fill()
+
+            // Draw Emoji
+            ctx.font = '12px "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif'
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'middle'
+            ctx.fillText(pos.emoji, pos.x, pos.y)
+          }
+        })
+        ctx.restore()
+      }
 
       // 5. Draw Exit Barriers (Gates / Hedges) on Center Map
       if (mapX === 0 && mapY === 0) {
@@ -1165,7 +1288,7 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
 
       <CardContent className="p-0 flex flex-col lg:flex-row gap-6 items-center">
         {/* Game Canvas Board */}
-        <div className="relative border-4 border-[#5ed8c0] rounded-2xl overflow-hidden bg-[#dcfce7] shadow-inner max-w-full">
+        <div className="relative border-4 border-[#8bae96] rounded-2xl overflow-hidden bg-[#F4F6F0] shadow-inner max-w-full">
           <canvas 
             ref={canvasRef} 
             width={CANVAS_WIDTH} 

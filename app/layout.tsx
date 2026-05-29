@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Nunito, Nunito_Sans } from 'next/font/google'
+import { Nunito, Nunito_Sans, Fredoka } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { CalmModeProvider } from '@/lib/context/calm-mode-context'
 
@@ -14,6 +14,13 @@ const nunito = Nunito({
 const nunitoSans = Nunito_Sans({ 
   subsets: ["latin"],
   variable: '--font-nunito-sans',
+  display: 'swap',
+});
+
+const fredoka = Fredoka({
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  variable: '--font-fredoka',
   display: 'swap',
 });
 
@@ -42,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt" className={`${nunito.variable} ${nunitoSans.variable} bg-background`} suppressHydrationWarning>
+    <html lang="pt" className={`${nunito.variable} ${nunitoSans.variable} ${fredoka.variable} bg-background`} suppressHydrationWarning>
       <body className="font-sans antialiased bg-background text-foreground">
         <CalmModeProvider>
           {children}
