@@ -84,7 +84,7 @@ export default function MeuJardimPage() {
       <div className="p-4 lg:p-8 max-w-6xl mx-auto space-y-6">
 
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#b1d156] to-[#5a8c3c] p-7 text-white shadow-lg">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#A3B899] to-[#5a8c3c] p-7 text-white shadow-lg">
           <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-3 mb-1">
@@ -153,7 +153,7 @@ export default function MeuJardimPage() {
             {/* Shortcut to Botanical Collection */}
             <Link
               href="/colecao"
-              className="flex items-center gap-3 p-4 rounded-2xl border border-dashed border-[#b1d156] hover:bg-[#f0fdf4] transition-colors group"
+              className="flex items-center gap-3 p-4 rounded-2xl border border-dashed border-[#A3B899] hover:bg-[#f0fdf4] transition-colors group"
             >
               <div className="w-10 h-10 rounded-xl bg-[#f0fdf4] flex items-center justify-center group-hover:bg-[#e0fdf4] transition-colors shrink-0">
                 <Leaf className="w-5 h-5 text-[#16a34a]" />
@@ -196,7 +196,7 @@ export default function MeuJardimPage() {
                   </div>
                   <div className="h-1.5 bg-[#e8f5e9] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-[#b1d156] to-[#16a34a] rounded-full transition-all duration-700"
+                      className="h-full bg-gradient-to-r from-[#A3B899] to-[#16a34a] rounded-full transition-all duration-700"
                       style={{ width: `${(unlockedCount / totalCount) * 100}%` }}
                     />
                   </div>

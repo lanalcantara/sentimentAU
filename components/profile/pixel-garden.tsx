@@ -506,9 +506,9 @@ export function PixelGarden({ unlockedFlowers, username, onWater, hasWatered }: 
       <button
         onClick={handleWaterClick}
         disabled={hasWatered}
-        className={`w-full flex items-center justify-center gap-2 py-3 px-5 rounded-2xl font-bold text-sm transition-all duration-300 ${
+        className={`w-full flex items-center justify-center gap-2 py-3 px-5 rounded-2xl font-bold text-sm transition-all duration-300 water-confirm-button ${
           hasWatered
-            ? 'bg-[#e0f2fe] text-[#0284c7] cursor-not-allowed opacity-90'
+            ? 'bg-[#e0f2fe] text-[#0369a1] cursor-not-allowed opacity-90'
             : 'bg-gradient-to-r from-[#5bc8e8] to-[#0284c7] text-white hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] cursor-pointer'
         }`}
       >

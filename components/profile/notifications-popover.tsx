@@ -185,7 +185,7 @@ export function NotificationsPopover() {
                       </p>
                     </div>
                     {!n.lido && (
-                      <div className="w-2 h-2 rounded-full bg-[#b1d156] shrink-0 mt-1.5" />
+                      <div className="w-2 h-2 rounded-full bg-[#A3B899] shrink-0 mt-1.5" />
                     )}
                   </div>
                 </div>

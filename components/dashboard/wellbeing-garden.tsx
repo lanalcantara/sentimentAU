@@ -223,7 +223,7 @@ export function WellbeingGarden({ data, className }: WellbeingGardenProps) {
   const progressPercentage = (todayIndex / 6) * 100
 
   return (
-    <div className={cn('wellbeing-garden-card bg-[#b1d156] text-[#1A2421]/95 border border-black/5 rounded-2xl p-6 overflow-hidden transition-all duration-300', className)}>
+    <div className={cn('wellbeing-garden-card bg-[#A3B899] text-[#1A2421]/95 border border-black/5 rounded-2xl p-6 overflow-hidden transition-all duration-300', className)}>
       <div className="flex items-center gap-2 mb-1">
         <span className="text-xl">&#127803;</span>
         <h3 className="text-lg font-bold text-[#1A2421]">Jardim do Bem-Estar</h3>

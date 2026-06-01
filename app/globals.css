@@ -35,8 +35,8 @@
   
   --radius: 1rem;
   
-  /* Sidebar - Verde-limão/abacate idêntica ao corpo da plantinha (#b1d156) */
-  --sidebar: #b1d156;
+  /* Sidebar - Verde Sálvia Pastel Suave e Relaxante (#A3B899) */
+  --sidebar: #A3B899;
   --sidebar-foreground: #1A2421;
   --sidebar-primary: #1A2421;
   --sidebar-primary-foreground: #ffffff;
@@ -121,9 +121,9 @@
   opacity: 1 !important;
 }
 
-/* Reduza a opacidade e a saturação APENAS de elementos visuais gráficos em 30% (mantendo textos a 100% de opacidade) */
+/* Reduza a opacidade e a saturação APENAS de elementos visuais gráficos em 30% (mantendo textos a 100% de opacidade, excluindo gráficos do Recharts) */
 .calm-mode canvas,
-.calm-mode svg,
+.calm-mode svg:not(.recharts-svg),
 .calm-mode img {
   opacity: 0.7 !important;
   filter: saturate(0.7) !important;
@@ -482,4 +482,56 @@
 
 .calm-mode .meu-jardim-calm-button:hover {
   background-color: #F8FAFC !important;
+}
+
+/* 🌿 Calm Mode Community Ver Jardim Button overrides */
+.calm-mode .community-ver-jardim-button {
+  background-color: transparent !important;
+  border: 1px solid #f5c842 !important;
+  color: #f5c842 !important;
+}
+.calm-mode .community-ver-jardim-button span,
+.calm-mode .community-ver-jardim-button svg {
+  color: #f5c842 !important;
+  stroke: #f5c842 !important;
+}
+.calm-mode .community-ver-jardim-button:hover {
+  background-color: rgba(245, 200, 66, 0.1) !important;
+}
+
+/* 🌿 Calm Mode Water Confirmation Button */
+.calm-mode .water-confirm-button {
+  background-color: #e0f2fe !important;
+}
+.calm-mode .water-confirm-button span {
+  color: #0369a1 !important;
+}
+
+/* 🌿 Calm Mode Wellbeing Garden Day Label and Legend opacity/contrast */
+.calm-mode .calm-day-label {
+  color: #F5F5F5 !important;
+  opacity: 1 !important;
+}
+.calm-mode .legend-text,
+.calm-mode .legend-text * {
+  color: #F5F5F5 !important;
+  opacity: 1 !important;
+}
+
+/* 🌿 Calm Mode Chart contrast and opacity adjustments */
+.calm-mode svg.recharts-svg {
+  opacity: 1 !important;
+  filter: none !important;
+}
+.calm-mode .recharts-text,
+.calm-mode .recharts-text * {
+  fill: #F5F5F5 !important;
+  color: #F5F5F5 !important;
+  opacity: 1 !important;
+}
+.calm-mode .recharts-cartesian-axis-line {
+  stroke: rgba(255, 255, 255, 0.2) !important;
+}
+.calm-mode .recharts-cartesian-grid-horizontal line {
+  stroke: rgba(255, 255, 255, 0.1) !important;
 }

@@ -1134,7 +1134,7 @@ export default function DashboardPage() {
                                 SensoryAudio.playClick()
                                 window.location.href = `/perfil/${member.userId}`
                               }}
-                              className="flex items-center gap-1 py-1 px-2.5 rounded-xl bg-green-50 hover:bg-green-100 text-green-700 text-xs font-bold cursor-pointer"
+                              className="flex items-center gap-1 py-1 px-2.5 rounded-xl bg-green-50 hover:bg-green-100 text-green-700 text-xs font-bold cursor-pointer community-ver-jardim-button"
                             >
                               <Leaf className="w-3.5 h-3.5 mr-0.5" />
                               <span>Ver Jardim</span>
