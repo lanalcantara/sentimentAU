@@ -62,28 +62,28 @@ export default function ColecaoPage() {
 
         {/* Friendly Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-[#f0f9ff] border-0 shadow-sm rounded-2xl">
+          <Card className="bg-[#f0f9ff] border-0 shadow-sm rounded-2xl colecao-stats-card">
             <CardContent className="p-6 text-center flex flex-col items-center justify-center">
               <Award className="w-6 h-6 text-[#0284c7] mb-2" />
               <p className="text-3xl font-bold text-[#0369a1]">{unlockedFlowers.length}</p>
               <p className="text-xs text-[#0284c7] mt-1 font-semibold uppercase tracking-wider">Descobertas</p>
             </CardContent>
           </Card>
-          <Card className="bg-[#f0fdf4] border-0 shadow-sm rounded-2xl">
+          <Card className="bg-[#f0fdf4] border-0 shadow-sm rounded-2xl colecao-stats-card">
             <CardContent className="p-6 text-center flex flex-col items-center justify-center">
               <Leaf className="w-6 h-6 text-[#16a34a] mb-2" />
               <p className="text-3xl font-bold text-[#15803d]">{totalDias}</p>
               <p className="text-xs text-[#16a34a] mt-1 font-semibold uppercase tracking-wider">Dias Regados</p>
             </CardContent>
           </Card>
-          <Card className="bg-[#fffbeb] border-0 shadow-sm rounded-2xl">
+          <Card className="bg-[#fffbeb] border-0 shadow-sm rounded-2xl colecao-stats-card">
             <CardContent className="p-6 text-center flex flex-col items-center justify-center">
               <Sun className="w-6 h-6 text-[#d97706] mb-2" />
               <p className="text-3xl font-bold text-[#b45309]">{diasEnsola}</p>
               <p className="text-xs text-[#d97706] mt-1 font-semibold uppercase tracking-wider">Dias de Sol</p>
             </CardContent>
           </Card>
-          <Card className="bg-[#fdf4ff] border-0 shadow-sm rounded-2xl">
+          <Card className="bg-[#fdf4ff] border-0 shadow-sm rounded-2xl colecao-stats-card">
             <CardContent className="p-6 text-center flex flex-col items-center justify-center">
               <CloudRain className="w-6 h-6 text-[#c026d3] mb-2" />
               <p className="text-3xl font-bold text-[#a21caf]">{diasChuvosos}</p>
@@ -96,7 +96,7 @@ export default function ColecaoPage() {
         <div className="mt-12">
           <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
             <span>Coleção Botânica</span>
-            <span className="text-sm font-normal bg-[#e8f5e9] text-[#2e7d32] px-3 py-1 rounded-full">
+            <span className="text-sm font-normal bg-[#e8f5e9] text-[#2e7d32] px-3 py-1 rounded-full colecao-progress-badge">
               {unlockedFlowers.length} de {Object.keys(FLOWERS).length} flores
             </span>
           </h2>
@@ -114,7 +114,7 @@ export default function ColecaoPage() {
                   <Card 
                     key={id} 
                     className={cn(
-                      'border-0 shadow-sm rounded-2xl transition-all duration-300 relative overflow-hidden',
+                      'border-0 shadow-sm rounded-2xl transition-all duration-300 relative overflow-hidden colecao-flower-card',
                       isUnlocked ? 'bg-white hover:shadow-md hover:-translate-y-1' : 'bg-[#f1f5f9] opacity-80 cursor-not-allowed grayscale'
                     )}
                   >

@@ -535,3 +535,71 @@
 .calm-mode .recharts-cartesian-grid-horizontal line {
   stroke: rgba(255, 255, 255, 0.1) !important;
 }
+
+/* ==========================================================================
+   🌿 MODO CALMO ACCESSIBILITY & CONTRAST FIXES
+   ========================================================================== */
+
+/* 1. Upper Metric Cards (Coleção & Dashboard Stats Grid) */
+.calm-mode .stats-card p,
+.calm-mode .stats-card span,
+.calm-mode .stats-card .text-foreground,
+.calm-mode .stats-card p *,
+.calm-mode .colecao-stats-card p,
+.calm-mode .colecao-stats-card span,
+.calm-mode .colecao-stats-card .text-foreground,
+.calm-mode .colecao-stats-card p * {
+  color: #1A1A1A !important;
+  opacity: 1 !important;
+}
+
+/* 2. Progress Badges / Pills ("8 de 16 flores") */
+.calm-mode .colecao-progress-badge,
+.calm-mode .meu-jardim-progress-badge {
+  color: #1A1A1A !important;
+  background-color: #f0fdf4 !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  opacity: 1 !important;
+}
+
+/* 3. Panel Controls (Arrow D-Pad) */
+.calm-mode .rpg-dpad-arrow,
+.calm-mode button.rpg-dpad-arrow {
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  opacity: 1 !important;
+}
+
+.calm-mode .rpg-dpad-arrow svg,
+.calm-mode button.rpg-dpad-arrow svg {
+  stroke: #2D3748 !important;
+  color: #2D3748 !important;
+  opacity: 1 !important;
+}
+
+/* 4. Botanical Collection Cards (Coleção Botânica Grid) */
+.calm-mode .colecao-flower-card {
+  background-color: #262626 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.calm-mode .colecao-flower-card h3,
+.calm-mode .colecao-flower-card p,
+.calm-mode .colecao-flower-card span,
+.calm-mode .colecao-flower-card .text-foreground {
+  color: #F5F5F5 !important;
+  opacity: 1 !important;
+}
+
+.calm-mode .colecao-flower-card .text-muted-foreground,
+.calm-mode .colecao-flower-card p {
+  color: #cbd5e1 !important;
+  opacity: 0.9 !important;
+}
+
+.calm-mode .colecao-flower-card p.text-transparent {
+  /* Force locked cards text to be readable under Calm Mode dark background */
+  color: #aaaaaa !important;
+  opacity: 0.85 !important;
+}
+

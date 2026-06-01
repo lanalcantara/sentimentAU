@@ -124,7 +124,7 @@ export default function MeuJardimPage() {
             <div className="flex items-center gap-2">
               <Sprout className="w-5 h-5 text-[#5a8c3c]" />
               <h2 className="text-lg font-bold text-foreground">Meu Cenário em Pixel Art</h2>
-              <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: '#f0fdf4', color: '#16a34a' }}>
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full meu-jardim-progress-badge" style={{ background: '#f0fdf4', color: '#16a34a' }}>
                 {unlockedCount}/{totalCount} flores
               </span>
             </div>

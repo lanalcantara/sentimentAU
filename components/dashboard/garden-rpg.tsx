@@ -1388,7 +1388,7 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
                 onMouseDown={() => startVirtualMove('up')}
                 onMouseUp={() => stopVirtualMove('up')}
                 onMouseLeave={() => stopVirtualMove('up')}
-                className="rpg-control-btn w-10 h-10 rounded-xl bg-[#eef2f6] active:bg-[#dfe5eb] text-slate-700 font-bold flex items-center justify-center cursor-pointer shadow-sm transition-colors"
+                className="rpg-control-btn rpg-dpad-arrow w-10 h-10 rounded-xl bg-[#eef2f6] active:bg-[#dfe5eb] text-slate-700 font-bold flex items-center justify-center cursor-pointer shadow-sm transition-colors"
               >
                 <ArrowUp className="w-5 h-5" />
               </button>
@@ -1398,7 +1398,7 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
                 onMouseDown={() => startVirtualMove('left')}
                 onMouseUp={() => stopVirtualMove('left')}
                 onMouseLeave={() => stopVirtualMove('left')}
-                className="rpg-control-btn w-10 h-10 rounded-xl bg-[#eef2f6] active:bg-[#dfe5eb] text-slate-700 font-bold flex items-center justify-center cursor-pointer shadow-sm transition-colors"
+                className="rpg-control-btn rpg-dpad-arrow w-10 h-10 rounded-xl bg-[#eef2f6] active:bg-[#dfe5eb] text-slate-700 font-bold flex items-center justify-center cursor-pointer shadow-sm transition-colors"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
@@ -1416,7 +1416,7 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
                 onMouseDown={() => startVirtualMove('right')}
                 onMouseUp={() => stopVirtualMove('right')}
                 onMouseLeave={() => stopVirtualMove('right')}
-                className="rpg-control-btn w-10 h-10 rounded-xl bg-[#eef2f6] active:bg-[#dfe5eb] text-slate-700 font-bold flex items-center justify-center cursor-pointer shadow-sm transition-colors"
+                className="rpg-control-btn rpg-dpad-arrow w-10 h-10 rounded-xl bg-[#eef2f6] active:bg-[#dfe5eb] text-slate-700 font-bold flex items-center justify-center cursor-pointer shadow-sm transition-colors"
               >
                 <ArrowRight className="w-5 h-5" />
               </button>
@@ -1426,7 +1426,7 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
                 onMouseDown={() => startVirtualMove('down')}
                 onMouseUp={() => stopVirtualMove('down')}
                 onMouseLeave={() => stopVirtualMove('down')}
-                className="rpg-control-btn w-10 h-10 rounded-xl bg-[#eef2f6] active:bg-[#dfe5eb] text-slate-700 font-bold flex items-center justify-center cursor-pointer shadow-sm transition-colors"
+                className="rpg-control-btn rpg-dpad-arrow w-10 h-10 rounded-xl bg-[#eef2f6] active:bg-[#dfe5eb] text-slate-700 font-bold flex items-center justify-center cursor-pointer shadow-sm transition-colors"
               >
                 <ArrowDown className="w-5 h-5" />
               </button>
