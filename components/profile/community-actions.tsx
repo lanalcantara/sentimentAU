@@ -77,7 +77,7 @@ export function CommunityActions({
     <div className="flex flex-wrap md:flex-nowrap gap-2 w-full md:w-auto">
       <button 
         onClick={handleFollow}
-        className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-colors ${
+        className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-colors profile-follow-btn ${
           isFollowing 
             ? 'bg-[#e0f2fe] text-[#0284c7]' 
             : 'bg-[#f0f9ff] text-[#0284c7] hover:bg-[#e0f2fe]'
@@ -91,7 +91,7 @@ export function CommunityActions({
         onClick={handleWater}
         onMouseEnter={() => setIsHoveringWater(true)}
         onMouseLeave={() => setIsHoveringWater(false)}
-        className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all duration-300 ${
+        className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all duration-300 profile-water-btn ${
           hasWatered 
             ? 'bg-[#e0fdf4] text-[#16a34a] scale-95' 
             : 'bg-[#f0fdf4] text-[#16a34a] hover:bg-[#e0fdf4] hover:scale-105'

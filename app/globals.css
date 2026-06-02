@@ -655,5 +655,33 @@
   opacity: 1 !important;
 }
 
+/* 8. Profile Interaction Buttons (Follow, Water) */
+.calm-mode .profile-follow-btn,
+.calm-mode .profile-water-btn,
+.calm-mode .profile-follow-btn *,
+.calm-mode .profile-water-btn * {
+  color: #1A1A1A !important;
+  stroke: #1A1A1A !important;
+  opacity: 1 !important;
+}
+
+/* 9. Community & Profile Sentiment Badges */
+.calm-mode span.community-sentiment-tag.bg-green-100 {
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+  opacity: 1 !important;
+}
+.calm-mode span.community-sentiment-tag.bg-red-100 {
+  background-color: #fee2e2 !important;
+  color: #991b1b !important;
+  opacity: 1 !important;
+}
+.calm-mode span.community-sentiment-tag.bg-blue-100 {
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
+  opacity: 1 !important;
+}
+
+
 
 

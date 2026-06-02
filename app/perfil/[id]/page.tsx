@@ -179,7 +179,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                           <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                             {entry.createdAt.toLocaleDateString('pt-PT', { day: '2-digit', month: 'long' })}
                           </span>
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider community-sentiment-tag ${
                             entry.analysis.sentiment === 'positive' ? 'bg-green-100 text-green-700' : 
                             entry.analysis.sentiment === 'negative' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
                           }`}>
