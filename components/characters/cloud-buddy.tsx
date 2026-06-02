@@ -1,11 +1,12 @@
 'use client'
 
+import * as React from 'react'
 import { motion } from 'framer-motion'
 import { Cloud } from 'lucide-react'
 
 interface CloudBuddyProps {
   mood?: 'happy' | 'thinking' | 'encouraging'
-  message?: string
+  message?: React.ReactNode
   className?: string
 }
 
@@ -58,11 +59,11 @@ export function CloudBuddy({ mood = 'happy', message, className }: CloudBuddyPro
           <motion.div
             initial={{ opacity: 0, scale: 0.8, x: -10 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
-            className="relative bg-[#f8fafc] border border-blue-50/50 rounded-2xl px-5 py-3 max-w-xs shadow-sm"
+            className="relative bg-white border border-slate-100 rounded-2xl px-5 py-3 max-w-xs shadow-sm cloud-speech-bubble"
           >
             {/* Soft Triangle pointer */}
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-0 h-0 border-t-[6px] border-b-[6px] border-r-[6px] border-transparent border-r-[#f8fafc]" />
-            <p className="text-[13px] text-slate-600 leading-relaxed font-medium tracking-wide">{message}</p>
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-0 h-0 border-t-[6px] border-b-[6px] border-r-[6px] border-transparent border-r-white cloud-speech-pointer" />
+            <p className="text-[13px] text-[#1A1A1A] leading-relaxed font-semibold tracking-wide cloud-bubble-text">{message}</p>
           </motion.div>
         )}
       </div>

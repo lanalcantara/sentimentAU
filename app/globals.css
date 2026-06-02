@@ -682,6 +682,54 @@
   opacity: 1 !important;
 }
 
+/* CloudBuddy Speech Bubble Accessibility & Contrast Styles */
+.cloud-speech-bubble {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
 
+.cloud-speech-pointer {
+  border-right-color: #ffffff !important;
+}
 
+.cloud-bubble-text,
+.cloud-bubble-text * {
+  color: #1A1A1A !important;
+  opacity: 1 !important;
+}
 
+/* Text highlights inside speech bubble for brand identity and warmth */
+.highlight-text {
+  color: #2b4532 !important;
+  background-color: rgba(163, 184, 153, 0.25) !important;
+  font-weight: 700 !important;
+  padding: 0.05rem 0.25rem !important;
+  border-radius: 0.375rem !important;
+  display: inline-block;
+}
+
+/* Force overrides under calm-mode and dark.calm-mode */
+.calm-mode .cloud-speech-bubble,
+.dark.calm-mode .cloud-speech-bubble {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.calm-mode .cloud-speech-pointer,
+.dark.calm-mode .cloud-speech-pointer {
+  border-right-color: #ffffff !important;
+}
+
+.calm-mode .cloud-bubble-text,
+.calm-mode .cloud-bubble-text *,
+.dark.calm-mode .cloud-bubble-text,
+.dark.calm-mode .cloud-bubble-text * {
+  color: #1A1A1A !important;
+  opacity: 1 !important;
+}
+
+.calm-mode .highlight-text,
+.dark.calm-mode .highlight-text {
+  color: #2b4532 !important;
+  background-color: rgba(163, 184, 153, 0.25) !important;
+}

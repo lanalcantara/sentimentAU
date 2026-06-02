@@ -182,7 +182,11 @@ export function DiaryWizard({ onComplete }: DiaryWizardProps) {
     <div className="space-y-6">
       <CloudBuddy 
         mood="encouraging" 
-        message="Olá! Como você está se sentindo hoje? Escreva livremente o que quiser, estou aqui para ler com carinho."
+        message={
+          <>
+            Olá! Como você está se sentindo hoje? <span className="highlight-text">Escreva livremente</span> o que quiser, estou aqui para ler <span className="highlight-text">com carinho</span>.
+          </>
+        }
       />
       
       <div className="space-y-4">
