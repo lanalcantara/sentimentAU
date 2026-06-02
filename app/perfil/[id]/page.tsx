@@ -212,14 +212,17 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                       <div 
                         key={key} 
                         className={cn(
-                          "flex flex-col items-center p-3 rounded-2xl border text-center transition-all",
+                          "flex flex-col items-center p-3 rounded-2xl border text-center transition-all profile-flower-item",
                           isUnlocked 
-                            ? "bg-[#f0fdf4] border-green-200/60 shadow-sm" 
-                            : "bg-muted/40 border-dashed border-border opacity-50"
+                            ? "bg-[#f0fdf4] border-green-200/60 shadow-sm profile-flower-item-unlocked" 
+                            : "bg-muted/40 border-dashed border-border opacity-50 profile-flower-item-locked"
                         )}
                       >
                         <span className="text-3xl mb-1">{isUnlocked ? flower.emoji : '🔒'}</span>
-                        <span className="text-[10px] font-extrabold text-foreground truncate max-w-full">
+                        <span className={cn(
+                          "text-[10px] font-extrabold truncate max-w-full profile-flower-label",
+                          isUnlocked ? "text-foreground profile-flower-label-unlocked" : "text-foreground profile-flower-label-locked"
+                        )}>
                           {isUnlocked ? flower.label : 'Bloqueada'}
                         </span>
                       </div>
