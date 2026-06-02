@@ -138,7 +138,7 @@ export function MoodChart({ entries, className }: MoodChartProps) {
         <CardContent>
           {/* Energy Alert Box */}
           <div className={cn(
-            'rounded-xl p-4 mb-4 flex items-start gap-3',
+            'rounded-xl p-4 mb-4 flex items-start gap-3 clima-alert-box',
             energyColors[gardenEnergy].bg
           )}>
             {(() => {

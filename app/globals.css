@@ -553,9 +553,13 @@
   opacity: 1 !important;
 }
 
-/* 2. Progress Badges / Pills ("8 de 16 flores") */
+/* 2. Progress Badges / Pills ("8 de 16 flores" and "8/16 flores") */
 .calm-mode .colecao-progress-badge,
-.calm-mode .meu-jardim-progress-badge {
+.calm-mode .meu-jardim-progress-badge,
+.calm-mode span.colecao-progress-badge,
+.calm-mode span.meu-jardim-progress-badge,
+.calm-mode .colecao-progress-badge *,
+.calm-mode .meu-jardim-progress-badge * {
   color: #1A1A1A !important;
   background-color: #f0fdf4 !important;
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
@@ -602,4 +606,34 @@
   color: #aaaaaa !important;
   opacity: 0.85 !important;
 }
+
+/* 5. Clima Emocional Indicator Box */
+.calm-mode .clima-alert-box h4,
+.calm-mode .clima-alert-box p,
+.calm-mode .clima-alert-box span,
+.calm-mode .clima-alert-box svg {
+  color: #1A1A1A !important;
+  stroke: #1A1A1A !important;
+  opacity: 1 !important;
+}
+
+/* 6. Profile Header Banner & Title */
+.calm-mode .profile-header-card {
+  background-color: #262626 !important;
+}
+
+.calm-mode .profile-banner {
+  background-image: linear-gradient(to right, #222D29, #1b3024) !important;
+}
+
+.calm-mode .profile-title {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.calm-mode .profile-subtitle {
+  color: rgba(255, 255, 255, 0.7) !important;
+  opacity: 1 !important;
+}
+
 

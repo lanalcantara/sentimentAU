@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { DiaryService } from '@/lib/services/diary-service'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * Gets the daily emotion feed of other users
  */

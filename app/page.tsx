@@ -1030,9 +1030,23 @@ export default function DashboardPage() {
               {calmMode ? '🌿 Modo Calmo: ATIVADO' : '✨ Modo Calmo: DESATIVADO'}
             </button>
             
-            <div className="flex items-center">
+            {/* Bell popover: hidden on mobile, visible on desktop */}
+            <div className="hidden lg:flex items-center">
               <NotificationsPopover />
             </div>
+            
+            {/* Novo Registro button: visible on mobile, hidden on desktop */}
+            <Link 
+              href="/novo-registo"
+              onClick={() => {
+                SensoryAudio.playClick()
+              }}
+              className="lg:hidden p-2.5 bg-[#f5c842] text-slate-900 border border-[#f5c842] text-xs font-bold rounded-xl cursor-pointer hover:bg-[#e5b832] flex items-center gap-1 shadow-sm transition-all duration-300 shrink-0"
+              title="Novo Registro"
+            >
+              <span>✏️</span>
+              <span className="text-[11px] font-bold">Novo Registro</span>
+            </Link>
           </div>
         </div>
 

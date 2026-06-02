@@ -102,10 +102,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
       <div className="p-4 lg:p-8 space-y-8 max-w-5xl mx-auto">
 
         {/* Profile Header */}
-        <div className="relative bg-card rounded-3xl p-6 shadow-sm border border-border overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-[#e8f5e9] to-[#c8e6c9] z-0" />
+        <div className="relative bg-card rounded-3xl p-6 shadow-sm border border-border overflow-hidden profile-header-card">
+          <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-[#e8f5e9] to-[#c8e6c9] z-0 profile-banner" />
           
-          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 mt-8">
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 mt-14 md:mt-8">
             <div className="w-24 h-24 rounded-full bg-card flex items-center justify-center border-4 border-white shadow-md text-5xl">
               {profile.avatar_url ? (
                 <img src={profile.avatar_url} alt={profile.username} className="w-full h-full object-cover rounded-full" />
@@ -114,12 +114,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
               )}
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-2xl font-bold text-foreground capitalize">
+              <h1 className="text-2xl font-bold text-foreground capitalize profile-title">
                 {isVisiting
                   ? `Você está visitando o Jardim de ${profile.username} 🌿`
                   : `Jardim de ${profile.username}`}
               </h1>
-              <p className="text-muted-foreground text-sm mt-1">
+              <p className="text-muted-foreground text-sm mt-1 profile-subtitle">
                 {unlockedFlowers.length} flores conquistadas · {publicEntries.length} registros compartilhados
               </p>
             </div>
