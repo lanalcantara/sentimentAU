@@ -422,9 +422,10 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
     let clientY = 0
 
     if ('touches' in e) {
-      if (e.touches.length === 0) return
-      clientX = e.touches[0].clientX
-      clientY = e.touches[0].clientY
+      const touch = e.touches[0] || e.changedTouches[0]
+      if (!touch) return
+      clientX = touch.clientX
+      clientY = touch.clientY
     } else {
       clientX = e.clientX
       clientY = e.clientY
@@ -1338,7 +1339,7 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
             onMouseDown={handleCanvasClickOrTouch}
             onTouchStart={handleCanvasClickOrTouch}
             className="block w-full h-auto cursor-pointer"
-            style={{ imageRendering: 'pixelated' }}
+            style={{ imageRendering: 'pixelated', touchAction: 'none' }}
           />
 
           {/* Floating Action Button (Hand Icon) - Mobile Ergonomic Overlay */}
@@ -1375,8 +1376,8 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
             </div>
           </div>
 
-          {/* Desktop/Large Screen Only Controls: Virtual D-Pad is hidden on mobile screens */}
-          <div className="hidden md:flex flex-col items-center pt-2">
+          {/* Controls: Virtual D-Pad visible on both Mobile and Desktop */}
+          <div className="flex flex-col items-center pt-2 w-full">
             <span className="text-[10px] text-slate-400 font-bold mb-2 uppercase tracking-wide">Controles do Painel</span>
             <div className="grid grid-cols-3 gap-2 w-32">
               <div />
@@ -1384,9 +1385,12 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
                 onMouseDown={() => startVirtualMove('up')}
                 onMouseUp={() => stopVirtualMove('up')}
                 onMouseLeave={() => stopVirtualMove('up')}
+                onTouchStart={(e) => { e.preventDefault(); startVirtualMove('up'); }}
+                onTouchEnd={(e) => { e.preventDefault(); stopVirtualMove('up'); }}
                 className="rpg-control-btn rpg-dpad-arrow w-10 h-10 rounded-xl bg-[#eef2f6] active:bg-[#dfe5eb] text-slate-700 font-bold flex items-center justify-center cursor-pointer shadow-sm transition-colors"
+                title="Mover para Cima"
               >
-                <ArrowUp className="w-5 h-5" />
+                <ArrowUp className="w-5 h-5 text-gray-800" />
               </button>
               <div />
 
@@ -1394,14 +1398,18 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
                 onMouseDown={() => startVirtualMove('left')}
                 onMouseUp={() => stopVirtualMove('left')}
                 onMouseLeave={() => stopVirtualMove('left')}
+                onTouchStart={(e) => { e.preventDefault(); startVirtualMove('left'); }}
+                onTouchEnd={(e) => { e.preventDefault(); stopVirtualMove('left'); }}
                 className="rpg-control-btn rpg-dpad-arrow w-10 h-10 rounded-xl bg-[#eef2f6] active:bg-[#dfe5eb] text-slate-700 font-bold flex items-center justify-center cursor-pointer shadow-sm transition-colors"
+                title="Mover para Esquerda"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-5 h-5 text-gray-800" />
               </button>
               
               {/* Interaction Center Button (Hand Icon) */}
               <button 
                 onClick={handleInteract}
+                onTouchStart={(e) => { e.preventDefault(); handleInteract(); }}
                 className="rpg-control-btn w-10 h-10 rounded-xl bg-[#f5c842] active:bg-[#e5b832] text-slate-900 font-bold flex items-center justify-center cursor-pointer shadow-md transition-all scale-105 active:scale-95"
                 title="Interagir / Abrir Baú"
               >
@@ -1412,9 +1420,12 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
                 onMouseDown={() => startVirtualMove('right')}
                 onMouseUp={() => stopVirtualMove('right')}
                 onMouseLeave={() => stopVirtualMove('right')}
+                onTouchStart={(e) => { e.preventDefault(); startVirtualMove('right'); }}
+                onTouchEnd={(e) => { e.preventDefault(); stopVirtualMove('right'); }}
                 className="rpg-control-btn rpg-dpad-arrow w-10 h-10 rounded-xl bg-[#eef2f6] active:bg-[#dfe5eb] text-slate-700 font-bold flex items-center justify-center cursor-pointer shadow-sm transition-colors"
+                title="Mover para Direita"
               >
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-5 h-5 text-gray-800" />
               </button>
 
               <div />
@@ -1422,9 +1433,12 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
                 onMouseDown={() => startVirtualMove('down')}
                 onMouseUp={() => stopVirtualMove('down')}
                 onMouseLeave={() => stopVirtualMove('down')}
+                onTouchStart={(e) => { e.preventDefault(); startVirtualMove('down'); }}
+                onTouchEnd={(e) => { e.preventDefault(); stopVirtualMove('down'); }}
                 className="rpg-control-btn rpg-dpad-arrow w-10 h-10 rounded-xl bg-[#eef2f6] active:bg-[#dfe5eb] text-slate-700 font-bold flex items-center justify-center cursor-pointer shadow-sm transition-colors"
+                title="Mover para Baixo"
               >
-                <ArrowDown className="w-5 h-5" />
+                <ArrowDown className="w-5 h-5 text-gray-800" />
               </button>
               <div />
             </div>
