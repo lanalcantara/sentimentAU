@@ -415,6 +415,11 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
 
   // Handle Touch/Click on Canvas for movement
   const handleCanvasClickOrTouch = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    // Prevent default touch behaviors (like scrolling or simulated mouse events)
+    if (e.type.startsWith('touch') && e.cancelable) {
+      e.preventDefault()
+    }
+
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -439,8 +444,28 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
     const cameraX = pxRef.current < 384 ? 0 : 384
     const cameraY = pyRef.current < 288 ? 0 : 288
 
-    targetXRef.current = clickX + cameraX
-    targetYRef.current = clickY + cameraY
+    let targetX = clickX + cameraX
+    let targetY = clickY + cameraY
+
+    // If clicking near the edges, project target slightly beyond the quadrant boundary
+    // to allow smooth map transitions when moving across quadrants.
+    const EDGE_THRESHOLD = 30
+    const BEYOND_OFFSET = 20
+
+    if (clickX < EDGE_THRESHOLD && cameraX > 0) {
+      targetX = cameraX - BEYOND_OFFSET
+    } else if (clickX > CANVAS_WIDTH - EDGE_THRESHOLD && cameraX === 0) {
+      targetX = cameraX + CANVAS_WIDTH + BEYOND_OFFSET
+    }
+
+    if (clickY < EDGE_THRESHOLD && cameraY > 0) {
+      targetY = cameraY - BEYOND_OFFSET
+    } else if (clickY > CANVAS_HEIGHT - EDGE_THRESHOLD && cameraY === 0) {
+      targetY = cameraY + CANVAS_HEIGHT + BEYOND_OFFSET
+    }
+
+    targetXRef.current = targetX
+    targetYRef.current = targetY
     
     SensoryAudio.playClick()
   }
@@ -1330,53 +1355,33 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
       </CardHeader>
 
       <CardContent className="p-0 flex flex-col lg:flex-row items-center lg:items-start gap-6">
-        {/* Game Canvas Board */}
-        <div className="relative border-4 border-[#8bae96] rounded-2xl overflow-hidden bg-[#F4F6F0] shadow-inner w-full max-w-[384px] shrink-0">
-          <canvas 
-            ref={canvasRef} 
-            width={CANVAS_WIDTH} 
-            height={CANVAS_HEIGHT} 
-            onMouseDown={handleCanvasClickOrTouch}
-            onTouchStart={handleCanvasClickOrTouch}
-            className="block w-full h-auto cursor-pointer"
-            style={{ imageRendering: 'pixelated', touchAction: 'none' }}
-          />
+        {/* Left Column: Game Canvas Board & D-Pad */}
+        <div className="flex flex-col items-center gap-4 w-full max-w-[384px] shrink-0">
+          <div className="relative border-4 border-[#8bae96] rounded-2xl overflow-hidden bg-[#F4F6F0] shadow-inner w-full">
+            <canvas 
+              ref={canvasRef} 
+              width={CANVAS_WIDTH} 
+              height={CANVAS_HEIGHT} 
+              onMouseDown={handleCanvasClickOrTouch}
+              onTouchStart={handleCanvasClickOrTouch}
+              className="block w-full h-auto cursor-pointer"
+              style={{ imageRendering: 'pixelated', touchAction: 'none' }}
+            />
 
-          {/* Floating Action Button (Hand Icon) - Mobile Ergonomic Overlay */}
-          <button 
-            onClick={(e) => {
-              e.stopPropagation() // Prevent click walk trigger
-              handleInteract()
-            }}
-            className="rpg-control-btn absolute bottom-4 right-4 w-12 h-12 rounded-full bg-[#f5c842]/90 hover:bg-[#f5c842] active:scale-95 text-slate-900 font-bold flex items-center justify-center shadow-lg border border-white/40 cursor-pointer transition-all md:hidden z-20"
-            title="Interagir / Abrir Baú"
-          >
-            <span className="text-2xl leading-none">🖐️</span>
-          </button>
-        </div>
-
-        {/* Game Controls Guide & Action Menu */}
-        <div className="w-full flex-1 grid grid-cols-1 gap-4 items-start">
-          <div className="bg-muted p-4 rounded-2xl border border-border space-y-2 text-xs">
-            <h4 className="font-bold text-foreground flex items-center gap-1.5">
-              🎮 Exploração de Mundo Aberto
-            </h4>
-            <div className="space-y-1.5 text-muted-foreground leading-relaxed">
-              <p>Mova-se com as teclas <kbd className="px-1 py-0.5 bg-card rounded border text-[10px]">W</kbd><kbd className="px-1 py-0.5 bg-card rounded border text-[10px]">A</kbd><kbd className="px-1 py-0.5 bg-card rounded border text-[10px]">S</kbd><kbd className="px-1 py-0.5 bg-card rounded border text-[10px]">D</kbd> ou toque diretamente no gramado.</p>
-              <p><strong>Caminhos Desbloqueáveis:</strong></p>
-              <ul className="list-disc list-inside space-y-0.5 pl-1 font-medium">
-                <li className={isNorthLocked ? 'text-red-500' : 'text-green-600'}>
-                  Estrada Norte (Cerejeiras): {isNorthLocked ? '🔒 Bloqueado (Meta: 5 registros ou 3 dias streak)' : '🔓 Liberado!'}
-                </li>
-                <li className={isEastLocked ? 'text-red-500' : 'text-green-600'}>
-                  Estrada Leste (Vale de Outono): {isEastLocked ? '🔒 Bloqueado (Meta: 10 registros ou 5 dias streak)' : '🔓 Liberado!'}
-                </li>
-              </ul>
-              <p className="mt-1">Registros totais no diário: <strong className="text-foreground">{entriesCount} salvos</strong>.</p>
-            </div>
+            {/* Floating Action Button (Hand Icon) - Mobile Ergonomic Overlay */}
+            <button 
+              onClick={(e) => {
+                e.stopPropagation() // Prevent click walk trigger
+                handleInteract()
+              }}
+              className="rpg-control-btn absolute bottom-4 right-4 w-12 h-12 rounded-full bg-[#f5c842]/90 hover:bg-[#f5c842] active:scale-95 text-slate-900 font-bold flex items-center justify-center shadow-lg border border-white/40 cursor-pointer transition-all md:hidden z-20"
+              title="Interagir / Abrir Baú"
+            >
+              <span className="text-2xl leading-none">🖐️</span>
+            </button>
           </div>
 
-          {/* Controls: Virtual D-Pad visible on both Mobile and Desktop */}
+          {/* Controls: Virtual D-Pad visible on both Mobile and Desktop, positioned directly below the map */}
           <div className="flex flex-col items-center pt-2 w-full">
             <span className="text-[10px] text-slate-400 font-bold mb-2 uppercase tracking-wide">Controles do Painel</span>
             <div className="grid grid-cols-3 gap-2 w-32">
@@ -1441,6 +1446,28 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
                 <ArrowDown className="w-5 h-5 text-gray-800" />
               </button>
               <div />
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Game Controls Guide & Action Menu */}
+        <div className="w-full flex-1 grid grid-cols-1 gap-4 items-start">
+          <div className="bg-muted p-4 rounded-2xl border border-border space-y-2 text-xs">
+            <h4 className="font-bold text-foreground flex items-center gap-1.5">
+              🎮 Exploração de Mundo Aberto
+            </h4>
+            <div className="space-y-1.5 text-muted-foreground leading-relaxed">
+              <p>Mova-se com as teclas <kbd className="px-1 py-0.5 bg-card rounded border text-[10px]">W</kbd><kbd className="px-1 py-0.5 bg-card rounded border text-[10px]">A</kbd><kbd className="px-1 py-0.5 bg-card rounded border text-[10px]">S</kbd><kbd className="px-1 py-0.5 bg-card rounded border text-[10px]">D</kbd> ou toque diretamente no gramado.</p>
+              <p><strong>Caminhos Desbloqueáveis:</strong></p>
+              <ul className="list-disc list-inside space-y-0.5 pl-1 font-medium">
+                <li className={isNorthLocked ? 'text-red-500' : 'text-green-600'}>
+                  Estrada Norte (Cerejeiras): {isNorthLocked ? '🔒 Bloqueado (Meta: 5 registros ou 3 dias streak)' : '🔓 Liberado!'}
+                </li>
+                <li className={isEastLocked ? 'text-red-500' : 'text-green-600'}>
+                  Estrada Leste (Vale de Outono): {isEastLocked ? '🔒 Bloqueado (Meta: 10 registros ou 5 dias streak)' : '🔓 Liberado!'}
+                </li>
+              </ul>
+              <p className="mt-1">Registros totais no diário: <strong className="text-foreground">{entriesCount} salvos</strong>.</p>
             </div>
           </div>
         </div>
