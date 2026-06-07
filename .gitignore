@@ -18,3 +18,10 @@ node_modules
 .npmrc
 skills-lock.json
 .env
+
+# PWA service worker files (generated on build)
+public/sw.js
+public/workbox-*.js
+public/sw.js.map
+public/workbox-*.js.map
+
