@@ -284,10 +284,10 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
           return true
         }
         // If either North is locked or East is locked, restrict movement accordingly
-        if (isNorthLocked && y < 288) {
+        if (isNorthLocked && y < 288 + PLAYER_COLLISION_RADIUS) {
           return true
         }
-        if (isEastLocked && y > 288) {
+        if (isEastLocked && y > 288 - PLAYER_COLLISION_RADIUS) {
           return true
         }
       }
@@ -301,7 +301,7 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
         if (!inRoadY) {
           return true
         }
-        if (isEastLocked && x > 384) {
+        if (isEastLocked && x > 384 - PLAYER_COLLISION_RADIUS) {
           return true
         }
       }
@@ -315,7 +315,7 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
         if (!inRoadX) {
           return true
         }
-        if (isNorthLocked && y < 288) {
+        if (isNorthLocked && y < 288 + PLAYER_COLLISION_RADIUS) {
           return true
         }
       }
@@ -434,11 +434,9 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
     const clickX = ((clientX - rect.left) / rect.width) * CANVAS_WIDTH
     const clickY = ((clientY - rect.top) / rect.height) * CANVAS_HEIGHT
 
-    // Calculate camera offset
-    let cameraX = pxRef.current - CANVAS_WIDTH / 2
-    let cameraY = pyRef.current - CANVAS_HEIGHT / 2
-    cameraX = Math.max(0, Math.min(cameraX, MAP_WIDTH - CANVAS_WIDTH))
-    cameraY = Math.max(0, Math.min(cameraY, MAP_HEIGHT - CANVAS_HEIGHT))
+    // Calculate camera offset (quadrant-locked screen transition)
+    const cameraX = pxRef.current < 384 ? 0 : 384
+    const cameraY = pyRef.current < 288 ? 0 : 288
 
     targetXRef.current = clickX + cameraX
     targetYRef.current = clickY + cameraY
@@ -699,11 +697,9 @@ export function GardenRPG({ entriesCount, streak }: { entriesCount: number; stre
     const render = () => {
       updatePhysics()
 
-      // Calculate camera coordinates
-      let cameraX = pxRef.current - CANVAS_WIDTH / 2
-      let cameraY = pyRef.current - CANVAS_HEIGHT / 2
-      cameraX = Math.max(0, Math.min(cameraX, MAP_WIDTH - CANVAS_WIDTH))
-      cameraY = Math.max(0, Math.min(cameraY, MAP_HEIGHT - CANVAS_HEIGHT))
+      // Calculate camera coordinates (quadrant-locked screen transition)
+      const cameraX = pxRef.current < 384 ? 0 : 384
+      const cameraY = pyRef.current < 288 ? 0 : 288
 
       // 1. Draw Ground (Clear screen first, then draw quadrants)
       ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)

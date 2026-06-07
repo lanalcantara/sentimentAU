@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { PenLine, Loader2, Sparkles, Shield, Leaf, Lock, Heart, CheckCircle2, Volume2, VolumeX } from 'lucide-react'
+import { PenLine, Loader2, Sparkles, Shield, Leaf, Lock, Heart, CheckCircle2, Volume2, VolumeX, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useCalmMode } from '@/lib/context/calm-mode-context'
 import type { DiaryEntry, WellbeingStats } from '@/lib/types'
 import { SensoryAudio, type ASMRSoundType } from '@/lib/services/sensory-audio'
@@ -155,6 +155,21 @@ export default function DashboardPage() {
   const [clickSound, setClickSoundState] = useState<ASMRSoundType>('bubble')
 
   const [communityMembers, setCommunityMembers] = useState<any[]>([])
+  const [communityIndex, setCommunityIndex] = useState(0)
+
+  const handleNextCommunity = () => {
+    if (communityIndex + 4 < communityMembers.length) {
+      SensoryAudio.playClick()
+      setCommunityIndex(prev => prev + 1)
+    }
+  }
+
+  const handlePrevCommunity = () => {
+    if (communityIndex > 0) {
+      SensoryAudio.playClick()
+      setCommunityIndex(prev => prev - 1)
+    }
+  }
 
   const handleSendSupport = async (userId: string) => {
     SensoryAudio.playClick()
@@ -1085,6 +1100,9 @@ export default function DashboardPage() {
               </>
             )}
 
+            {/* Botanical RPG Minigame */}
+            <GardenRPG entriesCount={entries.length} streak={calculateStreak(entries)} />
+
             {/* Painel de Apoio da Comunidade */}
             <Card className="bg-card border-0 shadow-sm rounded-3xl p-6 space-y-4">
               <CardHeader className="p-0 pb-1">
@@ -1097,6 +1115,31 @@ export default function DashboardPage() {
                       Membros da comunidade sentimentAU compartilhando sentimentos de forma acolhedora. Envie um abraço tátil!
                     </CardDescription>
                   </div>
+                  {/* Carousel Controls */}
+                  {communityMembers.length > 4 && (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handlePrevCommunity}
+                        disabled={communityIndex === 0}
+                        className="h-8 w-8 rounded-xl border-border bg-card hover:bg-muted text-foreground transition-all duration-300 disabled:opacity-50 cursor-pointer"
+                        title="Anterior"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleNextCommunity}
+                        disabled={communityIndex + 4 >= communityMembers.length}
+                        className="h-8 w-8 rounded-xl border-border bg-card hover:bg-muted text-foreground transition-all duration-300 disabled:opacity-50 cursor-pointer"
+                        title="Próximo"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               
@@ -1110,8 +1153,8 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {communityMembers.map((member) => (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {communityMembers.slice(communityIndex, communityIndex + 4).map((member) => (
                       <Link 
                         href={`/perfil/${member.userId}`}
                         key={`${member.userId}-${member.createdAt}`}
@@ -1124,60 +1167,58 @@ export default function DashboardPage() {
                           <div className="space-y-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <span className="font-bold text-foreground text-sm truncate">{member.username || 'Usuário Anônimo'}</span>
-                              <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider community-sentiment-tag ${
-                                member.sentiment === 'positive' 
-                                  ? 'bg-green-100 text-green-700'
-                                  : member.sentiment === 'negative'
-                                  ? 'bg-red-100 text-red-700'
-                                  : 'bg-blue-100 text-blue-700'
-                              }`}>
-                                {member.emotion}
-                              </span>
                             </div>
-                            <p className="text-xs text-muted-foreground leading-relaxed italic pr-2">
+                            <span className={`inline-block text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider community-sentiment-tag self-start ${
+                              member.sentiment === 'positive' 
+                                ? 'bg-green-100 text-green-700'
+                                : member.sentiment === 'negative'
+                                ? 'bg-red-100 text-red-700'
+                                : 'bg-blue-100 text-blue-700'
+                            }`}>
+                              {member.emotion}
+                            </span>
+                            <p className="text-xs text-muted-foreground leading-relaxed italic pr-2 line-clamp-3">
                               "{member.statusText}"
                             </p>
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between pt-1 border-t border-dashed border-border">
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={(e) => {
-                                e.preventDefault()
-                                SensoryAudio.playClick()
-                                window.location.href = `/perfil/${member.userId}`
-                              }}
-                              className="flex items-center gap-1 py-1 px-2.5 rounded-xl bg-green-50 hover:bg-green-100 text-green-700 text-xs font-bold cursor-pointer community-ver-jardim-button"
-                            >
-                              <Leaf className="w-3.5 h-3.5 mr-0.5" />
-                              <span>Ver Jardim</span>
-                            </button>
+                        <div className="flex flex-col gap-2 pt-2 border-t border-dashed border-border mt-auto">
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault()
+                              SensoryAudio.playClick()
+                              window.location.href = `/perfil/${member.userId}`
+                            }}
+                            className="flex items-center justify-center gap-1 w-full py-1 px-2 rounded-xl bg-green-50 hover:bg-green-100 text-green-700 text-xs font-bold cursor-pointer community-ver-jardim-button"
+                          >
+                            <Leaf className="w-3.5 h-3.5 mr-0.5" />
+                            <span>Ver Jardim</span>
+                          </button>
 
-                            <button
-                              onClick={(e) => {
-                                e.preventDefault()
-                                if (!member.hasHugged) {
-                                  handleSendSupport(member.userId)
-                                }
-                              }}
-                              disabled={member.hasHugged}
-                              className={cn(
-                                "community-support-button flex items-center gap-1.5 py-1 px-3 rounded-xl transition-all text-xs font-bold cursor-pointer",
-                                member.hasHugged
-                                  ? "bg-[#fce7f3] text-[#db2777] cursor-not-allowed opacity-80"
-                                  : "bg-[#eef2f6] hover:bg-primary/10 hover:text-primary text-[#5c6e8c]"
-                              )}
-                            >
-                              <span>{member.hasHugged ? '🫂 Abraço Enviado' : '🫂 Enviar Abraço'}</span>
-                              <span className={cn(
-                                "community-support-count font-extrabold px-1.5 py-0.5 rounded-md text-[9px] shadow-sm",
-                                member.hasHugged ? "bg-white text-[#db2777]" : "bg-card/90 text-primary"
-                              )}>
-                                {member.supportCount}
-                              </span>
-                            </button>
-                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault()
+                              if (!member.hasHugged) {
+                                handleSendSupport(member.userId)
+                              }
+                            }}
+                            disabled={member.hasHugged}
+                            className={cn(
+                              "community-support-button flex items-center justify-center gap-1.5 w-full py-1 px-2 rounded-xl transition-all text-xs font-bold cursor-pointer",
+                              member.hasHugged
+                                ? "bg-[#fce7f3] text-[#db2777] cursor-not-allowed opacity-80"
+                                : "bg-[#eef2f6] hover:bg-primary/10 hover:text-primary text-[#5c6e8c]"
+                            )}
+                          >
+                            <span>{member.hasHugged ? '🫂 Abraço' : '🫂 Enviar Abraço'}</span>
+                            <span className={cn(
+                              "community-support-count font-extrabold px-1.5 py-0.5 rounded-md text-[9px] shadow-sm",
+                              member.hasHugged ? "bg-white text-[#db2777]" : "bg-card/90 text-primary"
+                            )}>
+                              {member.supportCount}
+                            </span>
+                          </button>
                         </div>
                       </Link>
                     ))}
@@ -1185,9 +1226,6 @@ export default function DashboardPage() {
                 )}
               </CardContent>
             </Card>
-
-            {/* Botanical RPG Minigame */}
-            <GardenRPG entriesCount={entries.length} streak={calculateStreak(entries)} />
           </div>
 
           {/* Sidebar Settings Column (Avatar Upload & ASMR Sound Test) */}
